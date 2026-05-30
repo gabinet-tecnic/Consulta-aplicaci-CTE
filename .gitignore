@@ -1,0 +1,34 @@
+# ── SECRETS — mai pujar al repositori ────────────────────────────────────────
+.env
+
+# ── Cache de PDFs (es descarreguen automàticament en arrencar) ────────────────
+cache/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Entorns virtuals ──────────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Sistema operatiu ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/

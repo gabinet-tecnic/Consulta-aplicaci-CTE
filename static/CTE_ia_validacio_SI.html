@@ -1,0 +1,2543 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTE · Anàlisi per IA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:    #0f1117;
+  --ink2:   #3a3d4a;
+  --ink3:   #7c8092;
+  --paper:  #f7f6f2;
+  --card:   #ffffff;
+  --accent: #c8401a;
+  --accent2:#e8956a;
+  --gold:   #c4a44a;
+  --O-bg:#fff8f0;  --O-bd:#e8956a;  --O-tx:#8b3a12;
+  --C-bg:#fffbec;  --C-bd:#c4a44a;  --C-tx:#7a5e10;
+  --N-bg:#f3f4f6;  --N-bd:#d1d5db;  --N-tx:#6b7280;
+  --R-bg:#f0f4ff;  --R-bd:#7c9ed9;  --R-tx:#1e3a6e;
+  --border:#e8e5de;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  color: #fff;
+  padding: 0 40px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.h-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.h-brand .logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  letter-spacing: -.3px;
+}
+.h-brand .sep { color: #444; font-size: 18px; }
+.h-brand .sub {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #888;
+}
+.h-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--accent2);
+  border: 1px solid #333;
+  padding: 3px 10px;
+  border-radius: 2px;
+  letter-spacing: .08em;
+}
+
+/* ── MAIN LAYOUT ── */
+.page { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
+
+/* ── INPUT SECTION ── */
+.input-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0,0,0,.05);
+  margin-bottom: 32px;
+}
+.input-header {
+  padding: 20px 28px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.input-header .num {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.input-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.input-header p {
+  font-size: 12px;
+  color: var(--ink3);
+  margin-top: 2px;
+}
+.input-body { padding: 24px 28px; }
+
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 14px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  resize: vertical;
+  transition: border-color .15s;
+  outline: none;
+}
+textarea:focus { border-color: var(--accent2); }
+textarea::placeholder { color: var(--ink3); }
+
+.examples {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.ex-label { font-size: 11px; color: var(--ink3); font-weight: 500; }
+.ex-chip {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  color: var(--ink2);
+  transition: background .1s, border-color .1s;
+}
+.ex-chip:hover { background: var(--O-bg); border-color: var(--O-bd); color: var(--O-tx); }
+
+.btn-analyze {
+  margin-top: 18px;
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .15s, transform .1s;
+}
+.btn-analyze:hover:not(:disabled) { background: #a8340f; transform: translateY(-1px); }
+.btn-analyze:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* ── LOADING ── */
+.loading {
+  display: none;
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--ink3);
+}
+.loading.show { display: block; }
+.loading-dots span {
+  display: inline-block;
+  width: 8px; height: 8px;
+  background: var(--accent2);
+  border-radius: 50%;
+  margin: 0 3px;
+  animation: bounce 1.2s infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: .2s; }
+.loading-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce {
+  0%,80%,100% { transform: scale(.6); opacity:.4; }
+  40% { transform: scale(1); opacity:1; }
+}
+.loading p { margin-top: 14px; font-size: 13px; }
+
+/* ── INTERPRETATION CARD ── */
+.interp-card {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.05);
+}
+.interp-card.show { display: block; }
+.interp-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 10px;
+}
+.interp-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink2);
+  margin-bottom: 14px;
+}
+.interp-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.act-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  background: var(--O-bg);
+  border: 1px solid var(--O-bd);
+  color: var(--O-tx);
+  border-radius: 20px;
+}
+
+/* ── SUMMARY BAR ── */
+.sum-bar {
+  display: none;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 10px;
+  padding: 14px 24px;
+  margin-bottom: 20px;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sum-bar.show { display: flex; }
+.sum-bar .label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #888; }
+.sum-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.sum-pill.O { background: var(--O-bg); color: var(--O-tx); }
+.sum-pill.C { background: var(--C-bg); color: var(--C-tx); }
+.sum-pill.N { background: #222; color: #888; }
+.sum-sep { width: 1px; height: 16px; background: #333; }
+
+/* ── DB CARDS ── */
+.results { display: none; }
+.results.show { display: block; }
+
+.db-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  transition: box-shadow .15s;
+}
+.db-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+.db-card.status-N { opacity: .6; }
+
+.db-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  background: #fafafa;
+  border-bottom: 1px solid transparent;
+  transition: background .1s;
+}
+.db-card.open .db-head { border-bottom-color: var(--border); background: #f5f5f5; }
+.db-head:hover { background: #f0f0f0; }
+
+.db-head-l { display: flex; align-items: center; gap: 14px; }
+.db-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  min-width: 72px;
+}
+.db-name { font-size: 13px; font-weight: 600; color: var(--ink2); }
+.db-head-r { display: flex; align-items: center; gap: 10px; }
+.arrow { color: var(--ink3); transition: transform .2s; font-size: 12px; }
+.db-card.open .arrow { transform: rotate(180deg); }
+
+.db-body { display: none; }
+.db-card.open .db-body { display: block; }
+
+.note-box {
+  margin: 14px 20px;
+  padding: 10px 14px;
+  background: #fffbec;
+  border-left: 3px solid var(--gold);
+  border-radius: 4px;
+  font-size: 11.5px;
+  color: #5a4a10;
+  line-height: 1.65;
+}
+
+/* ── TABLE ── */
+.sub-table { width: 100%; border-collapse: collapse; }
+.sub-table th {
+  padding: 8px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  background: #f8f8f8;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.sub-table th:first-child { width: 150px; }
+.sub-table th:nth-child(2) { width: 110px; }
+.sub-table td { padding: 11px 14px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+.sub-table tr:last-child td { border-bottom: none; }
+.sub-table tr.row-N td { opacity: .5; }
+
+.sub-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.sub-name { font-size: 11px; color: var(--ink3); margin-top: 2px; line-height: 1.3; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.badge.O { background:var(--O-bg); color:var(--O-tx); border-color:var(--O-bd); }
+.badge.C { background:var(--C-bg); color:var(--C-tx); border-color:var(--C-bd); }
+.badge.N { background:var(--N-bg); color:var(--N-tx); border-color:var(--N-bd); }
+.badge.R { background:var(--R-bg); color:var(--R-tx); border-color:var(--R-bd); }
+
+.reasons { display: flex; flex-direction: column; gap: 8px; }
+.reason-item { display: flex; gap: 10px; align-items: flex-start; }
+.act-chip {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  color: var(--ink2);
+  max-width: 130px;
+  line-height: 1.4;
+}
+.reason-text { font-size: 11.5px; color: var(--ink2); line-height: 1.6; }
+.no-reason { font-size: 11px; color: var(--ink3); font-style: italic; }
+
+/* ── ERROR ── */
+.error-box {
+  display: none;
+  background: #fff0f0;
+  border: 1px solid #f5c0c0;
+  border-radius: 8px;
+  padding: 14px 20px;
+  color: #8b1a1a;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.error-box.show { display: block; }
+
+/* ── FITXA BUTTON ── */
+.fitxa-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin: 0 20px 16px;
+  padding: 9px 18px;
+  background: var(--R-bg); border: 1.5px solid var(--R-bd);
+  border-radius: 6px; color: var(--R-tx);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: background .12s;
+}
+.fitxa-btn:hover { background: #d6e8ff; }
+.fitxa-btn svg { flex-shrink: 0; }
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.65); z-index: 1000;
+  overflow-y: auto; padding: 20px 16px;
+}
+.modal-overlay.open { display: block; }
+.modal-container {
+  max-width: 940px; margin: 0 auto;
+  background: #fff; border-radius: 10px;
+  overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,.35);
+}
+
+/* Modal header */
+.modal-top {
+  background: var(--ink); color: #fff;
+  padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-top-l h2 { font-size: 15px; font-weight: 700; }
+.modal-top-l p { font-size: 11px; color: #aaa; margin-top: 2px; }
+.modal-top-r { display: flex; gap: 8px; }
+.mbtn {
+  padding: 7px 14px; font-size: 11px; font-weight: 600;
+  border-radius: 5px; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: opacity .1s;
+}
+.mbtn:hover { opacity: .82; }
+.mbtn-print { background: #fff; color: var(--ink); }
+.mbtn-close { background: #3a3d4a; color: #fff; }
+
+/* Fitxa content */
+.fitxa-body { padding: 24px; }
+
+/* Project data grid */
+.proj-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px 20px;
+  background: #f8f8f6; border: 1px solid var(--border);
+  border-radius: 6px; padding: 14px 18px; margin-bottom: 18px;
+}
+.pf-row { display: flex; flex-direction: column; gap: 3px; }
+.pf-row.wide { grid-column: span 2; }
+.pf-label {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--ink3);
+}
+.pf-inp {
+  border: none; border-bottom: 1.5px solid var(--border);
+  padding: 4px 0; font-size: 12px;
+  font-family: 'DM Sans', sans-serif; color: var(--ink);
+  background: transparent; outline: none;
+}
+.pf-inp:focus { border-bottom-color: var(--accent2); }
+.pf-sel {
+  border: none; border-bottom: 1.5px solid var(--border);
+  padding: 4px 0; font-size: 12px;
+  font-family: 'DM Sans', sans-serif; color: var(--ink);
+  background: transparent; outline: none; cursor: pointer;
+}
+
+/* Tipologia tabs */
+.tip-tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+.tip-tab {
+  padding: 6px 16px;
+  border: 1.5px solid var(--border); border-radius: 20px;
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  background: #fff; color: var(--ink2);
+  font-family: 'DM Sans', sans-serif; transition: all .12s;
+}
+.tip-tab.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* SI sections */
+.si-section {
+  margin-bottom: 14px; border: 1px solid var(--border);
+  border-radius: 6px; overflow: hidden;
+}
+.si-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; background: #f3f4f6;
+  border-bottom: 1px solid var(--border);
+}
+.si-pill {
+  font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600;
+  background: var(--ink); color: #fff; padding: 2px 8px; border-radius: 3px;
+}
+.si-title { font-size: 13px; font-weight: 700; color: var(--ink); }
+.si-ref { font-size: 10px; color: var(--ink3); margin-left: auto; font-family: 'DM Mono', monospace; }
+
+/* Row table */
+.ftable { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.ftable th {
+  padding: 7px 10px; font-size: 9.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: var(--ink3); background: #fafaf8;
+  border-bottom: 1px solid #efefef; text-align: left;
+}
+.ftable th.th-art  { width: 88px; }
+.ftable th.th-req  { width: 195px; }
+.ftable th.th-proj { width: 155px; }
+.ftable th.th-cb   { width: 64px; text-align: center; }
+.ftable td {
+  padding: 9px 10px; border-bottom: 1px solid #f3f3f3; vertical-align: top;
+}
+.ftable tr:last-child td { border-bottom: none; }
+.ftable tr.f-hide { display: none; }
+.ftable tr.f-na td { background: #fafafa; color: var(--ink3); font-style: italic; }
+
+.ex-text { line-height: 1.55; color: var(--ink2); }
+.ex-note { font-size: 10.5px; color: var(--ink3); margin-top: 3px; line-height: 1.4; }
+.art-tag  { font-family: 'DM Mono', monospace; font-size: 10px; color: #888; }
+.req-val  {
+  font-size: 11px; background: #f2f4f8;
+  border-radius: 3px; padding: 3px 7px; line-height: 1.55; color: #333;
+}
+.proj-inp {
+  width: 100%; border: none; border-bottom: 1.5px solid var(--border);
+  padding: 3px 0; font-size: 11px;
+  font-family: 'DM Sans', sans-serif; background: transparent;
+  color: var(--ink); outline: none;
+}
+.proj-inp:focus { border-bottom-color: var(--accent2); }
+.cb-wrap { display: flex; justify-content: center; }
+.cb-wrap input[type=checkbox] {
+  width: 15px; height: 15px; cursor: pointer; accent-color: var(--accent);
+}
+
+/* Section NA note */
+.sec-na {
+  padding: 10px 14px; font-size: 11px;
+  color: var(--ink3); font-style: italic; background: #fafaf8;
+}
+
+/* Fitxa footer */
+.fitxa-foot {
+  border-top: 1px solid var(--border); padding: 14px 18px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px;
+  font-size: 11px; color: var(--ink3);
+}
+.fitxa-foot .sign-line {
+  border-top: 1px solid #ccc; margin-top: 28px; padding-top: 4px;
+  font-size: 10px; text-align: center;
+}
+
+/* ── PRINT ── */
+@media print {
+  body > *:not(.modal-overlay) { display: none !important; }
+  .modal-overlay { position: static; background: none; padding: 0; display: block !important; }
+  .modal-container { box-shadow: none; border-radius: 0; }
+  .modal-top-r, .tip-tabs { display: none; }
+  .modal-top { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .si-head   { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .req-val   { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .ftable tr.f-hide { display: none; }
+  @page { margin: 15mm; size: A4; }
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 11px;
+  color: var(--ink3);
+  border-top: 1px solid var(--border);
+  margin-top: 48px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-brand">
+    <span class="logo">CTE · IA</span>
+    <span class="sep">|</span>
+    <span class="sub">Anàlisi automàtica de Documents Bàsics</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="h-badge">Claude API</span>
+    <span id="usageInfo" style="font-family:'DM Mono',monospace;font-size:10px;color:#666"></span>
+    <span id="serverStatus" style="font-size:10px;cursor:pointer" onclick="checkServer()" title="Clica per verificar connexió servidor">⬤ —</span>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- INPUT -->
+  <div class="input-section">
+    <div class="input-header">
+      <div class="num">1</div>
+      <div>
+        <h2>Descriu l'actuació en llenguatge natural</h2>
+        <p>L'IA interpretarà la descripció i determinarà quins Documents Bàsics del CTE apliquen</p>
+      </div>
+    </div>
+    <div class="input-body">
+      <textarea id="desc" placeholder="Exemple: Reforma integral d'un habitatge dels anys 70 amb substitució de finestres, aïllament de façana per l'exterior (SATE), nova instal·lació de calefacció per bomba de calor i reforma del bany principal amb canvi de sanitaris i gresite..."></textarea>
+
+      <div class="examples">
+        <span class="ex-label">Exemples ràpids:</span>
+        <span class="ex-chip" onclick="setEx(0)">Canvi de finestres i SATE</span>
+        <span class="ex-chip" onclick="setEx(1)">Obra nova habitatge unifamiliar</span>
+        <span class="ex-chip" onclick="setEx(2)">Reforma coberta plana + fotovoltaica</span>
+        <span class="ex-chip" onclick="setEx(3)">Divisió d'habitatge en dos</span>
+        <span class="ex-chip" onclick="setEx(4)">Reforma integral amb canvi d'ús a oficines</span>
+      </div>
+
+      <button class="btn-analyze" id="btnAnalyze" onclick="analyze()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Analitzar amb IA
+      </button>
+    </div>
+  </div>
+
+  <!-- ZONA DE RISC / FIABILITAT -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+
+    <!-- Font: PDF oficial -->
+    <div style="background:#f0f4ff;border:1px solid #7c9ed9;border-radius:10px;padding:16px 18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:16px">📄</span>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1e3a6e">Font: PDF oficial vigent</span>
+      </div>
+      <div style="font-size:11.5px;line-height:1.7;color:#1e3a6e">
+        Els PDFs del CTE es descarreguen automàticament des de <strong>codigotecnico.org</strong> — la web oficial del Ministeri — i es comproven cada 24h. <strong>La informació sempre correspon a la versió vigent publicada.</strong>
+      </div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">
+        <div style="font-size:10.5px;color:#3a5a8e;display:flex;align-items:center;gap:6px"><span style="color:#2d8a4e;font-weight:700">✓</span> DB-SI, SUA, HE, HS, HR, SE</div>
+        <div style="font-size:10.5px;color:#3a5a8e;display:flex;align-items:center;gap:6px"><span style="color:#2d8a4e;font-weight:700">✓</span> Actualització automàtica si el Ministeri publica nova versió</div>
+        <div style="font-size:10.5px;color:#3a5a8e;display:flex;align-items:center;gap:6px"><span style="color:#c4a44a;font-weight:700">!</span> No inclou normativa autonòmica catalana (HNEC, DAC…)</div>
+      </div>
+    </div>
+
+    <!-- Zona de risc -->
+    <div style="background:#fff8f5;border:1px solid #e8956a;border-radius:10px;padding:16px 18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:16px">⚠️</span>
+        <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8b3a12">Zona de risc — llegir abans d'usar</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;line-height:1.55;display:flex;gap:8px;align-items:flex-start">
+          <span style="color:#2d8a4e;font-weight:700;flex-shrink:0;margin-top:1px">✓</span>
+          <span style="color:#5a2a0a"><strong>Alta fiabilitat:</strong> valors tabulats (transmitàncies, cabals, RF, dB) codificats directament dels PDFs oficials.</span>
+        </div>
+        <div style="font-size:11px;line-height:1.55;display:flex;gap:8px;align-items:flex-start">
+          <span style="color:#c4a44a;font-weight:700;flex-shrink:0;margin-top:1px">!</span>
+          <span style="color:#5a2a0a"><strong>Fiabilitat moderada:</strong> detecció de quins DB apliquen i citació d'articles del PDF (pot haver-hi falsos positius/negatius).</span>
+        </div>
+        <div style="font-size:11px;line-height:1.55;display:flex;gap:8px;align-items:flex-start">
+          <span style="color:#c8401a;font-weight:700;flex-shrink:0;margin-top:1px">✗</span>
+          <span style="color:#5a2a0a"><strong>No substitueix el tècnic:</strong> casos límit, usos mixtos, edificis protegits, interacció entre DB i criteris discrecionals requereixen judici professional.</span>
+        </div>
+        <div style="margin-top:4px;padding:7px 10px;background:#fff0eb;border-radius:5px;font-size:10.5px;color:#8b3a12;line-height:1.5">
+          Tracta-ho com un <strong>esborrany de check-list</strong>. Verifica sempre els valors crítics contra el PDF oficial abans de signar.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <p>Analitzant la descripció i aplicant les regles del CTE…</p>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- INTERPRETATION -->
+  <div class="interp-card" id="interpCard">
+    <div class="interp-title">🤖 Interpretació de la IA</div>
+    <div class="interp-desc" id="interpDesc"></div>
+    <div class="interp-acts" id="interpActs"></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="sum-bar" id="sumBar"></div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results"></div>
+
+</div>
+
+<!-- ── MODAL FITXA DB-SI ── -->
+<div class="modal-overlay" id="fitxaModal">
+  <div class="modal-container">
+    <div class="modal-top">
+      <div class="modal-top-l">
+        <h2 id="fitxaTitle">Fitxa Justificativa · DB-SI · Seguretat en cas d'Incendi</h2>
+        <p>Basada en el model OCT del COAC · Adaptar a la tipologia i les actuacions del projecte</p>
+      </div>
+      <div class="modal-top-r">
+        <button class="mbtn" id="btnValidateIA"
+          style="background:#1e3a6e;color:#fff"
+          onclick="runValidateSI()"
+          title="Valida el compliment amb el PDF oficial del CTE i cita els articles exactes">
+          🔍 Validar amb PDF oficial
+        </button>
+        <button class="mbtn mbtn-print" onclick="printFitxa()">🖨 Imprimir / PDF</button>
+        <button class="mbtn mbtn-close" onclick="closeFitxaModal()">✕ Tancar</button>
+      </div>
+    </div>
+    <div class="fitxa-body" id="fitxaBody">
+      <!-- Contingut generat per JS -->
+    </div>
+  </div>
+</div>
+
+<footer>
+  Eina d'orientació tècnica · No substitueix la consulta a un professional habilitat ni als textos oficials del CTE
+</footer>
+
+<script>
+// ── EXEMPLES ──────────────────────────────────────────────────────────────────
+const EXAMPLES = [
+  'Substitució de finestres per unitats de doble vidre i aïllament de façana per l\'exterior amb sistema SATE (EPS + morter de revestiment). Habitatge en edifici plurifamiliar dels anys 80.',
+  'Construcció d\'habitatge unifamiliar aïllat de nova planta, dues plantes sobre rasant i soterrani, amb estructura de formigó armat, coberta plana invertida i instal·lació de plaques fotovoltaiques.',
+  'Reforma de coberta plana transitable d\'un edifici plurifamiliar: substitució de la impermeabilització, nou aïllament tèrmic i instal·lació de plaques fotovoltaiques per autoconsum.',
+  'Divisió d\'un habitatge gran en dos habitatges independents amb obra de distribució interior, nous banys i cuines, i adequació de les instal·lacions de fontaneria i electricitat.',
+  'Reforma integral d\'un local comercial en planta baixa per canvi d\'ús a oficines: nova distribució interior, fals sostre, paviment, instal·lació de climatització i accessibilitat PMR.',
+];
+
+function setEx(i) {
+  document.getElementById('desc').value = EXAMPLES[i];
+}
+
+// ── DADES CTE ─────────────────────────────────────────────────────────────────
+const ACTIONS = [
+  {id:'est_estructura', cat:'Estructura i fonaments', label:'Modificació d\'elements estructurals', desc:'Pilars, murs portants, bigues, forjats, lloses'},
+  {id:'est_fonaments',  cat:'Estructura i fonaments', label:'Actuació en fonaments',                desc:'Nous fonaments, reforç, micropilots, murs de contenció'},
+  {id:'est_coberta',    cat:'Estructura i fonaments', label:'Estructura de coberta',                desc:'Biguetes, corretges, encavallades, llosa coberta'},
+  {id:'est_nova',       cat:'Estructura i fonaments', label:'Obra nova o ampliació',               desc:'Garatge, traster, porxo nou o ampliació de l\'edifici'},
+  {id:'cob_imp',        cat:'Coberta', label:'Impermeabilització i acabat de coberta',    desc:'Làmines, teules, planxes — sense tocar estructura'},
+  {id:'cob_aillament',  cat:'Coberta', label:'Addició / substitució aïllament de coberta', desc:'Aïllament tèrmic sobre o sota coberta'},
+  {id:'cob_transitable',cat:'Coberta', label:'Coberta transitable, terrassa o balcó',     desc:'Nova coberta transitable o reforma de terrassa/balcó'},
+  {id:'fac_revestiment',cat:'Façana i tancaments exteriors', label:'Revestiment exterior de façana',        desc:'Arrebossat, aplacat, pintura — sense aïllament ni estructura'},
+  {id:'fac_sate',       cat:'Façana i tancaments exteriors', label:'Aïllament tèrmic exterior (SATE)',      desc:'Sistema d\'aïllament compòsit per l\'exterior'},
+  {id:'fac_aillament_int',cat:'Façana i tancaments exteriors',label:'Aïllament tèrmic façana per l\'interior',desc:'Trasdossat autoportant o fixat a la fulla interior'},
+  {id:'fac_terreny',    cat:'Façana i tancaments exteriors', label:'Murs o sòls en contacte amb el terreny',desc:'Soterrani, murs de contenció, solera en contacte amb terra'},
+  {id:'fus_finestres',  cat:'Fusteries exteriors', label:'Substitució de finestres (marcs i/o vidres)', desc:'Canvi de finestres, balconeres o lluernes exteriors'},
+  {id:'fus_portes_ext', cat:'Fusteries exteriors', label:'Substitució de portes exteriors',             desc:'Portes d\'accés edifici, portes de garatge, portes balconeres'},
+  {id:'int_distribucio',cat:'Interior — Distribució', label:'Modificació de distribució interior',     desc:'Enderroc o construcció d\'envans, nova distribució de l\'espai'},
+  {id:'int_bany_cuina', cat:'Interior — Distribució', label:'Reforma de bany, cuina o sanitaris',      desc:'Canvi d\'aparells, mobles, alicatats, instal·lació sanitària'},
+  {id:'int_revestiments',cat:'Interior — Distribució',label:'Canvi de paviments i revestiments interiors',desc:'Nous sòls, alicatats, falsos sostres'},
+  {id:'ins_fontaneria', cat:'Instal·lacions', label:'Modificació / ampliació instal·lació fontaneria',      desc:'Nova instal·lació d\'AFS/ACS o ampliació d\'aparells receptors'},
+  {id:'ins_evacuacio',  cat:'Instal·lacions', label:'Modificació / ampliació evacuació d\'aigues',          desc:'Nous baixants, col·lectors, arquetes, ampliació de la xarxa'},
+  {id:'ins_climatitzacio',cat:'Instal·lacions',label:'Nova / modificació instal·lació tèrmica (RITE)',      desc:'Caldera, bomba de calor, splits, fancoils, radiadors'},
+  {id:'ins_iluminacio', cat:'Instal·lacions', label:'Modificació instal·lació d\'il·luminació',            desc:'Nou sistema en zones comunes o habitatge'},
+  {id:'ins_solar_acs',  cat:'Instal·lacions', label:'Instal·lació solar tèrmica (captadors ACS)',          desc:'Captadors solars sobre coberta per a producció d\'ACS'},
+  {id:'ins_fotovoltaic',cat:'Instal·lacions', label:'Instal·lació fotovoltaica',                           desc:'Panells solars per a autoconsum o injecció a xarxa'},
+  {id:'ins_ev',         cat:'Instal·lacions', label:'Infraestructura recàrrega vehicles elèctrics',        desc:'Punts de recàrrega VE en aparcament'},
+  {id:'ins_incendis',   cat:'Instal·lacions', label:'Instal·lació protecció contra incendis (PCI)',        desc:'Detectors, extintors, BIE, ruixadors, senyalització, alarma'},
+  {id:'us_canvi',    cat:'Canvi d\'ús i ocupació', label:'Canvi d\'ús total o parcial',        desc:'Modificació de l\'ús principal: residencial, comercial, oficines…'},
+  {id:'us_ocupacio', cat:'Canvi d\'ús i ocupació', label:'Divisió o unió d\'habitatges',      desc:'Canvi del nombre d\'habitatges (divisió, unió, segregació)'},
+  {id:'zc_escales',        cat:'Zones comunes', label:'Reforma d\'escales o circulació comunes', desc:'Escales, passadissos, vestíbuls, zones comunes'},
+  {id:'zc_accessibilitat', cat:'Zones comunes', label:'Millora d\'accessibilitat / ascensor',   desc:'Nou ascensor, rampes, adequació PMR'},
+  {id:'zc_aparcament',     cat:'Zones comunes', label:'Reforma o nou aparcament col·lectiu',    desc:'Aparcament d\'ús col·lectiu'},
+];
+
+const DB = [
+  {
+    code:'DB-SE', name:'Seguretat Estructural',
+    note:'CTE Part I art. 2. S\'aplica quan s\'actua en l\'estructura existent. Cal indicar en el projecte si la intervenció inclou o no actuacions en l\'estructura preexistent.',
+    secs:[
+      { code:'SE-AE', name:'Accions en l\'edificació', trigs:[
+        {a:'est_estructura', s:'O', t:'La modificació d\'elements estructurals requereix justificar totes les accions (pes propi, sobrecàrregues, vent, sisme, neu) sobre els elements nous o modificats.'},
+        {a:'est_fonaments',  s:'O', t:'Cal justificar les accions transmeses a les fonamentacions i verificar que la capacitat portant existent no es supera.'},
+        {a:'est_coberta',    s:'O', t:'Cal justificar les accions sobre l\'estructura de coberta: pes propi, neu, vent i sobrecàrrega de manteniment.'},
+        {a:'est_nova',       s:'O', t:'Tota obra nova o ampliació requereix justificar la totalitat de les accions sobre la nova estructura.'},
+        {a:'cob_aillament',  s:'C', t:'Si l\'aïllament afegit suposa un increment de pes mort sobre l\'estructura existent, cal revisar si les accions superen la capacitat dels elements portants.'},
+        {a:'cob_transitable',s:'C', t:'Una coberta transitable implica una sobrecàrrega d\'ús que pot no estar prevista en l\'estructura original. Cal verificar.'},
+        {a:'fac_sate',       s:'C', t:'El SATE pot suposar noves càrregues sobre la façana o els ancoratges a l\'estructura. Verificar si el pes afegit és significatiu.'},
+        {a:'ins_solar_acs',  s:'C', t:'Els captadors solars generen noves càrregues puntuals i distribuïdes sobre l\'estructura de coberta.'},
+        {a:'ins_fotovoltaic',s:'C', t:'Els panells fotovoltaics generen noves càrregues sobre l\'estructura de coberta. Cal verificar.'},
+      ]},
+      { code:'SE-C', name:'Fonaments', trigs:[
+        {a:'est_fonaments',  s:'O', t:'Actuació directa sobre fonamentacions existents. Cal justificar la capacitat portant i els assentaments admissibles.'},
+        {a:'est_estructura', s:'C', t:'Si la modificació estructural incrementa les càrregues sobre les fonamentacions existents, cal revisar la seva capacitat.'},
+        {a:'est_nova',       s:'C', t:'Si l\'ampliació implica noves fonamentacions o incrementa les càrregues sobre les existents.'},
+        {a:'fac_terreny',    s:'C', t:'Murs de contenció o altres elements en contacte amb terreny poden requerir verificació de la fonamentació.'},
+      ]},
+      { code:'SE-A', name:'Acer', trigs:[
+        {a:'est_estructura', s:'C', t:'Aplica si s\'utilitzen perfils o elements d\'acer en el reforç o modificació de l\'estructura existent.'},
+        {a:'est_coberta',    s:'C', t:'Aplica si l\'estructura de coberta és o s\'executa amb perfils d\'acer.'},
+        {a:'est_nova',       s:'C', t:'Aplica si la nova estructura incorpora elements d\'acer.'},
+      ]},
+      { code:'SE-F', name:'Fàbrica', trigs:[
+        {a:'est_estructura', s:'C', t:'Aplica si s\'actua sobre estructura existent de maçoneria o es realitzen reforços amb elements de fàbrica.'},
+      ]},
+      { code:'SE-M', name:'Fusta', trigs:[
+        {a:'est_coberta',    s:'C', t:'Aplica si l\'estructura de coberta és de fusta (encavallades, biguetes de fusta, etc.).'},
+        {a:'est_estructura', s:'C', t:'Aplica si s\'utilitzen elements de fusta estructural en el reforç o substitució d\'elements existents.'},
+      ]},
+    ]
+  },
+  {
+    code:'DB-SI', name:'Seguretat en cas d\'Incendi',
+    note:'CTE Part I art. 2. En reformes parcials, s\'aplica a les parts reformades i es pot exigir als elements preexistents afectats. En canvis d\'ús, s\'aplica íntegrament al nou ús.',
+    secs:[
+      { code:'SI-1', name:'Propagació interior', trigs:[
+        {a:'int_distribucio', s:'O', t:'La modificació de la distribució interior pot alterar la compartimentació en sectors d\'incendi existent. Cal verificar que els nous elements separadors mantenen la resistència al foc exigida (EI-60, EI-120 en funció de l\'ús i la superfície).'},
+        {a:'us_canvi',        s:'O', t:'Un canvi d\'ús modifica els requisits de compartimentació en sectors d\'incendi (superfície màxima, resistència al foc EI dels elements separadors).'},
+        {a:'us_ocupacio',     s:'O', t:'La divisió o unió d\'habitatges crea nous sectors d\'incendi. Els elements separadors entre habitatges han de tenir EI-60 com a mínim.'},
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de justificar íntegrament la compartimentació en sectors d\'incendi i la propagació interior.'},
+        {a:'zc_aparcament',   s:'O', t:'L\'aparcament col·lectiu és un sector d\'incendi independent. Cal justificar la resistència al foc dels elements separadors (EI-120 habitualment) i les condicions de ventilació.'},
+      ]},
+      { code:'SI-2', name:'Propagació exterior', trigs:[
+        {a:'fac_sate',        s:'C', t:'El SATE modifica les condicions de la façana. Cal verificar la classe de reacció al foc del material d\'aïllament (EPS, MW) en funció de l\'alçada de l\'edifici (Euroclasses B-s3d0 per a >28m).'},
+        {a:'fac_revestiment', s:'C', t:'El nou revestiment de façana ha de complir les condicions de reacció al foc establertes a SI-2 en funció de l\'alçada de l\'edifici.'},
+        {a:'cob_imp',         s:'C', t:'Els materials de coberta han de complir les condicions de propagació exterior i les distàncies mínimes entre edificis.'},
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de justificar la propagació exterior: distàncies entre buits, resistència al foc de la façana i la coberta.'},
+      ]},
+      { code:'SI-3', name:'Evacuació d\'ocupants', trigs:[
+        {a:'int_distribucio', s:'C', t:'La modificació de la distribució pot afectar els recorreguts d\'evacuació, el nombre de sortides o les dimensions dels passadissos i escales. Cal verificar que es mantenen les condicions d\'evacuació.'},
+        {a:'us_canvi',        s:'O', t:'El canvi d\'ús modifica l\'ocupació de càlcul i, per tant, els recorreguts d\'evacuació, nombre de sortides i senyalització. Cal justificar íntegrament SI-3.'},
+        {a:'zc_escales',      s:'O', t:'La reforma d\'escales afecta directament els recorreguts d\'evacuació. Cal justificar les dimensions de l\'escala protegida o especialment protegida si escau.'},
+        {a:'zc_accessibilitat',s:'C', t:'La millora d\'accessibilitat pot modificar els recorreguts d\'evacuació. Cal verificar la compatibilitat amb les condicions d\'evacuació de SI-3.'},
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de justificar les condicions d\'evacuació: ocupació, recorreguts, dimensions i senyalització.'},
+        {a:'zc_aparcament',   s:'O', t:'L\'aparcament col·lectiu té condicions específiques d\'evacuació (recorreguts màxims, sortides, escales). Cal justificar SI-3 íntegrament.'},
+      ]},
+      { code:'SI-4', name:'Instal·lacions de protecció', trigs:[
+        {a:'ins_incendis',    s:'O', t:'La instal·lació de PCI (detectors, BIE, extintors, ruixadors) ha de complir SI-4: tipus d\'instal·lació en funció de l\'ús i la superfície, distàncies de cobertura.'},
+        {a:'us_canvi',        s:'O', t:'El canvi d\'ús pot requerir noves instal·lacions de protecció contra incendis (ruixadors, BIE, detectors) que no existien per a l\'ús anterior.'},
+        {a:'zc_aparcament',   s:'O', t:'L\'aparcament col·lectiu requereix instal·lació automàtica d\'extinció (a partir de cert nombre de places o superfície) i detectors de CO.'},
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de justificar les instal·lacions de protecció contra incendis necessàries en funció de l\'ús i la superfície.'},
+      ]},
+      { code:'SI-5', name:'Intervenció dels bombers', trigs:[
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de garantir l\'accessibilitat dels bombers: façana accessible, espai d\'aproximació, accés a l\'edifici i a cada planta.'},
+        {a:'us_canvi',        s:'C', t:'El canvi d\'ús pot modificar els requeriments d\'accessibilitat per als bombers en funció de l\'alçada d\'evacuació i l\'ocupació del nou ús.'},
+      ]},
+      { code:'SI-6', name:'Resistència al foc', trigs:[
+        {a:'est_estructura',  s:'O', t:'La modificació d\'elements estructurals ha de mantenir o millorar la resistència al foc exigida (R60, R90, R120 en funció de l\'ús i l\'alçada).'},
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de justificar la resistència al foc de l\'estructura en funció de l\'ús, el nombre de plantes i la càrrega de foc.'},
+        {a:'us_canvi',        s:'O', t:'El canvi d\'ús pot modificar la resistència al foc exigida als elements estructurals. Cal verificar que l\'estructura existent compleix els nous requisits.'},
+      ]},
+    ]
+  },
+  {
+    code:'DB-SUA', name:'Seguretat d\'Utilització i Accessibilitat',
+    note:'En reformes parcials, s\'aplica a les parts reformades. En canvis d\'ús i obra nova, s\'aplica íntegrament. L\'accessibilitat (SUA-9) s\'aplica en ajustos raonables en edificis existents.',
+    secs:[
+      { code:'SUA-1', name:'Seguretat enfront caigudes', trigs:[
+        {a:'int_revestiments',s:'O', t:'El canvi de paviment ha de garantir la resistència al lliscament exigida per SUA-1 en funció de la localització (Rd ≥ 35 en zones interiors humides, Rd ≥ 45 en zones exteriors).'},
+        {a:'cob_transitable', s:'O', t:'Les terrasses i balcons transitable han de complir SUA-1: paviment antilliscant, protecció de forats i desnivells, barana mínima d\'1m.'},
+        {a:'zc_escales',      s:'O', t:'La reforma d\'escales ha de justificar: amplada mínima (1,00m), dimensions dels graons (tabica ≤ 18,5cm, empremta ≥ 28cm), il·luminació i barana.'},
+        {a:'int_distribucio', s:'C', t:'La modificació de la distribució pot generar nous desnivells, escales o rampes que han de complir SUA-1.'},
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de justificar la seguretat enfront caigudes: paviments, escales, rampes, baranilles i protecció de forats.'},
+      ]},
+      { code:'SUA-2', name:'Seguretat enfront impactes i enganxades', trigs:[
+        {a:'fus_finestres',   s:'O', t:'Les noves fusteries interiors i les portes de vidre han de complir SUA-2: vidre de seguretat (laminar o temperat) en superfícies accessibles, alçada mínima de les parts fixes.'},
+        {a:'int_distribucio', s:'C', t:'Els nous elements de distribució (portes, panells de vidre) han de complir les condicions d\'impacte i enganxades de SUA-2.'},
+      ]},
+      { code:'SUA-4', name:'Seguretat enfront il·luminació inadequada', trigs:[
+        {a:'ins_iluminacio',  s:'O', t:'La nova instal·lació d\'il·luminació ha de complir els nivells mínims de SUA-4: 100 lux en zones d\'ús general interiors, 20 lux en exterior.'},
+        {a:'zc_escales',      s:'O', t:'Les escales comunes han de tenir il·luminació mínima de 100 lux i il·luminació d\'emergència de 5 lux.'},
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de justificar la il·luminació de tots els espais d\'ús i les zones de circulació.'},
+      ]},
+      { code:'SUA-8', name:'Seguretat enfront acció del llamp', trigs:[
+        {a:'est_nova',        s:'O', t:'Tota obra nova ha de calcular el risc de llamp i, si supera el valor límit, instal·lar un sistema de protecció (pararllamps).'},
+        {a:'ins_fotovoltaic', s:'C', t:'La instal·lació fotovoltaica sobre coberta pot modificar el risc de llamp. Cal revisar si el sistema de protecció existent (si n\'hi ha) és suficient.'},
+      ]},
+      { code:'SUA-9', name:'Accessibilitat', trigs:[
+        {a:'zc_accessibilitat',s:'O', t:'La millora d\'accessibilitat és l\'objecte principal de l\'actuació. Cal justificar íntegrament SUA-9: itinerari accessible, ascensor adaptat, PMR, senyalització.'},
+        {a:'us_canvi',         s:'O', t:'El canvi d\'ús requereix adequar l\'accessibilitat al nou ús: itineraris accessibles, lavabos adaptats, senyalització. Cal aplicar SUA-9 íntegrament.'},
+        {a:'int_distribucio',  s:'C', t:'Si la distribució afecta els itineraris d\'ús comú dins de l\'habitatge o del local, cal verificar les condicions d\'accessibilitat mínimes (amplada mínima de pas 0,80m).'},
+        {a:'est_nova',         s:'O', t:'Tota obra nova ha de justificar íntegrament les condicions d\'accessibilitat: itinerari accessible, aparcament adaptat, senyalització, lavabos accessibles.'},
+        {a:'zc_escales',       s:'C', t:'La reforma d\'escales pot afectar el recorregut accessible. Si no és possible mantenir un itinerari accessible, cal justificar-ho i adoptar mesures alternatives.'},
+      ]},
+    ]
+  },
+  {
+    code:'DB-HE', name:'Estalvi d\'Energia',
+    note:'En reformes amb > 25% de la superfície de l\'envolupant, s\'apliquen les exigències de HE-1. En instal·lacions noves o ampliació, s\'apliquen HE-2 a HE-5 a les parts afectades. Veure Annex H per a intervencions en edificis existents.',
+    secs:[
+      { code:'HE-0', name:'Limitació del consum energètic', trigs:[
+        {a:'est_nova',          s:'O', t:'Tota obra nova ha de justificar el consum energètic total de l\'edifici (kWh/m²·any) per a calefacció, refrigeració i ACS, que no pot superar els valors límit de la taula 2.1 de HE-0.'},
+        {a:'us_canvi',          s:'O', t:'El canvi d\'ús ha de justificar el consum energètic del nou ús. Cal calcular amb el nou perfil d\'ús i verificar el compliment de HE-0.'},
+      ]},
+      { code:'HE-1', name:'Condicions de l\'envolupant', trigs:[
+        {a:'fac_sate',          s:'O', t:'El SATE afecta directament la transmitància de la façana. Cal justificar la U resultant del tancament i verificar el compliment de la limitació de demanda energètica (HE-1 taula 3.1).'},
+        {a:'fac_aillament_int', s:'O', t:'L\'aïllament interior de façana millora la U del tancament. Cal justificar la transmitància resultant i el control de condensacions intersticials.'},
+        {a:'fus_finestres',     s:'O', t:'La substitució de finestres és l\'actuació de major impacte en la transmitància de l\'envolupant. Cal justificar la U del marc i el vidre (Uw), el factor solar (g) i l\'estanquitat.'},
+        {a:'cob_aillament',     s:'O', t:'La millora de l\'aïllament de coberta afecta directament la transmitància tèrmica. Cal justificar la U resultant de la coberta i verificar el compliment de la limitació de demanda.'},
+        {a:'fac_revestiment',   s:'C', t:'El simple revestiment de façana sense aïllament no modifica la U del tancament, però si es canvia el color o l\'acabat pot afectar l\'absortivitat solar (factor solar reflectant).'},
+        {a:'est_nova',          s:'O', t:'Tota obra nova ha de justificar íntegrament la limitació de la demanda energètica: transmitàncies de façana, coberta, sòl i fusteries, i limitació dels ponts tèrmics.'},
+        {a:'fac_terreny',       s:'C', t:'Els murs en contacte amb el terreny han de justificar la seva transmitància equivalent (Us) per al càlcul de la demanda energètica.'},
+      ]},
+      { code:'HE-2', name:'Rendiment de les instal·lacions tèrmiques', trigs:[
+        {a:'ins_climatitzacio', s:'R', t:'La nova instal·lació tèrmica (calefacció, refrigeració, ACS) ha de complir el RITE (Reglament d\'Instal·lacions Tèrmiques en Edificis). HE-2 remet al RITE per a la verificació del rendiment energètic.'},
+        {a:'ins_solar_acs',     s:'R', t:'La instal·lació de captadors solars tèrmics per a ACS ha de complir el RITE i les condicions de HE-2 i HE-4.'},
+        {a:'est_nova',          s:'R', t:'Tota obra nova amb instal·lació tèrmica ha de complir el RITE i HE-2.'},
+      ]},
+      { code:'HE-3', name:'Eficiència energètica de les instal·lacions d\'il·luminació', trigs:[
+        {a:'ins_iluminacio',    s:'O', t:'La nova instal·lació d\'il·luminació en zones comunes o en edificis del sector terciari ha de justificar la potència instal·lada (W/m²) i el VEEI (Valor d\'Eficiència Energètica de la Instal·lació).'},
+        {a:'us_canvi',          s:'O', t:'El canvi d\'ús pot modificar els requisits d\'il·luminació (nivell d\'il·luminació i VEEI exigit). Cal justificar la nova instal·lació amb HE-3.'},
+        {a:'est_nova',          s:'O', t:'Tota obra nova ha de justificar la instal·lació d\'il·luminació: VEEI, potència instal·lada i sistemes de control i regulació.'},
+      ]},
+      { code:'HE-4', name:'Contribució mínima d\'energia renovable', trigs:[
+        {a:'ins_solar_acs',     s:'O', t:'La instal·lació de captadors solars tèrmics és la mesura habitual per complir HE-4. Cal justificar el percentatge de cobertura solar de la demanda d\'ACS.'},
+        {a:'ins_fotovoltaic',   s:'O', t:'La instal·lació fotovoltaica pot ser la mesura per complir HE-4 en edificis del sector terciari i en certs usos residencials.'},
+        {a:'est_nova',          s:'O', t:'Tota obra nova ha de justificar la contribució mínima d\'energia renovable per a l\'ACS i, en funció de l\'ús, per a la demanda total.'},
+        {a:'us_canvi',          s:'C', t:'Un canvi d\'ús pot modificar els requisits de contribució renovable (demanda d\'ACS, perfil d\'ús, potència instal·lada). Cal verificar el compliment de HE-4.'},
+        {a:'ins_climatitzacio', s:'C', t:'La nova instal·lació tèrmica pot ser una font renovable (bomba de calor aerotèrmica o geotèrmica) que contribueixi al compliment de HE-4.'},
+      ]},
+      { code:'HE-5', name:'Generació mínima d\'energia elèctrica', trigs:[
+        {a:'ins_fotovoltaic',   s:'O', t:'La instal·lació fotovoltaica ha de justificar la potència mínima instal·lada exigida per HE-5 en funció de la superfície construïda i l\'ús de l\'edifici.'},
+        {a:'est_nova',          s:'C', t:'Certs usos d\'obra nova (terciari > 3.000m², residencial > cert nombre d\'habitatges) poden requerir instal·lació fotovoltaica mínima per HE-5.'},
+      ]},
+    ]
+  },
+  {
+    code:'DB-HS', name:'Salubritat',
+    note:'En les intervencions en edificis existents no es podran reduir les condicions preexistents. L\'àmbit d\'aplicació s\'especifica per a cada secció.',
+    secs:[
+      { code:'HS-1', name:'Protecció davant la humitat', trigs:[
+        {a:'est_fonaments',    s:'O', t:'Els murs i sòls en contacte amb el terreny han de justificar el grau d\'impermeabilitat exigit en funció de la pressió de l\'aigua i el coeficient de permeabilitat del terreny.'},
+        {a:'fac_terreny',      s:'O', t:'Murs i sòls en contacte amb el terreny: cal justificar el grau d\'impermeabilitat, el sistema de recollida d\'aigues i la ventilació de la cambra si escau.'},
+        {a:'cob_imp',          s:'O', t:'La coberta ha de justificar la protecció davant la humitat: capes de la coberta, evacuació d\'aigues, pendents mínims i punts singulars.'},
+        {a:'cob_aillament',    s:'O', t:'Qualsevol actuació en coberta que modifiqui les seves capes ha de justificar la protecció davant la humitat del sistema resultant.'},
+        {a:'cob_transitable',  s:'O', t:'Les terrasses i balcons es consideren cobertes a efectes de HS-1. Cal justificar la impermeabilització i evacuació d\'aigues.'},
+        {a:'fac_revestiment',  s:'O', t:'Els tancaments de façana han de complir el grau d\'impermeabilitat exigit en funció de la zona pluviomètrica i el grau d\'exposició al vent.'},
+        {a:'fac_sate',         s:'O', t:'El SATE modifica el tancament de façana. Cal justificar la protecció davant la humitat del sistema complet.'},
+        {a:'fac_aillament_int',s:'O', t:'El trasdossat interior modifica les condicions higrotèrmiques. Cal verificar les condensacions intersticials.'},
+        {a:'fus_finestres',    s:'O', t:'Les fusteries exteriors formen part del tancament. Cal justificar l\'estanquitat a l\'aigua i el segellat del marc.'},
+        {a:'fus_portes_ext',   s:'O', t:'Les portes exteriors han de garantir l\'estanquitat a l\'aigua, especialment a la solera i al marc.'},
+      ]},
+      { code:'HS-2', name:'Recollida i evacuació de residus', trigs:[
+        {a:'est_nova',  s:'O', t:'L\'obra nova ha de justificar el sistema de recollida i evacuació de residus: superfície mínima de l\'espai d\'emmagatzematge i accessibilitat.'},
+        {a:'us_canvi',  s:'O', t:'Un canvi d\'ús pot requerir adequar el sistema de recollida de residus al nou ús.'},
+      ]},
+      { code:'HS-3', name:'Qualitat de l\'aire interior', trigs:[
+        {a:'int_bany_cuina',   s:'O', t:'La reforma de banys i cuines requereix verificar la ventilació mínima: extracció mecànica en cuines (50 l/s) i banys (15 l/s).'},
+        {a:'us_canvi',         s:'O', t:'Un canvi d\'ús a habitatge requereix justificar la ventilació de tots els espais.'},
+        {a:'zc_aparcament',    s:'O', t:'Els aparcaments col·lectius han de complir HS-3: ventilació mecànica amb detectors de CO i cabals mínims per plaça.'},
+        {a:'int_distribucio',  s:'C', t:'Si la modificació tanca obertures de pas entre estances, cal verificar els cabals d\'admissió mínims.'},
+        {a:'est_nova',         s:'O', t:'Tota obra nova amb ús habitatge o aparcament ha de justificar la qualitat de l\'aire interior.'},
+      ]},
+      { code:'HS-4', name:'Subministrament d\'aigua', trigs:[
+        {a:'ins_fontaneria',   s:'O', t:'La modificació de la instal·lació d\'AFS/ACS requereix justificar pressió mínima, diàmetres, distàncies i aïllament tèrmic de l\'ACS.'},
+        {a:'int_bany_cuina',   s:'O', t:'La reforma de banys i cuines implica modificació de la instal·lació de fontaneria. Cal justificar HS-4.'},
+        {a:'us_canvi',         s:'O', t:'Un canvi d\'ús requereix adequar la instal·lació de subministrament d\'aigua al nou ús.'},
+        {a:'est_nova',         s:'O', t:'Tota obra nova ha de justificar la instal·lació completa de subministrament d\'aigua.'},
+      ]},
+      { code:'HS-5', name:'Evacuació d\'aigues', trigs:[
+        {a:'ins_evacuacio',    s:'O', t:'La modificació de la instal·lació d\'evacuació requereix justificar el dimensionament de baixants i col·lectors per a residuals i pluvials.'},
+        {a:'int_bany_cuina',   s:'O', t:'La reforma de banys i cuines implica modificació de l\'evacuació. Cal justificar diàmetres i pendents.'},
+        {a:'cob_imp',          s:'O', t:'La coberta té elements d\'evacuació d\'aigues pluvials que han de justificar el dimensionament de HS-5.'},
+        {a:'cob_transitable',  s:'O', t:'Les terrasses necessiten desguassos dimensionats i desguassos de seguretat per a situació d\'obturació.'},
+        {a:'us_canvi',         s:'O', t:'Un canvi d\'ús pot requerir adequar la instal·lació d\'evacuació d\'aigues al nou ús.'},
+        {a:'est_nova',         s:'O', t:'Tota obra nova ha de justificar la instal·lació completa d\'evacuació d\'aigues.'},
+      ]},
+      { code:'HS-6', name:'Protecció davant l\'exposició al radó', trigs:[
+        {a:'est_fonaments',    s:'C', t:'En zones de radó, actuació en elements en contacte amb el terreny pot requerir mesures de protecció.'},
+        {a:'fac_terreny',      s:'C', t:'En zones de radó, actuacions en murs o soleres en contacte amb el terreny requereixen mesures de protecció.'},
+        {a:'us_canvi',         s:'C', t:'En zones de radó, un canvi d\'ús a zona habitable requereix verificar la concentració de radó.'},
+      ]},
+    ]
+  },
+  {
+    code:'DB-HR', name:'Protecció davant el Soroll',
+    note:'No s\'aplica a reforma parcial (art. 2 Part I CTE). Per a obra nova i canvi d\'ús, s\'aplica íntegrament. Consultar OTR per a edificis existents.',
+    secs:[
+      { code:'HR', name:'Protecció davant el soroll (global)', trigs:[
+        {a:'fac_sate',         s:'C', t:'El SATE pot modificar l\'aïllament acústic de la façana (Dn,e,w). Verificar si la intervenció requereix justificació.'},
+        {a:'fac_aillament_int',s:'C', t:'El trasdossat interior pot modificar l\'aïllament acústic. Consultar criteris HR per a edificis existents.'},
+        {a:'fus_finestres',    s:'C', t:'La substitució de fusteries modifica l\'aïllament acústic de la façana. Verificar que el resultat global no empitjora.'},
+        {a:'int_distribucio',  s:'C', t:'Si la distribució afecta elements separadors entre habitatges, cal verificar la justificació acústica.'},
+        {a:'us_canvi',         s:'C', t:'El canvi d\'ús requereix adequar les condicions acústiques al nou ús: aïllament aeri, soroll d\'impacte i de les instal·lacions.'},
+        {a:'est_nova',         s:'O', t:'Tota obra nova ha de justificar íntegrament la protecció davant el soroll: aïllament de façana, entre habitatges, soroll d\'impacte i de les instal·lacions.'},
+        {a:'us_ocupacio',      s:'C', t:'La divisió d\'habitatges crea nous elements separadors que han de justificar el compliment dels valors de DB-HR.'},
+      ]},
+    ]
+  },
+];
+
+// ── LÒGICA DE RESULTATS ───────────────────────────────────────────────────────
+const SLABELS = { O:'✓ Obligatori', C:'! Consultar', N:'— No aplica', R:'↗ RITE' };
+
+function worstOf(ss) {
+  if (ss.includes('O')) return 'O';
+  if (ss.includes('C')) return 'C';
+  if (ss.includes('R')) return 'R';
+  return 'N';
+}
+function badge(s, t) {
+  return `<span class="badge ${s}">${t || SLABELS[s]}</span>`;
+}
+function actLabel(id) {
+  return ACTIONS.find(a => a.id === id)?.label || id;
+}
+
+let lastAnalysis = null;
+
+function renderResults(selectedIds, tipologia) {
+  let nO = 0, nC = 0, nN = 0;
+  DB.forEach(db => {
+    const all = db.secs.flatMap(s => s.trigs.filter(t => selectedIds.includes(t.a)).map(t => t.s));
+    const w = worstOf(all.length ? all : ['N']);
+    if (w === 'O' || w === 'R') nO++; else if (w === 'C') nC++; else nN++;
+  });
+
+  const sumBar = document.getElementById('sumBar');
+  sumBar.innerHTML = `
+    <span class="label">Resultat:</span>
+    ${badge('O', nO + ' obligatoris')}
+    ${badge('C', nC + ' a consultar')}
+    <span class="sum-sep"></span>
+    ${badge('N', nN + ' no apliquen')}
+  `;
+  sumBar.classList.add('show');
+
+  let html = '';
+  DB.forEach(db => {
+    const dbSt = db.secs.flatMap(s => s.trigs.filter(t => selectedIds.includes(t.a)).map(t => t.s));
+    const dbW = worstOf(dbSt.length ? dbSt : ['N']);
+    const autoOpen = dbW === 'O' || dbW === 'C' || dbW === 'R';
+
+    html += `<div class="db-card status-${dbW}${autoOpen ? ' open' : ''}" id="card-${db.code}">`;
+    html += `<div class="db-head" onclick="this.parentElement.classList.toggle('open')">
+      <div class="db-head-l">
+        <span class="db-code">${db.code}</span>
+        <span class="db-name">${db.name}</span>
+      </div>
+      <div class="db-head-r">${badge(dbW)}<span class="arrow">▾</span></div>
+    </div>`;
+    html += `<div class="db-body">`;
+    if (db.note) html += `<div class="note-box">${db.note}</div>`;
+
+    // Botó fitxa justificativa (per a tots els DB amb fitxa implementada)
+    const FITXA_DBS = ['DB-SI','DB-SUA','DB-HE','DB-HS','DB-HR','DB-SE'];
+    if (FITXA_DBS.includes(db.code) && (dbW === 'O' || dbW === 'C')) {
+      const tip = tipologia || 'plurifamiliar';
+      html += `<button class="fitxa-btn" onclick="openFitxa('${db.code}','${tip}')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Obrir fitxa justificativa ${db.code}
+      </button>`;
+    }
+
+    html += `<table class="sub-table"><thead><tr>
+      <th>Secció</th><th>Estat</th><th>Criteri d'aplicació</th>
+    </tr></thead><tbody>`;
+
+    db.secs.forEach(sec => {
+      const matched = sec.trigs.filter(t => selectedIds.includes(t.a));
+      const secW = worstOf(matched.length ? matched.map(t => t.s) : ['N']);
+      html += `<tr class="row-${secW}">
+        <td><div class="sub-code">${sec.code}</div><div class="sub-name">${sec.name}</div></td>
+        <td>${badge(secW)}</td>
+        <td>`;
+      if (!matched.length) {
+        html += `<span class="no-reason">Cap actuació activa aquesta secció.</span>`;
+      } else {
+        html += `<div class="reasons">`;
+        matched.forEach(m => {
+          html += `<div class="reason-item">
+            <span class="act-chip">${actLabel(m.a)}</span>
+            <span class="reason-text">${m.t}</span>
+          </div>`;
+        });
+        html += `</div>`;
+      }
+      html += `</td></tr>`;
+    });
+
+    html += `</tbody></table></div></div>`;
+  });
+
+  const results = document.getElementById('results');
+  results.innerHTML = html;
+  results.classList.add('show');
+}
+
+// ── IA ANALYZE ────────────────────────────────────────────────────────────────
+async function analyze() {
+  const desc = document.getElementById('desc').value.trim();
+  if (!desc) { alert('Escriu una descripció de l\'actuació.'); return; }
+
+  // Reset UI
+  document.getElementById('interpCard').classList.remove('show');
+  document.getElementById('sumBar').classList.remove('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('errorBox').classList.remove('show');
+  document.getElementById('results').innerHTML = '';
+
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('btnAnalyze').disabled = true;
+
+  const actionList = ACTIONS.map(a => `- id: "${a.id}" | ${a.label}: ${a.desc}`).join('\n');
+
+  const prompt = `Ets un expert en el Codi Tècnic de l'Edificació (CTE) d'Espanya.
+La teva tasca és analitzar la descripció d'una intervenció en un edifici i identificar quines de les actuacions predefinides hi apliquen.
+
+DESCRIPCIÓ DE LA INTERVENCIÓ:
+"${desc}"
+
+LLISTA D'ACTUACIONS PREDEFINIDES (id | nom: descripció):
+${actionList}
+
+INSTRUCCIONS:
+1. Analitza la descripció i identifica quines actuacions de la llista anterior s'apliquen a la intervenció descrita.
+2. Pots identificar actuacions implícites (p.ex. si es menciona "reforma de cuina", inclou ins_fontaneria i ins_evacuacio encara que no es digui explícitament).
+3. Identifica la tipologia de l'edifici: "unifamiliar" (habitatge unifamiliar aïllat o adossat), "plurifamiliar" (edifici d'habitatges col·lectiu), o "terciari" (oficines, comerç, hoteler, etc.). Si no s'especifica, dedueix-ho del context.
+4. Retorna ÚNICAMENT un objecte JSON vàlid amb aquest format exacte, sense cap text addicional ni backticks:
+{
+  "interpretation": "Breu explicació en català (2-3 frases) de com has interpretat la intervenció",
+  "tipologia": "unifamiliar|plurifamiliar|terciari",
+  "selectedIds": ["id1", "id2", "id3"]
+}`;
+
+  try {
+    // ── Crida al servidor Flask local (en lloc de Anthropic directament) ──
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: desc })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP ${response.status}`);
+    }
+
+    const parsed = await response.json();
+
+    document.getElementById('loading').classList.remove('show');
+
+    // Guardar anàlisi per a la fitxa
+    lastAnalysis = {
+      tipologia:   parsed.tipologia   || 'plurifamiliar',
+      selectedIds: parsed.selectedIds || [],
+      db_reasoning: parsed.db_reasoning || {}
+    };
+
+    // Mostrar interpretació
+    const interpCard = document.getElementById('interpCard');
+    document.getElementById('interpDesc').textContent = parsed.interpretation;
+    const interpActs = document.getElementById('interpActs');
+    interpActs.innerHTML = parsed.selectedIds.map(id => {
+      const act = ACTIONS.find(a => a.id === id);
+      return act ? `<span class="act-pill">${act.label}</span>` : '';
+    }).join('');
+    interpCard.classList.add('show');
+
+    // Mostrar ús de tokens/cache si disponible
+    if (parsed.usage) {
+      const cacheHit = parsed.usage.cache_read_tokens > 0;
+      const badge = cacheHit
+        ? `<span style="font-size:10px;color:#1e3a6e;background:#f0f4ff;border:1px solid #7c9ed9;padding:2px 8px;border-radius:10px;margin-left:8px">⚡ cache hit</span>`
+        : '';
+      const usageEl = document.getElementById('usageInfo');
+      if (usageEl) usageEl.innerHTML = `${parsed.usage.input_tokens} in · ${parsed.usage.output_tokens} out${badge}`;
+    }
+
+    // Renderitzar resultats
+    renderResults(parsed.selectedIds, parsed.tipologia || 'plurifamiliar');
+
+  } catch (err) {
+    document.getElementById('loading').classList.remove('show');
+    const eb = document.getElementById('errorBox');
+    const isNetworkErr = err.message.includes('Failed to fetch') || err.message.includes('NetworkError');
+    eb.innerHTML = isNetworkErr
+      ? '⚠️ No s\'ha pogut connectar amb el servidor Flask. Assegura\'t que <code>python app.py</code> s\'executa a <strong>localhost:5000</strong>.'
+      : '⚠️ Error en la comunicació amb la IA: ' + err.message;
+    eb.classList.add('show');
+    console.error(err);
+  }
+
+  document.getElementById('btnAnalyze').disabled = false;
+}
+
+// Enter per enviar
+document.getElementById('desc').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.ctrlKey) analyze();
+});
+
+// ── FITXA DB-SI ──────────────────────────────────────────────────────────────
+
+// ── GESTIÓ GENÈRICA DE MODALS FITXA ──────────────────────────────────────────
+
+const FITXA_META = {
+  'DB-SI':  { title: 'DB-SI · Seguretat en cas d\'Incendi',           builder: () => buildFitxaSI,  validateBtn: true  },
+  'DB-SUA': { title: 'DB-SUA · Seguretat d\'Utilització i Accessibilitat', builder: () => buildFitxaSUA, validateBtn: false },
+  'DB-HE':  { title: 'DB-HE · Estalvi d\'Energia',                    builder: () => buildFitxaHE,  validateBtn: false },
+  'DB-HS':  { title: 'DB-HS · Salubritat',                            builder: () => buildFitxaHS,  validateBtn: false },
+  'DB-HR':  { title: 'DB-HR · Protecció davant el Soroll',            builder: () => buildFitxaHR,  validateBtn: false },
+  'DB-SE':  { title: 'DB-SE · Seguretat Estructural',                 builder: () => buildFitxaSE,  validateBtn: false },
+};
+
+function openFitxa(dbCode, tip) {
+  const meta = FITXA_META[dbCode];
+  if (!meta) return;
+  const tipologia = tip || (lastAnalysis?.tipologia) || 'plurifamiliar';
+  document.getElementById('fitxaTitle').textContent = `Fitxa Justificativa · ${meta.title}`;
+  document.getElementById('fitxaBody').innerHTML = meta.builder()(tipologia);
+  document.getElementById('btnValidateIA').style.display = meta.validateBtn ? '' : 'none';
+  const _vp = document.getElementById('validationPanel');
+  if (_vp) _vp.style.display = 'none';
+  document.getElementById('fitxaModal').classList.add('open');
+  document.getElementById('fitxaModal').scrollTop = 0;
+}
+
+function openFitxaSI(tip) { openFitxa('DB-SI', tip); }
+
+function closeFitxaSI()    { closeFitxaModal(); }
+function closeFitxaModal() { document.getElementById('fitxaModal').classList.remove('open'); }
+
+function printFitxa() {
+  window.print();
+}
+
+function changeTipologia(val) {
+  document.querySelectorAll('.tip-tab').forEach(t => t.classList.toggle('on', t.dataset.tip === val));
+  // Show/hide rows per tipologia — un element pot tenir múltiples only-* (aplica a més d'una)
+  document.querySelectorAll('.only-unifamiliar, .only-plurifamiliar, .only-terciari').forEach(el => {
+    el.classList.toggle('f-hide', !el.classList.contains(`only-${val}`));
+  });
+  // Update value cells with the right requirement
+  document.querySelectorAll('[data-req]').forEach(el => {
+    const reqs = JSON.parse(el.dataset.req);
+    el.innerHTML = reqs[val] || reqs['all'] || '—';
+  });
+}
+
+function row(id, exigencia, note, art, reqs, type, placeholder, tipClass) {
+  // reqs: { all:'...', unifamiliar:'...', plurifamiliar:'...', terciari:'...' }
+  const reqAll = reqs.all || '';
+  const reqU   = reqs.unifamiliar   || reqAll;
+  const reqP   = reqs.plurifamiliar || reqAll;
+  const reqT   = reqs.terciari      || reqAll;
+  // For initial render we'll use a data attribute and update on tab change
+  const cls = tipClass ? ` only-${tipClass}` : '';
+  return `<tr id="${id}"${cls ? ` class="${cls} f-hide"` : ''}>
+    <td><div class="ex-text">${exigencia}</div>${note ? `<div class="ex-note">${note}</div>` : ''}</td>
+    <td><span class="art-tag">${art}</span></td>
+    <td><span class="req-val" data-req='${JSON.stringify({all:reqAll,unifamiliar:reqU,plurifamiliar:reqP,terciari:reqT})}'>${reqAll || reqP}</span></td>
+    <td>${type==='check' ? '<input type="checkbox" style="margin-top:2px">' : `<input class="proj-inp" type="text" placeholder="${placeholder||''}">`}</td>
+    <td class="cb-wrap"><input type="checkbox"></td>
+  </tr>`;
+}
+
+function naRow(msg) {
+  return `<tr class="f-na"><td colspan="5">${msg}</td></tr>`;
+}
+
+function buildFitxaSI(tipologia) {
+  const tip = tipologia || 'plurifamiliar';
+  const tipLabel = { unifamiliar:'Unifamiliar / Adossat', plurifamiliar:'Plurifamiliar', terciari:'Terciari / Altres usos' };
+
+  let html = `
+  <!-- Dades del projecte -->
+  <div class="proj-grid">
+    <div class="pf-row wide"><span class="pf-label">Projecte / Obra</span><input class="pf-inp" placeholder="Títol del projecte"></div>
+    <div class="pf-row"><span class="pf-label">Data</span><input class="pf-inp" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div class="pf-row"><span class="pf-label">Referència cadastral</span><input class="pf-inp" placeholder="RC-"></div>
+    <div class="pf-row wide"><span class="pf-label">Tècnic redactor</span><input class="pf-inp" placeholder="Nom i titulació"></div>
+    <div class="pf-row"><span class="pf-label">Núm. col·legiat</span><input class="pf-inp" placeholder="CAT-"></div>
+  </div>
+
+  <!-- Àmbit d'aplicació -->
+  <div class="si-section" style="margin-bottom:18px;border-color:#c4a44a">
+    <div class="si-head" style="background:#fffbec;border-bottom-color:#e8d48a">
+      <span class="si-pill" style="background:#7a5e10">ÀMBIT</span>
+      <span class="si-title">Àmbit d'aplicació</span>
+      <span class="si-ref">Art. 2 LOE · Art. 2 Part I CTE · Introducció DB SI</span>
+    </div>
+    <table class="ftable" style="font-size:11px">
+      <thead><tr>
+        <th style="width:140px">Tipus d'intervenció</th>
+        <th>Condicions d'aplicació del DB SI</th>
+        <th class="th-cb" style="width:80px">Aplica</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Reforma</strong> (es manté l'ús)</td>
+          <td>S'aplica als <strong>elements afectats per la reforma</strong> sempre que suposi una major adequació a les condicions del DB SI. Les obres de reforma no podran <strong>reduir les condicions de seguretat preexistents</strong>, quan aquestes siguin menys estrictes que les del DB SI.</td>
+          <td class="cb-wrap"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td><strong>Canvi d'ús</strong> (part de l'edifici)</td>
+          <td>El DB SI s'aplica <strong>únicament a aquesta part</strong>, així com als elements d'evacuació que la serveixin.</td>
+          <td class="cb-wrap"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td><strong>Canvi d'ús</strong> (a habitatge)</td>
+          <td>El DB SI s'aplica únicament a la part transformada, però <strong>no caldrà aplicar-ho als elements d'evacuació de l'edifici</strong>.</td>
+          <td class="cb-wrap"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td><strong>Edificis protegits</strong></td>
+          <td>Si les obres són incompatibles amb el grau de protecció: es poden aplicar <strong>solucions alternatives</strong> que permetin el major grau d'adequació possible. En la documentació final d'obra es faran constar les limitacions d'ús.</td>
+          <td class="cb-wrap"><input type="checkbox"></td>
+        </tr>
+        <tr style="background:#f0f4ff">
+          <td><strong>Solució adoptada</strong></td>
+          <td colspan="2" style="font-size:10.5px">
+            <label style="display:flex;gap:8px;align-items:center;margin-bottom:4px"><input type="radio" name="sol_adoptada" value="parametrica" checked> <span>Compleix els <strong>paràmetres i procediments del CTE DB SI</strong> (solució paramètrica)</span></label>
+            <label style="display:flex;gap:8px;align-items:center"><input type="radio" name="sol_adoptada" value="alternativa"> <span>Es proposen <strong>solucions alternatives</strong> a les establertes en el DB SI, justificant la seva necessitat i adequació (indicar a la casella corresponent i justificar a part)</span></label>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Tipologia -->
+  <div class="tip-tabs">
+    <span style="font-size:11px;font-weight:600;color:var(--ink3);align-self:center;margin-right:4px">Tipologia:</span>
+    <button class="tip-tab${tip==='unifamiliar'?' on':''}" data-tip="unifamiliar" onclick="changeTipologia('unifamiliar')">Unifamiliar / Adossat</button>
+    <button class="tip-tab${tip==='plurifamiliar'?' on':''}" data-tip="plurifamiliar" onclick="changeTipologia('plurifamiliar')">Plurifamiliar</button>
+    <button class="tip-tab${tip==='terciari'?' on':''}" data-tip="terciari" onclick="changeTipologia('terciari')">Terciari / Altres usos</button>
+  </div>
+
+  <!-- ── SI-1 Propagació interior ── -->
+  <div class="si-section">
+    <div class="si-head">
+      <span class="si-pill">SI-1</span>
+      <span class="si-title">Propagació interior</span>
+      <span class="si-ref">Art. SI 1</span>
+    </div>
+    <table class="ftable">
+      <thead><tr>
+        <th>Exigència</th>
+        <th class="th-art">Ref. CTE</th>
+        <th class="th-req">Valor exigit</th>
+        <th class="th-proj">Valor / observació projecte</th>
+        <th class="th-cb">Contemplat</th>
+      </tr></thead>
+      <tbody>
+        ${row('si1_sectors','Nombre de sectors d\'incendi previstos','Indicar nombre total de sectors en l\'edifici','SI 1-1',{all:'Indicar nº sectors'},'input','nº sectors')}
+        ${row('si1_sup_unif','Superfície construïda del sector principal','Habitatge unifamiliar: sector únic (sense limitació de superfície per a ús Residencial Habitatge en unifamiliars)','SI 1-1, T.1.1',{all:'Sector únic (sense limitació)'},'input','m² total','unifamiliar')}
+        ${row('si1_sup_pluri','Superfície màxima de cada sector d\'incendi','Ús Residencial Habitatge en edifici plurifamiliar','SI 1-1, T.1.1',{all:'≤ 2.500 m² per sector'},'input','m² sector major','plurifamiliar')}
+        ${row('si1_sup_terc','Superfície màxima de cada sector d\'incendi','Veure T.1.1 en funció de l\'ús específic','SI 1-1, T.1.1',{all:'Veure T.1.1 segons ús'},'input','m² i ús','terciari')}
+        ${row('si1_ei_sector','Resistència al foc de les parets, sostres i forjats que delimiten sectors','Entre sectors o entre habitatge i zona de risc especial','SI 1-1.3, T.1.2',{unifamiliar:'No exigit entre plantes del mateix habitatge. Sí si hi ha garatge adossat (EI-120 garatge risc mig)',plurifamiliar:'EI-60 entre habitatges / EI-60 entre habitatge i zona comú',terciari:'Veure T.1.2 en funció de l\'ús i h evacuació'},'input','EI-')}
+        ${row('si1_portes','Resistència al foc de les portes de pas entre sectors','Portes tallafocs entre sectors d\'incendi o zones de risc especial','SI 1-1.3, T.1.3',{unifamiliar:'EI₂45-C5 (porta a garatge risc baix) / EI₂60-C5 (garatge risc mig)',plurifamiliar:'EI₂30-C5 entre habitatge i escala no protegida / EI₂60-C5 entre sectors',terciari:'Veure T.1.3 en funció de l\'ús'},'input','EI-')}
+        ${row('si1_risc_esp','Locals de risc especial: garatge / sala de calderes / altres','Indicar superfície i classificació del risc (baix/mig/alt). Condicions: Risc BAIX → R-90, EI-90, porta EI₂45-C5, rec. ≤25m · Risc MIG → R-120, EI-120, vestíbul, portes 2×EI₂30-C5, rec. ≤25m. Reacció parets B-s1,d0; terres B_FL-s1 (risc mig).','SI 1-2, T.2.1',{unifamiliar:'Aparcament unifamiliar: qualsevol cas → Risc BAIX · Trasters: 50–100 m² Risc BAIX · Magatzem residus: 5–15 m² Risc BAIX, 15–30 m² Risc MIG · Sala caldera 70–200 kW: Risc BAIX · Magatzem combustible sòlid ≤3 m² Risc BAIX',plurifamiliar:'Garatge col·lectiu S >100 m²: sector independent (sense límit, EI-120) · Trasters 50–100 m²: Risc BAIX · 100–500 m²: Risc MIG · Sala caldera 70–200 kW: Risc BAIX · Magatzem residus: 5–15 m² Risc BAIX, 15–30 m² Risc MIG',terciari:'Veure T.2.1 · Cuines >50kW, tallers, magatzems de residus, locals tècnics, sales de grup electrogen, etc.'},'input','tipus, superfície i risc')}
+        ${row('si1_ocultes','Espais ocults: pas d\'instal·lacions a través d\'elements de compartimentació','Registres, passamurs, safates de cables, conductes','SI 1-3.3',{all:'Registres registrables amb EI ≥ resistència de l\'element travessat. Conductes: comportes tallafocs EI-t (segons taula 3.1).'},'check','')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SI-2 Propagació exterior ── -->
+  <div class="si-section">
+    <div class="si-head">
+      <span class="si-pill">SI-2</span>
+      <span class="si-title">Propagació exterior</span>
+      <span class="si-ref">Art. SI 2</span>
+    </div>
+    <table class="ftable">
+      <thead><tr>
+        <th>Exigència</th><th class="th-art">Ref. CTE</th>
+        <th class="th-req">Valor exigit</th><th class="th-proj">Valor / observació projecte</th>
+        <th class="th-cb">Contemplat</th>
+      </tr></thead>
+      <tbody>
+        ${row('si2_fac_reaccio','Classe de reacció al foc dels materials de la façana (acabat exterior)','Materials de revestiment i aïllament que formin part de la façana exterior','SI 2-1, T.1.4',{unifamiliar:'h ≤ 18m: acabat B-s3,d2 o millor (aïllament: C-s3,d0 o millor si visible)',plurifamiliar:'h ≤ 18m: B-s3,d2 · h > 18m: A2-s3,d0 (tots els materials que formin part de la façana)',terciari:'h ≤ 18m: B-s3,d2 · h > 18m: A2-s3,d0'},'input','Euroclas material')}
+        ${row('si2_fac_franja','Franja de separació entre buits de façana en plantes consecutives','Separació vertical entre buits superposats en façana','SI 2-1.3',{all:'≥ 1,00 m d\'element EI-60 entre buits consecutius en alçada, o alternativament voladís de 0,50 m. En SATE: franja de 0,25 m d\'EI-30 per planta si material aïllament no és A1/A2.'},'input','m (mesurar en projecte)')}
+        ${row('si2_mit_ei','Resistència al foc de la mitgera o element que limita amb un altre edifici o parcel·la','En habitatges adossats o edificis entre mitgeres','SI 2-1.2',{unifamiliar:'EI-120 per a parets mitgeres o en límit de parcel·la',plurifamiliar:'EI-120 per a façanes que delimiten amb un altre sector o amb la vorera (h >3m)',terciari:'EI-120'},'input','EI- (indicar ubicació)')}
+        ${row('si2_cob_reaccio','Classe de reacció al foc dels materials de la coberta','Zona de coberta en franja de 2,50 m des del límit de parcel·la o façana d\'edifici adjacent','SI 2-2',{all:'BROOF(t1) per als materials en els 2,5 m perimetral. Material de cobertura: B-ROOF(t1). Aïllament visible: C-s3,d0.'},'input','BROOF(t1) – indicar material')}
+        ${row('si2_dist_edif','Distàncies entre edificis i entre zones de coberta amb diferent resistència al foc','Separació entre edificis independents o entre cobertes d\'usos diferents','SI 2-2',{all:'≥ 3 m o interposició d\'element EI-60 en el límit de parcel·la. Verificar cas a cas.'},'check','')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SI-3 Evacuació d'ocupants ── -->
+  <div class="si-section">
+    <div class="si-head">
+      <span class="si-pill">SI-3</span>
+      <span class="si-title">Evacuació d'ocupants</span>
+      <span class="si-ref">Art. SI 3</span>
+    </div>
+
+    <!-- Taula càlcul d'ocupació (model COAC) -->
+<div style="padding:10px 14px 0">
+  <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Càlcul de l'ocupació · CTE DB SI 3</div>
+  <table class="ftable" style="margin-bottom:10px">
+    <thead><tr>
+      <th style="width:160px">Ús previst</th>
+      <th style="width:130px">Zona</th>
+      <th style="width:110px">Densitat d'ocupació (m²/persona)</th>
+      <th style="width:100px">Superfície útil (m²)</th>
+      <th style="width:90px">Ocupació P = sup/densitat</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td>Residencial habitatge</td>
+        <td>Plantes d'habitatge</td>
+        <td style="text-align:center;font-weight:600">20</td>
+        <td><input class="proj-inp" type="number" placeholder="m² útils"></td>
+        <td><input class="proj-inp" type="number" placeholder="persones"></td>
+      </tr>
+      <tr class="only-unifamiliar f-hide">
+        <td>Aparcament unifamiliar</td>
+        <td>Aparcament</td>
+        <td style="text-align:center;font-weight:600">40</td>
+        <td><input class="proj-inp" type="number" placeholder="m²"></td>
+        <td><input class="proj-inp" type="number" placeholder="persones"></td>
+      </tr>
+      <tr class="only-plurifamiliar only-terciari f-hide">
+        <td>Aparcament col·lectiu</td>
+        <td>Aparcament</td>
+        <td style="text-align:center;font-weight:600">40</td>
+        <td><input class="proj-inp" type="number" placeholder="m²"></td>
+        <td><input class="proj-inp" type="number" placeholder="persones"></td>
+      </tr>
+      <tr>
+        <td>Ocupació nul·la</td>
+        <td style="font-size:10px;color:var(--ink3)">Trasters, locals instal·lacions, neteja, etc.</td>
+        <td style="text-align:center;color:var(--ink3)">—</td>
+        <td><input class="proj-inp" type="number" placeholder="m²"></td>
+        <td style="text-align:center;color:var(--ink3)">0</td>
+      </tr>
+      <tr class="only-terciari f-hide">
+        <td>Altres usos</td>
+        <td><input class="proj-inp" type="text" placeholder="ús específic"></td>
+        <td><input class="proj-inp" type="number" placeholder="m²/p (T.2.1)"></td>
+        <td><input class="proj-inp" type="number" placeholder="m²"></td>
+        <td><input class="proj-inp" type="number" placeholder="persones"></td>
+      </tr>
+      <tr style="background:#f3f4f6;font-weight:700">
+        <td colspan="3" style="text-align:right;font-size:11px;padding-right:14px">TOTAL EDIFICI</td>
+        <td><input class="proj-inp" type="number" placeholder="m² total" style="font-weight:700"></td>
+        <td><input class="proj-inp" type="number" placeholder="persones" style="font-weight:700"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+    <table class="ftable">
+      <thead><tr>
+        <th>Exigència</th><th class="th-art">Ref. CTE</th>
+        <th class="th-req">Valor exigit</th><th class="th-proj">Valor / observació projecte</th>
+        <th class="th-cb">Contemplat</th>
+      </tr></thead>
+      <tbody>
+        ${row('si3_oc_hab','Ocupació de càlcul (habitatge)','Nombre de persones que s\'utilitzen per al dimensionament de les vies d\'evacuació','SI 3, T.2.1',{unifamiliar:'20 m²/persona (ús Residencial Habitatge) → indicar: superfície útil / 20',plurifamiliar:'20 m²/persona per habitatge. Escales: suma d\'ocupants de les plantes servides',terciari:'Veure T.2.1 per a l\'ús específic (ex: Administratiu = 10 m²/p, Comercial = 1-5 m²/p)'},'input','persones (càlcul)')}
+        ${row('si3_sortides','Nombre de sortides del sector o de la planta','Sortides de planta / sortides d\'edifici','SI 3-3, T.3.1',{unifamiliar:'1 sortida d\'edifici (ocupació ≤ 100 persones, recorregut ≤ 25m)',plurifamiliar:'≥ 1 sortida de planta si ocupació ≤ 100 p. ≥ 2 sortides de planta si > 100 p. o h_evac > 28m',terciari:'≥ 2 sortides si ocupació > 50 persones o superfície > 500 m²'},'input','nº sortides')}
+        ${row('si3_recorregut','Longitud màxima dels recorreguts d\'evacuació fins a una sortida','Mesurar recorregut real per les zones de circulació','SI 3-3, T.3.1',{unifamiliar:'≤ 25 m amb 1 sortida / ≤ 35 m si h_evac ≤ 28m i ocupació ≤ 100 p.',plurifamiliar:'≤ 25 m fins escala o sortida (residencial) · ≤ 50 m si hi ha 2 sortides alternatives',terciari:'≤ 25-35 m (1 sortida) / ≤ 50 m (2 sortides) · Veure T.3.1 per a cada ús'},'input','m (recorregut màxim)')}
+        ${row('si3_alçada_evac','Alçada d\'evacuació de l\'edifici','Diferència de cota entre el forjat de la planta més alta amb ocupació i la sortida de l\'edifici','SI 3',{all:'Indicar: h_evac = ? m · Determina les exigències d\'escala protegida i resistència al foc (SI-6)'},'input','m (h evacuació)')}
+        ${row('si3_escala_tip','Tipus d\'escala exigida','En funció de l\'alçada d\'evacuació','SI 3-5, T.5.1',{unifamiliar:'Escala NO protegida admesa (h_evac ≤ 14m habitatge unifamiliar)',plurifamiliar:'h_evac ≤ 14m: NO protegida · 14 < h_evac ≤ 28m: PROTEGIDA · h_evac > 28m: ESP. PROTEGIDA',terciari:'h_evac ≤ 10m: NO protegida · 10-28m: PROTEGIDA · >28m: ESP. PROTEGIDA (o dues protegides)'},'input','tipus escala')}
+        ${row('si3_amplada_esc','Amplada mínima de l\'escala d\'evacuació','Amplada lliure de la projecció de la caixa d\'escala','SI 3-4, T.4.1',{unifamiliar:'≥ 0,80 m (habitatge unifamiliar ocupació ≤ 10 persones)',plurifamiliar:'≥ 1,00 m (edifici residencial). Escala protegida: A ≥ P/160 (P = persones que evacuen per l\'escala)',terciari:'≥ 1,00 m general. A ≥ P/160 en escala protegida. A ≥ P/80 en esp. protegida'},'input','m amplada')}
+        ${row('si3_amplada_pas','Amplada mínima de portes i passadissos de recorreguts d\'evacuació','Portes situades en recorreguts d\'evacuació','SI 3-4',{all:'Portes: ≥ 0,80 m amplada de pas (0,90 m fulla) · Passadissos: ≥ 1,00 m · Portes de sortida d\'edifici: ≥ 0,80 m'},'input','m (indicar cada element)')}
+        ${row('si3_senyalitzacio','Senyalització de les sortides i dels recorreguts d\'evacuació','Rètols d\'evacuació, d\'emergència i de sortida de planta','SI 3-7',{all:'Senyals conformes a UNE 23034: "Sortida", "Sortida d\'emergència", fletxes indicadores de recorregut. Fotoliminiscents si no hi ha il·luminació natural.'},'check','')}
+        ${row('si3_refugi','Zones de refugi (edificis amb ús per a PMR)','Per a evacuació ascendent en edificis amb plantes sobre rasant servides per ascensor','SI 3-9',{unifamiliar:'No s\'exigeix',plurifamiliar:'Si h_evac > 14m i l\'edifici disposa d\'ascensor: zona de refugi d\'1 m² per cada 100 ocupants de PMR en cada planta d\'evacuació ascendent',terciari:'Si h_evac > 14m: zona de refugi per a PMR en cada planta.'},'check','')}
+      </tbody>
+    </table>
+
+    <!-- Disseny dels elements d'evacuació (model COAC SI 3.4 / SI 3.6) -->
+    <div style="padding:0 14px 14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:12px 0 6px">Disseny dels elements d'evacuació · SI 3.4 / SI 3.6</div>
+      <table class="ftable">
+        <thead><tr>
+          <th style="width:120px">Element</th>
+          <th style="width:120px">Paràmetre</th>
+          <th>Valor exigit</th>
+          <th class="th-proj" style="width:140px">Valor projecte</th>
+          <th class="th-cb">Contemplat</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td rowspan="3"><strong>Portes</strong><div class="ex-note">Sortida habitatge, aparcament i locals de risc</div></td>
+            <td>Tipus</td>
+            <td><span class="req-val">Batents amb eix de gir vertical. Dispositiu de fàcil obertura des del costat d'evacuació (maneta o polsador, UNE-EN 179)</span></td>
+            <td><input class="proj-inp" type="text" placeholder="tipus porta"></td>
+            <td class="cb-wrap"><input type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>Amplada mínima</td>
+            <td><span class="req-val">≥ 0,80 m · 1 fulla: 0,80 ≤ A ≤ 1,23 m · 2 fulles: 0,60 ≤ A fulla ≤ 1,23 m</span></td>
+            <td><input class="proj-inp" type="text" placeholder="m amplada"></td>
+            <td class="cb-wrap"><input type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>Sentit d'obertura</td>
+            <td><span class="req-val">Sense requisits per seguretat en cas d'incendi (SI). Verificar DB SUA.</span></td>
+            <td><input class="proj-inp" type="text" placeholder="sentit"></td>
+            <td class="cb-wrap"><input type="checkbox"></td>
+          </tr>
+          <tr>
+            <td><strong>Passadissos</strong></td>
+            <td>Amplada mínima</td>
+            <td><span class="req-val">≥ 1,00 m · ≥ 0,80 m si ocupació ≤ 10 persones usuaris habituals</span></td>
+            <td><input class="proj-inp" type="text" placeholder="m amplada"></td>
+            <td class="cb-wrap"><input type="checkbox"></td>
+          </tr>
+          <tr class="only-unifamiliar f-hide">
+            <td><strong>Escala no protegida</strong><div class="ex-note">Ús restringit habitatge unif.</div></td>
+            <td>Amplada mínima</td>
+            <td><span class="req-val">≥ 0,80 m (ús restringit, ocupació ≤ 10 p.) · ≥ 1,00 m (cas general). Graons: condicions DB SUA 1.4.1</span></td>
+            <td><input class="proj-inp" type="text" placeholder="m amplada"></td>
+            <td class="cb-wrap"><input type="checkbox"></td>
+          </tr>
+          <tr class="only-plurifamiliar only-terciari f-hide">
+            <td><strong>Escala protegida</strong><div class="ex-note">Si h_evac &gt; 14m</div></td>
+            <td>Amplada mínima</td>
+            <td><span class="req-val">≥ 1,00 m · A ≥ P/160 (P = persones que evacuen) · Vestíbul d'independència. Parets EI-120, portes EI₂60-C5</span></td>
+            <td><input class="proj-inp" type="text" placeholder="m amplada"></td>
+            <td class="cb-wrap"><input type="checkbox"></td>
+          </tr>
+          <tr>
+            <td><strong>Vestíbul d'independència</strong></td>
+            <td>Compartimentació</td>
+            <td><span class="req-val">Parets EI-120 · Portes 2×EI₂30-C5 · Distància entre portes ≥ 0,50 m · Reacció: parets B-s1,d0; terres C<sub>FL</sub>-s1</span></td>
+            <td><input class="proj-inp" type="text" placeholder="si escau"></td>
+            <td class="cb-wrap"><input type="checkbox"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SI-4 Instal·lacions PCI ── -->
+  <div class="si-section">
+    <div class="si-head">
+      <span class="si-pill">SI-4</span>
+      <span class="si-title">Instal·lacions de protecció contra incendis</span>
+      <span class="si-ref">Art. SI 4, T.1.1</span>
+    </div>
+    <table class="ftable">
+      <thead><tr>
+        <th>Exigència</th><th class="th-art">Ref. CTE</th>
+        <th class="th-req">Valor exigit</th><th class="th-proj">Valor / observació projecte</th>
+        <th class="th-cb">Contemplat</th>
+      </tr></thead>
+      <tbody>
+        ${row('si4_extintors','Extintors portàtils','Eficàcia mínima 21A-113B (pols ABC). Instal·lar en locals i zones de risc especial.','SI 4, T.1.1',{unifamiliar:'<strong>Només en locals de risc especial</strong> (aparcament, trasters, locals d\'instal·lacions): eficàcia 21A-113B. Col·locació: part superior entre 0,80–1,20 m sobre el terra (RIPCI). Recorregut interior local ≤ 15 m fins a extintor. Senyalització i il·luminació d\'emergència per als extintors.',plurifamiliar:'En zones comunes: 1 extintor per planta. Recorregut fins extintor ≤ 15 m en tot el sector. Garatge: 1 extintor addicional a l\'accés.',terciari:'1 extintor per cada 15 m de recorregut o cada 600 m². Verificar ús específic (cuines comercials: CO₂ o especials).'},'input','nº extintors i ubicació')}
+        ${row('si4_col_seca','Columna seca','Necessària en edificis amb alçada d\'evacuació > 24m (ús residencial i altres)','SI 4, T.1.1',{unifamiliar:'No s\'exigeix en unifamiliars (h_evac generalment < 24m)',plurifamiliar:'Exigida si h_evac > 24m. Boca d\'alimentació a façana accessible per a bombers.',terciari:'Exigida si h_evac > 24m.'},'check','')}
+        ${row('si4_bie','Boques d\'incendi equipades (BIE)','Instal·lació automàtica de BIE 25mm o 45mm','SI 4, T.1.1',{unifamiliar:'No s\'exigeix',plurifamiliar:'No s\'exigeix per a ús Residencial Habitatge (excepte si S > 10.000 m² construïts o altres usos inclosos en edifici)',terciari:'BIE 25mm si superfície construïda > 1.000 m² (Administratiu, Comercial). Verificar ús.'},'check','')}
+        ${row('si4_extinc_aut','Sistema automàtic d\'extinció (ruixadors)','Instal·lació automàtica d\'extinció per esprai d\'aigua','SI 4, T.1.1',{unifamiliar:'No s\'exigeix en habitatge unifamiliar',plurifamiliar:'Exigit si h_evac > 28m (o si sector residencial > 5.000 m²). En aparcament: si S > 500 m².',terciari:'Comercial > 1.500 m², Administratiu > 5.000 m², Hoteler > 5.000 m². Verificar T.1.1.'},'check','')}
+        ${row('si4_deteccio','Sistema de detecció i alarma d\'incendi','Detectors automàtics i polsadors manuals','SI 4, T.1.1',{unifamiliar:'No s\'exigeix en habitatge unifamiliar (recomanat instal·lar detectors de fum)',plurifamiliar:'Exigit si S construïda total > 500 m² (residencial amb garatge). Sistema interconnectat.',terciari:'Exigit per a la majoria d\'usos terciaris > 500 m² · Veure T.1.1 per a cada ús específic.'},'check','')}
+        ${row('si4_hidrant','Hidrant exterior','Necessari per a edificis de certa superfície o ús','SI 4, T.1.1',{unifamiliar:'No s\'exigeix per a habitatge unifamiliar aïllat (excepte urbanitzacions > cert nombre de vivendes)',plurifamiliar:'Exigit si S total construïda > 5.000 m² (ús residencial habitatge). 1 hidrant per cada 10.000 m².',terciari:'Exigit per a la majoria de terciaris. Distància ≤ 100 m de la façana accessible.'},'check','')}
+        ${row('si4_ripci','Compliment del RIPCI (Reglament d\'Instal·lacions de Protecció Contra Incendis)','Les instal·lacions han de complir el Reial Decret 513/2017 (RIPCI)','SI 4, RIPCI',{all:'Totes les instal·lacions PCI han de ser dissenyades, instal·lades, posades en servei i mantingudes per empreses habilitades inscrites al RIPCI. Aportar certificació.'},'check','')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SI-5 Intervenció dels bombers ── -->
+  <div class="si-section">
+    <div class="si-head">
+      <span class="si-pill">SI-5</span>
+      <span class="si-title">Intervenció dels bombers</span>
+      <span class="si-ref">Art. SI 5</span>
+    </div>
+    <table class="ftable">
+      <thead><tr>
+        <th>Exigència</th><th class="th-art">Ref. CTE</th>
+        <th class="th-req">Valor exigit</th><th class="th-proj">Valor / observació projecte</th>
+        <th class="th-cb">Contemplat</th>
+      </tr></thead>
+      <tbody>
+        ${row('si5_vial','Vials d\'aproximació als edificis','Compliment de les condicions de vials per a vehicles de bombers','SI 5-1.1',{unifamiliar:'Amplada lliure ≥ 3,5 m · Alçada lliure (gàlib) ≥ 4,5 m · Radi de gir ≥ 5,30 m · Capacitat portant 200 kN/m² · Dist. màx. a façana: 23 m si h ≤ 9m',plurifamiliar:'Amplada ≥ 3,5 m · Gàlib ≥ 4,5 m · Cap. portant 200 kN/m² · Radi gir ≥ 5,3 m · Si h_evac > 9m: compliment condicions espai d\'aproximació',terciari:'Ídem. Verificar si h_evac > 15m: espai d\'aproximació a ≤ 10 m de façana.'},'check','')}
+        ${row('si5_espai_aprox','Espai d\'aproximació a façana accessible','Franja davant la façana per a l\'operació de vehicles de bombers','SI 5-1.2',{unifamiliar:'Si h_evac ≤ 9m: la via pública pot fer de vial d\'aproximació (distància ≤ 23m de façana)',plurifamiliar:'h_evac ≤ 9m: distància a façana ≤ 23 m · 9 < h ≤ 15m: ≤ 18 m · h > 15m: ≤ 10 m · Amplada espai: ≥ 3,5 m',terciari:'Ídem plurifamiliar. Verificar cada façana accessible.'},'input','m distància a façana')}
+        ${row('si5_accessibilitat','Accessibilitat per façana: buits de façana accessibles per a bombers','Buits de façana accessibles des de l\'espai d\'aproximació, per a cada planta','SI 5-1.3',{unifamiliar:'Almenys 1 buit per planta accessible: amplada ≥ 0,80m, alçada ≥ 1,20m, alçada sill ≤ 1,20m sobre el nivell de cada planta',plurifamiliar:'Almenys 1 buit per planta i cada 10 m de façana accessible: amplada ≥ 0,80m, alçada ≥ 1,20m, alçada sill ≤ 1,20m. Sense obstacles (reixes fixes, barres).',terciari:'Ídem. Verificar que les reixes, persianes i tancaments de seguretat permeten l\'accés.'},'check','')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SI-6 Resistència al foc de l'estructura ── -->
+  <div class="si-section">
+    <div class="si-head">
+      <span class="si-pill">SI-6</span>
+      <span class="si-title">Resistència al foc de l'estructura</span>
+      <span class="si-ref">Art. SI 6, T.3.1</span>
+    </div>
+    <table class="ftable">
+      <thead><tr>
+        <th>Exigència</th><th class="th-art">Ref. CTE</th>
+        <th class="th-req">Valor exigit</th><th class="th-proj">Valor / observació projecte</th>
+        <th class="th-cb">Contemplat</th>
+      </tr></thead>
+      <tbody>
+        ${row('si6_h_evac_calc','Alçada d\'evacuació de l\'edifici (càlcul de la RF exigida)','Diferència entre cota de la planta habitada més elevada i la sortida d\'evacuació','SI 6, T.3.1',{all:'Indicar h_evac per al càlcul: h_evac = ? m'},'input','m (cota planta alta – cota sortida)')}
+        ${row('si6_rf_sobre','Resistència al foc exigida als elements estructurals portants (plantes sobre rasant)','Pilars, murs de càrrega, jàsseres, forjats, lloses','SI 6, T.3.1',{unifamiliar:'Unifamiliar aïllat o entre mitgeres amb estructura independent: <strong>R-30</strong> · Unifamiliar adossat o en filera (estructura comuna): <strong>R-60</strong>',plurifamiliar:'h_evac ≤ 15m: R-60 · 15 &lt; h ≤ 28m: R-90 · h &gt; 28m: R-120',terciari:'h_evac ≤ 15m: R-60 · h ≤ 28m: R-90 · h &gt; 28m: R-120 (Residencial Públic, Docent: R-90 ja des de h &gt; 2,8m)'},'input','RF exigida i RF projecte')}
+        ${row('si6_rf_soterrani','Resistència al foc exigida als elements estructurals portants (plantes soterrani)','Plantes sota rasant en qualsevol ús','SI 6, T.3.1',{unifamiliar:'1 planta soterrani: R-90 · Més de 1 planta soterrani: R-120',plurifamiliar:'1 planta soterrani: R-90 · > 1 planta soterrani: R-120',terciari:'1 planta soterrani: R-90 · > 1 planta soterrani: R-120'},'input','nº plantes sot. i RF exigida')}
+        ${row('si6_rf_compartimentacio','Resistència al foc dels elements de compartimentació d\'incendis','Elements portants que alhora delimitin sectors d\'incendi','SI 6-2',{all:'Els elements que alhora siguin portants i delimitadors de sectors han de complir el valor R (portant) i el valor EI (aïllant) necessari per a la compartimentació. El valor determinant és el més restrictiu.'},'input','RF i EI element (anotar)')}
+        ${row('si6_coberta','Resistència al foc de les cobertes lleugeres no previstes per a evacuació','Condicions acumulatives: càrrega permanent ≤ 1 kN/m² (deguda únicament al seu tancament) + no prevista per a evacuació + la seva fallada no pot ocasionar danys a edificis propers ni comprometre estabilitat de plantes inferiors','SI 6, T.3.1',{all:'<strong>R-30</strong> (si compleix les tres condicions) · Si no les compleix, aplicar RF general de la taula 3.1 per a l\'ús i h_evac'},'input','tipus coberta i RF')}
+        ${row('si6_proteccio','Sistema de protecció passiva o activa de l\'estructura','Mètode de justificació de la RF (recalcul de la secció, protecció passiva, taules CTE)','SI 6, Annex SI C',{all:'Indicar mètode: (a) protecció passiva (revestiment, morters, plaques), (b) forjat de formigó (taules CTE recobr. mínim), (c) càlcul analític (temperatura-temps ISO 834), (d) acer: taules CTE o EAE.'},'input','mètode i material de protecció')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Panell de validació IA (s'omple amb runValidateSI) -->
+  <div id="validationPanel" style="display:none;margin:0 0 14px;border:1.5px solid #7c9ed9;border-radius:6px;overflow:hidden">
+    <div style="background:#1e3a6e;color:#fff;padding:9px 14px;display:flex;align-items:center;gap:10px">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;font-weight:600;background:#fff;color:#1e3a6e;padding:2px 8px;border-radius:3px">VALIDACIÓ IA</span>
+      <span style="font-size:12px;font-weight:600">Resultat amb citació del PDF oficial DB-SI</span>
+      <span id="validPdfInfo" style="font-size:10px;color:#aac;margin-left:auto"></span>
+    </div>
+    <div id="validationContent" style="padding:14px"></div>
+  </div>
+
+  <!-- Peu de la fitxa -->
+  <div class="fitxa-foot">
+    <div>
+      <div class="pf-label" style="margin-bottom:4px">Documentació de referència</div>
+      <div style="font-size:11px;line-height:1.7;color:var(--ink2)">
+        · CTE DB-SI (Ordre FOM/1635/2013, actualitzat)<br>
+        · CTE Part I, Art. 2 (àmbit d\'aplicació en edificis existents)<br>
+        · Reial Decret 513/2017, RIPCI<br>
+        · Annex D DB-SE (edificis existents)
+      </div>
+    </div>
+    <div>
+      <div class="pf-label" style="margin-bottom:4px">Observacions / Notes del tècnic</div>
+      <textarea style="width:100%;height:70px;border:1px solid var(--border);border-radius:4px;padding:6px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical;outline:none" placeholder="Anotacions addicionals, justificació d\'excepcions, referències a plànols..."></textarea>
+    </div>
+    <div>
+      <div class="sign-line">Signatura i segell del tècnic competent</div>
+    </div>
+    <div>
+      <div style="font-size:10px;color:var(--ink3);margin-top:4px">
+        Fitxa d\'orientació tècnica. Generada per CTE·IA amb base en el model OCT del COAC.<br>
+        Verificar sempre amb els textos oficials del CTE vigents.
+      </div>
+    </div>
+  </div>`;
+
+  // Aplicar tipologia inicial
+  setTimeout(() => changeTipologia(tip), 10);
+
+  return html;
+}
+
+// ── FITXA DB-SUA ─────────────────────────────────────────────────────────────
+
+function buildFitxaSUA(tipologia) {
+  const tip = tipologia || 'plurifamiliar';
+
+  let html = `
+  <div class="proj-grid">
+    <div class="pf-row wide"><span class="pf-label">Projecte / Obra</span><input class="pf-inp" placeholder="Títol del projecte"></div>
+    <div class="pf-row"><span class="pf-label">Data</span><input class="pf-inp" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div class="pf-row"><span class="pf-label">Referència cadastral</span><input class="pf-inp" placeholder="RC-"></div>
+    <div class="pf-row wide"><span class="pf-label">Tècnic redactor</span><input class="pf-inp" placeholder="Nom i titulació"></div>
+    <div class="pf-row"><span class="pf-label">Núm. col·legiat</span><input class="pf-inp" placeholder="CAT-"></div>
+  </div>
+
+  <div class="si-section" style="margin-bottom:18px;border-color:#c4a44a">
+    <div class="si-head" style="background:#fffbec;border-bottom-color:#e8d48a">
+      <span class="si-pill" style="background:#7a5e10">ÀMBIT</span>
+      <span class="si-title">Àmbit d'aplicació DB-SUA</span>
+      <span class="si-ref">Art. 2 Part I CTE · Introducció DB SUA</span>
+    </div>
+    <table class="ftable" style="font-size:11px">
+      <thead><tr><th>Intervenció</th><th>Condicions</th><th class="th-cb">Aplica</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Reforma parcial</strong></td><td>S'aplica als <strong>elements afectats</strong> per la reforma. No es pot reduir el nivell de seguretat preexistent.</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        <tr><td><strong>Canvi d'ús</strong></td><td>S'aplica íntegrament a la part objecte de canvi d'ús.</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        <tr><td><strong>Obra nova</strong></td><td>S'aplica íntegrament al DB SUA.</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tip-tabs">
+    <span style="font-size:11px;font-weight:600;color:var(--ink3);align-self:center;margin-right:4px">Tipologia:</span>
+    <button class="tip-tab${tip==='unifamiliar'?' on':''}" data-tip="unifamiliar" onclick="changeTipologia('unifamiliar')">Unifamiliar / Adossat</button>
+    <button class="tip-tab${tip==='plurifamiliar'?' on':''}" data-tip="plurifamiliar" onclick="changeTipologia('plurifamiliar')">Plurifamiliar</button>
+    <button class="tip-tab${tip==='terciari'?' on':''}" data-tip="terciari" onclick="changeTipologia('terciari')">Terciari / Altres usos</button>
+  </div>
+
+  <!-- SUA-1 Risc de caiguda -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SUA-1</span><span class="si-title">Seguretat enfront al risc de caiguda</span><span class="si-ref">Art. SUA 1</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('sua1_desnivells','Protecció dels desnivells (barreres de protecció)','Desnivells ≥ 0,55 m en zones d\'ús públic o qualsevol desnivell adjacent a zona de circulació amb perill de caiguda','SUA 1-3.1',{all:'ΔH ≤ 0,55m → no cal barrera · 0,55m &lt; ΔH ≤ 6m → h ≥ 0,90m · ΔH &gt; 6m → h ≥ 1,10m · Resistència: força horitzontal 0,8 kN/m (h=1,10m) / 0,5 kN/m (h=0,90m)'},'input','ΔH i h barrera')}
+      ${row('sua1_escala_rest','Escales d\'ús restringit (unifamiliar o accés a ús privatiu)','Escales entre plantes d\'un habitatge unifamiliar o accés exclusiu a zona privativa','SUA 1-4.1',{unifamiliar:'Amplada ≥ 0,80 m · Contrapetja ≤ 0,20 m · Petja ≥ 0,22 m · Passamà ≥ 1 costat si ample < 1,20m',plurifamiliar:'No aplica (ús restringit = interiors d\'habitatge o locals privatius)',terciari:'No aplica (ús restringit = interiors d\'habitatge o locals privatius)'},'input','amplada, petja, contrapetja','unifamiliar')}
+      ${row('sua1_escala_gen','Escales d\'ús general (zones comunes, terciari)','Escales en zones de circulació d\'ús no restringit','SUA 1-4.2',{unifamiliar:'No aplica (escala interior unifamiliar és ús restringit)',plurifamiliar:'Amplada ≥ 1,00m · Contrapetja ≤ 0,185m · Petja ≥ 0,28m (amb xanell: ≥ 0,26m) · Rel. 54&lt;2C+H&lt;70 · Passamans ≥ ambdós costats si ample ≥ 1,20m',terciari:'Amplada ≥ 1,00m · Contrapetja ≤ 0,175m (Pública concurrència ≤ 0,16m) · Petja ≥ 0,28m · Passamans ≥ ambdós costats si ample ≥ 1,20m'},'input','amplada, petja, contrapetja','plurifamiliar')}
+      ${row('sua1_escala_gen_t','Escales d\'ús general (terciari / pública concurrència)','Escales en zones de circulació de pública concurrència','SUA 1-4.2',{unifamiliar:'No aplica',plurifamiliar:'No aplica (veure fila escales ús general)',terciari:'Amplada ≥ 1,00m · Contrapetja ≤ 0,175m (P. conc.: ≤ 0,16m) · Petja ≥ 0,28m · Passamà ≥ ambdós costats si ample ≥ 1,20m · Tram màx. 18 graons (P. conc.: 12)'},'input','amplada, petja, contrapetja','terciari')}
+      ${row('sua1_rampes','Rampes','Rampes en circulació de persones','SUA 1-4.3',{unifamiliar:'Pendent ≤ 12% (longitud ≤ 3m) / ≤ 10% (fins 10m) / ≤ 8% (la resta)',plurifamiliar:'Rampa accessible (si itinerari accessible): pendent ≤ 8%, amplada ≥ 1,20m, descans ≥ 1,50m cada 9m',terciari:'Pendent ≤ 8% (accessible) · Pública concurrència: ≤ 6% si L > 6m'},'input','pendent i longitud')}
+      ${row('sua1_passamans','Passamans i baranes','Alçada i resistència de les baranes i passamans','SUA 1-3.2 / 1-4',{unifamiliar:'Barana escala ús restringit: alçada ≥ 0,90m. Obertures inferiors no permeten pas esfera ∅ 10cm',plurifamiliar:'Barana escala general: alçada ≥ 0,90m (si h caiguda ≤ 6m) o ≥ 1,10m (si h > 6m). Ø màx. entre elements verticals: 10cm',terciari:'Ídem plurifamiliar. Pública concurrència: ≥ 1,10m en tota alçada. Obertures ≤ 10cm'},'check','')}
+      ${row('sua1_superficie','Superfícies amb relleu o antilliscants en zones exteriors humides','Zones exteriors i interiors en àrees humides (lavabos, cuines, rampes)','SUA 1-2',{all:'Paviments: Rd ≥ 35 (zones interiors seques excepte escales) · Rd ≥ 35 (escalons) · Rd ≥ 45 (zones humides, rampes, zones exteriors)'},'input','Rd paviments')}
+    </tbody></table>
+  </div>
+
+  <!-- SUA-2 Risc d'impacte -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SUA-2</span><span class="si-title">Seguretat enfront al risc d'impacte o enganxament</span><span class="si-ref">Art. SUA 2</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('sua2_elements_sortints','Impacte amb elements fixes sortints de nivell inferior a 2,20 m','Jàsseres, conductes, cantons, senyals, lluminàries...','SUA 2-1.1',{all:'Alçada lliure de circulació ≥ 2,20 m (ús restringit: ≥ 2,10 m) · Elements sortints de les parets: sobresurten ≤ 0,15 m si h ≤ 2,20m, senyalitzats si sobresurten entre 0,15–0,30 m'},'check','')}
+      ${row('sua2_vidres','Classe de vidre en zones de risc d\'impacte','Superfícies vidrades en parets i portes fins a 2,00 m d\'alçada sobre el terra','SUA 2-1.2',{unifamiliar:'Vidre de seguretat (laminar o tremapat): Portes i panells adjacents: Classe 1C (UNE-EN 12600) · Altres superfícies: Classe 2B o 3C · Banys: Classe 3 (laminar 3+3)',plurifamiliar:'Ídem unifamiliar. Zones comuns: portes i panells → Classe 1C · Vidres en zones de pas: Classe 2B',terciari:'Pública concurrència: tots els vidres en zones de risc fins 2m → Classe 1C · Façanes grans superfícies: Classe 1B'},'input','classe vidre i ubicació')}
+      ${row('sua2_portes','Portes situades al lateral d\'un passadís o en un canvi de nivell','Portes que s\'obren directament a un passadís de trànsit de persones','SUA 2-1.3',{all:'La porta no ha de barrar el pas en recorregut d\'evacuació. Col·locar a nínxol o reculada ≥ 0,50 m · Portes corredisses en circulació: sistema de frenada o parades'},'check','')}
+    </tbody></table>
+  </div>
+
+  <!-- SUA-3/4 Atrapament i Il·luminació -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SUA-3/4</span><span class="si-title">Atrapament · Il·luminació inadequada</span><span class="si-ref">Art. SUA 3 · SUA 4</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('sua3_banys','Dispositiu de desbloqueig exterior en banys i vestidors','Portes tancables des de l\'interior de banys/lavabos/vestidors','SUA 3-1',{all:'Les portes disposen de dispositiu de bloqueig interior amb desbloqueig des de l\'exterior en cas d\'emergència. Clau accessible per als serveis de l\'edifici.'},'check','')}
+      ${row('sua4_escales_il','Il·luminació d\'escales i zones de circulació','Nivell mínim d\'il·luminació en zones d\'ús general','SUA 4-1',{unifamiliar:'Escala: E ≥ 100 lux (mesurada al terra) · Zones de circulació interiors: E ≥ 50 lux',plurifamiliar:'Zones comuns interiors: E ≥ 50 lux · Escales: E ≥ 100 lux · Aparcament: E ≥ 50 lux (conducció) / E ≥ 50 lux (aparcament) · Exterior: E ≥ 5 lux',terciari:'Zones de circulació generals: E ≥ 100 lux · Escales: E ≥ 150 lux · Exterior accés: E ≥ 5 lux'},'input','E (lux) per zona')}
+      ${row('sua4_emergencia','Il·luminació d\'emergència','Zones que requereixen il·luminació d\'emergència','SUA 4-2',{unifamiliar:'No obligatòria en habitatge unifamiliar (recomanada en escales)',plurifamiliar:'Obligatòria en: escales, zones de circulació comuns, aparcament, locals de risc especial, recintes d\'ascensor. E ≥ 1 lux. Lumens ≥ 5 lm durant 1h',terciari:'Obligatòria en totes les zones de circulació, recintes d\'ús públic, lavabos col·lectius, locals de risc, recorreguts d\'evacuació. E ≥ 1 lux al terra; E ≥ 5 lux als quadres elèctrics.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <!-- SUA-7 Vehicles / SUA-8 Llamps -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SUA-7/8</span><span class="si-title">Vehicles en moviment · Risc de llamps</span><span class="si-ref">Art. SUA 7 · SUA 8</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('sua7_aparcament','Aparcament: via de circulació i rampa d\'accés','Condicions de seguretat per a vianants en aparcament','SUA 7',{unifamiliar:'Gàlib mínim porta garatge: alçada ≥ 2,00 m. Rampa d\'accés: pendent ≤ 16% (1 tram) / ≤ 10% si l ≥ 10m. Franja diferenciada de vianants si l\'aparcament > 200 m².',plurifamiliar:'Gàlib ≥ 2,20 m · Pendent rampa ≤ 16% · Via de vianants (franja o carril) a tot el recorregut d\'aparcament col·lectiu · Senyalització horitzontal i vertical.',terciari:'Ídem plurifamiliar. Aparcaments > 100 places: barreres de protecció entre via circulació i vianants.'},'check','')}
+      ${row('sua8_llamps','Instal·lació de protecció contra el llamp','Necessitat de parallamps en funció del risc calculat','SUA 8-1',{all:'Calcular: Ne (freqüència d\'impactes esperada) vs Na (llindar). Si Ne > Na → instal·lar parallamps. Depèn de la densitat de llamps (Ng), superfície edifici i coeficients C1-C5. Barcelona: Ng ≈ 2,5 llamps/km²·any. Verificar calculant Ne i Na.'},'input','Ne / Na (indicar si cal instal·lació)')}
+    </tbody></table>
+  </div>
+
+  <!-- SUA-9 Accessibilitat -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SUA-9</span><span class="si-title">Accessibilitat</span><span class="si-ref">Art. SUA 9 · RD 173/2010</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('sua9_itinerari','Itinerari accessible entre plantes (ascensor o rampa accessible)','Edificis amb plantes a sobre del nivell d\'accés','SUA 9-1.1',{unifamiliar:'No obligatori (habitatge unifamiliar d\'ús propi)',plurifamiliar:'Edificis de ≥ 2 plantes o > 12 habitatges: ascensor accessible o rampa accessible. Cabina mínima: 1,10 × 1,40 m. Portes: amplada ≥ 0,80 m.',terciari:'Obligatori ascensor accessible si h_evac > 0m i plantes per sobre accés. Cabina: 1,10 × 1,40 m.'},'input','nº ascensors o rampa')}
+      ${row('sua9_acces','Accés accessible a l\'edifici des de la via pública','Itinerari accessible des de la via pública fins a l\'accés principal','SUA 9-1.1',{unifamiliar:'Recomanat però no obligatori per a ús propi',plurifamiliar:'Obligatori itinerari accessible des de l\'espai exterior fins a cada planta (ascensor inclòs). Portes d\'accés: amplada ≥ 0,80 m, espai lliure ≥ 1,20 m a costat del pom',terciari:'Obligatori. Accés des de l\'exterior: amplada ≥ 0,90 m, espai gir ∅ 1,50 m al vestíbul.'},'check','')}
+      ${row('sua9_banys_acc','Servei higiènic accessible (si escau)','Lavabos accessibles en edificis d\'ús públic o comunitari','SUA 9-2',{unifamiliar:'No obligatori (ús propi)',plurifamiliar:'Si l\'edifici té zones comunes d\'ús públic (consergeria, sala de reunions...): 1 lavabo accessible per gènere o mixt. Espai gir: ∅ 1,50 m. Espai lateral inodor: ≥ 0,80 m.',terciari:'Obligatori en plantes accessibles. 1 per gènere (o mixt) en cada planta. Transferència inodor bilateral o unilateral ≥ 0,90 m.'},'input','nº lavabos accessibles')}
+      ${row('sua9_pleces_acc','Places d\'aparcament accessibles','Reserves de places per a PMR en aparcaments','SUA 9-1.2',{unifamiliar:'No s\'exigeix en aparcament unifamiliar d\'ús privatiu',plurifamiliar:'Aparcament col·lectiu: 1 plaça/33 places (mínim 1). Dimensions: 2,20 × 4,50 m + zona transferència lateral ≥ 1,20 m.',terciari:'1 plaça/33 places d\'ús públic (mínim 1). Zona reservada i senyalitzada.'},'input','nº places PMR')}
+      ${row('sua9_senyalitzacio','Senyalització per a PMR (SIA, Braille, contrast cromàtic)','Senyalització de les rutes accessibles i serveis per a persones amb discapacitat','SUA 9-2.5',{unifamiliar:'No obligatori',plurifamiliar:'Senyalitzar: ascensors (Braille + Braille), portes d\'accés (SIA), escales amb franja contrastada al primer i últim graó',terciari:'Senyalització completa: SIA a tots els serveis accessibles, indicadors Braille, guies de pas i franges de paviment contrastades.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <div class="fitxa-foot">
+    <div>
+      <div class="pf-label" style="margin-bottom:4px">Documentació de referència</div>
+      <div style="font-size:11px;line-height:1.7;color:var(--ink2)">
+        · CTE DB-SUA (RD 173/2010, actualitzat)<br>
+        · UNE-EN 12600 (vidres de seguretat)<br>
+        · Codi d'Accessibilitat de Catalunya (Decret 135/1995 i modificacions)
+      </div>
+    </div>
+    <div><div class="pf-label" style="margin-bottom:4px">Observacions</div>
+      <textarea style="width:100%;height:70px;border:1px solid var(--border);border-radius:4px;padding:6px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical;outline:none" placeholder="Anotacions, justificació d'excepcions, referència a plànols..."></textarea>
+    </div>
+    <div><div class="sign-line">Signatura i segell del tècnic competent</div></div>
+    <div><div style="font-size:10px;color:var(--ink3);margin-top:4px">Fitxa d'orientació tècnica. Generada per CTE·IA amb base en el model OCT del COAC.<br>Verificar sempre amb els textos oficials del CTE vigents.</div></div>
+  </div>`;
+
+  setTimeout(() => changeTipologia(tip), 10);
+  return html;
+}
+
+
+// ── FITXA DB-HE ──────────────────────────────────────────────────────────────
+
+function buildFitxaHE(tipologia) {
+  const tip = tipologia || 'plurifamiliar';
+
+  let html = `
+  <div class="proj-grid">
+    <div class="pf-row wide"><span class="pf-label">Projecte / Obra</span><input class="pf-inp" placeholder="Títol del projecte"></div>
+    <div class="pf-row"><span class="pf-label">Data</span><input class="pf-inp" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div class="pf-row"><span class="pf-label">Zona climàtica CTE</span><input class="pf-inp" placeholder="ex: C2 (Barcelona), D1 (Lleida)"></div>
+    <div class="pf-row wide"><span class="pf-label">Tècnic redactor</span><input class="pf-inp" placeholder="Nom i titulació"></div>
+    <div class="pf-row"><span class="pf-label">Núm. col·legiat</span><input class="pf-inp" placeholder="CAT-"></div>
+  </div>
+
+  <div class="si-section" style="margin-bottom:18px;border-color:#c4a44a">
+    <div class="si-head" style="background:#fffbec;border-bottom-color:#e8d48a">
+      <span class="si-pill" style="background:#7a5e10">ÀMBIT</span>
+      <span class="si-title">Àmbit d'aplicació DB-HE</span>
+      <span class="si-ref">Art. 1 DB HE</span>
+    </div>
+    <table class="ftable" style="font-size:11px">
+      <thead><tr><th>Secció</th><th>Aplica a obres de reforma?</th><th class="th-cb">Aplica</th></tr></thead>
+      <tbody>
+        <tr><td><strong>HE-0</strong> Consum energètic</td><td>Aplica a reforma quan la superfície útil reformada > 25% de l'envolvent o > 10% dels tancaments</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        <tr><td><strong>HE-1</strong> Demanda energètica</td><td>Aplica als elements de l'envolvent modificats per la reforma. Ampliació: total.</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        <tr><td><strong>HE-2</strong> RITE</td><td>Aplica a totes les instal·lacions tèrmiques noves o reformades (calefacció, refrigeració, ACS)</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        <tr><td><strong>HE-3</strong> Il·luminació</td><td>No aplica a ús residencial habitatge. Aplica a terciari en reforma d'il·luminació o instal·lació nova.</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        <tr><td><strong>HE-4</strong> Contribució renovable ACS</td><td>Aplica en obra nova i reforma si ACS > 50 l/dia. Ampliació > 50%: ídem obra nova.</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        <tr><td><strong>HE-5</strong> Generació fotovoltaica</td><td>Aplica en obra nova i gran rehabilitació (S > 3.000 m² terciari o > 100 habitatges).</td><td class="cb-wrap"><input type="checkbox"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tip-tabs">
+    <span style="font-size:11px;font-weight:600;color:var(--ink3);align-self:center;margin-right:4px">Tipologia:</span>
+    <button class="tip-tab${tip==='unifamiliar'?' on':''}" data-tip="unifamiliar" onclick="changeTipologia('unifamiliar')">Unifamiliar / Adossat</button>
+    <button class="tip-tab${tip==='plurifamiliar'?' on':''}" data-tip="plurifamiliar" onclick="changeTipologia('plurifamiliar')">Plurifamiliar</button>
+    <button class="tip-tab${tip==='terciari'?' on':''}" data-tip="terciari" onclick="changeTipologia('terciari')">Terciari / Altres usos</button>
+  </div>
+
+  <!-- HE-0 Consum energètic -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HE-0</span><span class="si-title">Limitació del consum energètic</span><span class="si-ref">Art. HE 0</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('he0_consum','Consum d\'energia primària no renovable (Ep,nr)','Indicar valor de càlcul amb eina de referència (HULC o equivalent)','HE 0, T.2.1',{unifamiliar:'Zona C: Ep,nr ≤ 40 kWh/m²·any (Unifam.) · Zona D: ≤ 35 · Zona E: ≤ 30 · Classe energètica ≥ D',plurifamiliar:'Zona C: Ep,nr ≤ 40 kWh/m²·any · Zona D: ≤ 35 · Zona E: ≤ 30 (valors orientatius; comprovar T.2.1 vigent)',terciari:'Ep,nr ≤ valor de l\'edifici de referència (HULC). Classe energètica ≥ C.'},'input','kWh/m²·any (HULC)')}
+      ${row('he0_classe','Qualificació energètica mínima','Classe energètica obtinguda del certificat d\'eficiència energètica','HE 0',{unifamiliar:'≥ Classe D (escala A–G)',plurifamiliar:'≥ Classe D',terciari:'≥ Classe C · Edificis de nova construcció: ≥ B a partir de 2023 (normativa en actualització).'},'input','Classe energètica (A-G)')}
+    </tbody></table>
+  </div>
+
+  <!-- HE-1 Demanda energètica -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HE-1</span><span class="si-title">Limitació de la demanda energètica de l'envolvent</span><span class="si-ref">Art. HE 1</span></div>
+    <div style="padding:10px 14px 0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Transmitàncies màximes per zona climàtica (W/m²K) · HE 1, T.3.1.1.a</div>
+      <table class="ftable" style="margin-bottom:10px">
+        <thead><tr>
+          <th style="width:170px">Element</th>
+          <th style="width:90px">Zona C (BCN)</th>
+          <th style="width:90px">Zona D (Lleida)</th>
+          <th style="width:90px">Zona E (Pirineus)</th>
+          <th style="width:120px">Valor projecte (U)</th>
+          <th class="th-cb">Contemplat</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Murs de façana i terrenys</td><td style="text-align:center">≤ 0,56</td><td style="text-align:center">≤ 0,49</td><td style="text-align:center">≤ 0,41</td><td><input class="proj-inp" placeholder="W/m²K"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Cobertes (contacte ext. o terreny)</td><td style="text-align:center">≤ 0,35</td><td style="text-align:center">≤ 0,30</td><td style="text-align:center">≤ 0,23</td><td><input class="proj-inp" placeholder="W/m²K"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Terres (contacte terreny)</td><td style="text-align:center">≤ 0,50</td><td style="text-align:center">≤ 0,48</td><td style="text-align:center">≤ 0,38</td><td><input class="proj-inp" placeholder="W/m²K"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Fusteries (marcs + vidre)</td><td style="text-align:center">≤ 3,50</td><td style="text-align:center">≤ 2,70</td><td style="text-align:center">≤ 2,00</td><td><input class="proj-inp" placeholder="W/m²K"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Ponts tèrmics (lineal Ψ)</td><td style="text-align:center">Limitats</td><td style="text-align:center">Limitats</td><td style="text-align:center">Limitats</td><td><input class="proj-inp" placeholder="W/mK"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('he1_clt','Càlcul de la demanda (eina de referència o simplificada)','Mètode de justificació del compliment de HE-1','HE 1',{all:'Opció simplificada (taules de transmitàncies màx.) o opció general (HULC o eines equivalents). Indicar mètode i eina.'},'input','mètode i eina')}
+      ${row('he1_ponts','Control de ponts tèrmics','Jàsseres, pilars, contorns de fusteria, cantonades, forjats…','HE 1, Apèndix E',{all:'Ψ lineal ≤ valors de referència T.E.1. Solucions: trencament del pont (aïllament continu), capes de material de baixa conductivitat als nusos.'},'check','')}
+      ${row('he1_permeabilitat','Permeabilitat a l\'aire de les fusteries','Classe de permeabilitat a l\'aire de finestres i portes exteriors','HE 1, T.3.1.3',{unifamiliar:'Zona C,D,E: classe 3 o superior (≤ 9 m³/h·m² a 100 Pa) · Il·luminació natural: Factor solar g ≤ 0,52 (zona C estiu)',plurifamiliar:'Zona C: classe 3 · Zona D: classe 4 (≤ 3 m³/h·m² a 100 Pa)',terciari:'Zones càlides/temperades: classe 3 mínima. Veure T.3.1.3 en funció de zona.'},'input','classe permeabilitat')}
+    </tbody></table>
+  </div>
+
+  <!-- HE-2 RITE -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HE-2</span><span class="si-title">Rendiment de les instal·lacions tèrmiques (RITE)</span><span class="si-ref">Art. HE 2 · RD 1027/2007 RITE</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('he2_caldera','Rendiment estacional de la caldera o bomba de calor','Eficiència de les fonts de calor i de fred','HE 2 / RITE IT 1.2.4',{all:'Caldera gas: rendiment estacional ≥ 92% (condensació recomanada) · Bomba de calor: COP ≥ 2,5 (calefacció) / EER ≥ 2,5 (refrigeració) · Etiqueta energètica ≥ A'},'input','rendiment / COP / EER')}
+      ${row('he2_regulacio','Sistema de regulació i control','Termostats i regulació per zones o habitacions','HE 2 / RITE IT 1.2.4.3',{unifamiliar:'Regulació per estàncies: termòstat a sala i dormitoris (o sistema centralitzat regulable). Vàlvules termostàtiques a radiadors.',plurifamiliar:'Regulació per habitatge (termòstat per unitat) + control centralitzat de temperatura exterior per a la corba de calefacció.',terciari:'Regulació per zones tèrmiques d\'ús similar. Control de demanda per zona.'},'check','')}
+      ${row('he2_acs_temp','Temperatura de l\'ACS','Control de temperatura de l\'aigua calenta sanitària','HE 2 / RD 865/2003 (Legionel·la)',{all:'Temperatura distribució: ≥ 60°C · Temperatura en punt de consum: ≥ 50°C · Temperatura acumulació: ≥ 60°C · Mesures anti-legionel·la: termòstat i purga periòdica.'},'input','T acumulació / distribució')}
+      ${row('he2_aïllament','Aïllament de xarxes de distribució de calefacció i ACS','Gruix mínim d\'aïllament de canonades','HE 2 / RITE IT 1.2.4.2.1',{all:'Canonades d\'ACS i calefacció en locals no calefactats: aïllament mínim RITE Taula 1.2.4.2.1 (ex: DN15-35 → e ≥ 25mm λ≤0,04). Interior: e ≥ 20mm. Verificar diàmetres.'},'input','DN i gruix aïllament')}
+    </tbody></table>
+  </div>
+
+  <!-- HE-3 Il·luminació (Terciari) -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HE-3</span><span class="si-title">Eficiència energètica de les instal·lacions d'il·luminació</span><span class="si-ref">Art. HE 3 (no aplica a ús residencial habitatge)</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('he3_na','Àmbit d\'aplicació HE-3','HE-3 no aplica a ús residencial habitatge (unifamiliar ni plurifamiliar)','HE 3, Art. 1',{unifamiliar:'<strong>No aplica</strong> a ús Residencial Habitatge',plurifamiliar:'<strong>No aplica</strong> a les zones d\'habitatge. Sí aplica a zones comunes d\'ús terciari (local comercial en planta baixa, etc.)',terciari:'<strong>Aplica íntegrament</strong>: calcular VEEI de cada zona i potència instal·lada màxima'},'check','')}
+      ${row('he3_veei','Valor d\'Eficiència Energètica de la Instal·lació (VEEI)','VEEI = P·100 / (S·Em) · Valors màxims per zona d\'activitat','HE 3, T.2.1',{unifamiliar:'No aplica',plurifamiliar:'Zones comunes (escales, vestíbuls): VEEI ≤ 4 W/m² per 100 lux · Aparcament: VEEI ≤ 4',terciari:'Administratiu: VEEI ≤ 3 · Comercial: ≤ 4 · Hostaleria: ≤ 6 · Pública concurrència: ≤ 8 · Veure T.2.1 per a cada ús'},'input','VEEI per zona (W/m²/100lux)')}
+      ${row('he3_control','Sistema de control d\'il·luminació i aprofitament de llum natural','Controls d\'encesa automàtica i regulació per zones','HE 3, Art. 2.2',{unifamiliar:'No aplica',plurifamiliar:'Zones comunes: detector de presència o temporitzador. Escales i vestíbuls: encesa automàtica.',terciari:'Detector de presència en zones de pas. Regulació per aportació de llum natural en zones properes a façanes. Zones perifèriques amb sensor de llum.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <!-- HE-4 Renovables ACS -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HE-4</span><span class="si-title">Contribució mínima d'energia renovable per a ACS</span><span class="si-ref">Art. HE 4</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('he4_demanda','Demanda d\'ACS de l\'edifici','Litres/dia a 60°C per tipologia (CTE HE 4, T.4.1)','HE 4, T.4.1',{unifamiliar:'Habitatge unifamiliar: 28 l/dia per persona (estàndard 3 persones = 84 l/dia)',plurifamiliar:'Per habitatge: 28 l/dia·persona × ocupació (2.5 p/hab per defecte) · Total edifici: nº hab × 70 l/dia',terciari:'Hotel: 55 l/plaça · Residència gent gran: 55 l/plaça · Oficines: 2 l/persona · Calcular per ús'},'input','l/dia total edifici')}
+      ${row('he4_cobertura','Percentatge mínim d\'ACS amb energia renovable','Fracció solar mínima o equivalent amb bomba de calor aerotèrmica','HE 4, T.4.2',{unifamiliar:'Zona climàtica solar IV (Catalunya): ≥ 60% cobertura solar (captadors solars tèrmics) o equivalent amb BCT aerotèrmica classe A+',plurifamiliar:'Zona IV: ≥ 60% · Si la demanda ACS > 50 l/dia a l\'edifici: obligatori compliment HE-4',terciari:'Zona IV: ≥ 60% per ACS · Piscines cobertes: ≥ 60% calefacció de l\'aigua · Veure mapa zones solars.'},'input','% cobertura renovable')}
+      ${row('he4_sistema','Sistema d\'energia renovable escollit','Captadors solars tèrmics, BCT aerotèrmica o una altra font renovable','HE 4',{all:'Opcions admeses: (1) Captadors solars tèrmics (UNE-EN 12975 o 12976) + acumulador + intercanviador. (2) Bomba de calor aerotèrmica (COP≥2,5 per a ACS) de classe A+ o superior. (3) Xarxa de calor/fred 100% renovable.'},'input','sistema i potència')}
+    </tbody></table>
+  </div>
+
+  <!-- HE-5 Fotovoltaica -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HE-5</span><span class="si-title">Generació mínima d'energia elèctrica (fotovoltaica)</span><span class="si-ref">Art. HE 5</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('he5_ambit','Àmbit d\'aplicació HE-5','Aplica a edificis nous i gran rehabilitació de terciari o plurifamiliar gran','HE 5, Art. 1.1',{unifamiliar:'<strong>No aplica</strong> a habitatge unifamiliar (menys de 100 habitatges i menys de 3.000 m² ús terciari)',plurifamiliar:'Aplica si l\'edifici té ≥ 100 habitatges o la superfície útil supera determinats llindars. Verificar T.2.1 HE-5.',terciari:'Aplica si S_útil > 3.000 m² (Comercial, Administratiu, Hoteler, Hostaleria, Sanitari, Esportiu, etc.). Veure T.2.1.'},'check','')}
+      ${row('he5_potencia','Potència mínima de la instal·lació fotovoltaica','Potència pic mínima de panells FV a instal·lar','HE 5, T.2.1',{unifamiliar:'No aplica',plurifamiliar:'Càlcul: Pmin = C × (0,25 × Sb + max(0, Sb – 3.000) × 0,025) kWp · Sb = superfície construïda en m²',terciari:'Càlcul per ús: Comercial Pmin = 0,001·Sb + 5 (fins a límits). Consultar T.2.1. per a cada ús. Zona climàtica solar modifica el coeficient.'},'input','kWp instal·lats')}
+    </tbody></table>
+  </div>
+
+  <div class="fitxa-foot">
+    <div>
+      <div class="pf-label" style="margin-bottom:4px">Documentació de referència</div>
+      <div style="font-size:11px;line-height:1.7;color:var(--ink2)">
+        · CTE DB-HE (RD 732/2019, actualitzat)<br>
+        · RITE (RD 1027/2007 i modificacions)<br>
+        · Eina de Referència: HULC (Ministerio de Transportes)<br>
+        · Mapa zones climàtiques: Apèndix B DB-HE
+      </div>
+    </div>
+    <div><div class="pf-label" style="margin-bottom:4px">Observacions</div>
+      <textarea style="width:100%;height:70px;border:1px solid var(--border);border-radius:4px;padding:6px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical;outline:none" placeholder="Zona climàtica, eina de càlcul emprada, sistema solar, observacions..."></textarea>
+    </div>
+    <div><div class="sign-line">Signatura i segell del tècnic competent</div></div>
+    <div><div style="font-size:10px;color:var(--ink3);margin-top:4px">Fitxa d'orientació tècnica. Generada per CTE·IA amb base en el model OCT del COAC.<br>Verificar sempre amb els textos oficials del CTE vigents.</div></div>
+  </div>`;
+
+  setTimeout(() => changeTipologia(tip), 10);
+  return html;
+}
+
+
+// ── FITXA DB-HS ──────────────────────────────────────────────────────────────
+
+function buildFitxaHS(tipologia) {
+  const tip = tipologia || 'plurifamiliar';
+
+  let html = `
+  <div class="proj-grid">
+    <div class="pf-row wide"><span class="pf-label">Projecte / Obra</span><input class="pf-inp" placeholder="Títol del projecte"></div>
+    <div class="pf-row"><span class="pf-label">Data</span><input class="pf-inp" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div class="pf-row"><span class="pf-label">Zona pluviomètrica</span><input class="pf-inp" placeholder="ex: III (Barcelona), IV (Girona)"></div>
+    <div class="pf-row wide"><span class="pf-label">Tècnic redactor</span><input class="pf-inp" placeholder="Nom i titulació"></div>
+    <div class="pf-row"><span class="pf-label">Núm. col·legiat</span><input class="pf-inp" placeholder="CAT-"></div>
+  </div>
+
+  <div class="tip-tabs">
+    <span style="font-size:11px;font-weight:600;color:var(--ink3);align-self:center;margin-right:4px">Tipologia:</span>
+    <button class="tip-tab${tip==='unifamiliar'?' on':''}" data-tip="unifamiliar" onclick="changeTipologia('unifamiliar')">Unifamiliar / Adossat</button>
+    <button class="tip-tab${tip==='plurifamiliar'?' on':''}" data-tip="plurifamiliar" onclick="changeTipologia('plurifamiliar')">Plurifamiliar</button>
+    <button class="tip-tab${tip==='terciari'?' on':''}" data-tip="terciari" onclick="changeTipologia('terciari')">Terciari / Altres usos</button>
+  </div>
+
+  <!-- HS-1 Protecció front humitat -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HS-1</span><span class="si-title">Protecció enfront la humitat</span><span class="si-ref">Art. HS 1</span></div>
+    <div style="padding:10px 14px 0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Grau d'impermeabilitat · HS 1 (Catalunya: Zona pluviomètrica III, Zona eòlica C)</div>
+      <table class="ftable" style="margin-bottom:10px">
+        <thead><tr>
+          <th style="width:130px">Element</th>
+          <th style="width:120px">Condicionants</th>
+          <th style="width:90px">Grau exigit</th>
+          <th style="width:140px">Solució adoptada</th>
+          <th class="th-cb">Contemplat</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><strong>Murs soterrani</strong></td><td>Presència d'aigua: baixa/mitjana/alta (T.2.1)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="tipus impermeabilització"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td><strong>Terres soterrani</strong></td><td>Presència d'aigua (T.2.3)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="membrana, drenatge…"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td><strong>Façana</strong></td><td>Zona pluviomètrica + grau exposició al vent (T.2.5)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="sistema façana"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td><strong>Coberta</strong></td><td>Tipus (plana/inclinada) + ús (trepitjable/no) (T.2.9)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="memb. + aïll. + formació pendents"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Condicions</th><th class="th-proj">Solució projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hs1_coberta_pla','Coberta plana: capes i elements','Formació de pendents, capa separadora, impermeabilitzant, aïllament i protecció','HS 1-2.4',{all:'Pendent ≥ 1% (trepitjable) / ≥ 1% (no trepitj.) · Làmina impermeabilitzant: tipus LBM, PVC o similar · Aïllament: λ ≤ 0,04 W/mK sobre impermeabilitzant (coberta invertida) · Capa separadora + protecció (grava min 50mm o lloses) · Boneres amb guarda de 50mm i pendent a boca ≥ 2%'},'check','')}
+      ${row('hs1_coberta_inc','Coberta inclinada: elements','Làmina, ventilació i canal de recollida','HS 1-2.4.3',{all:'Pendent ≥ 26% (teula plana) / ≥ 32% (teula corba) / ≥ 15% (planxa metàl·lica) · Ventilació soto coberta si aïllament a la canal · Carener ventilat recomanat · Canaló de recollida dimensionat.'},'check','')}
+      ${row('hs1_pont_term','Control de ponts tèrmics (condensació superficial)','Temperatura mínima superficial en ponts tèrmics','HS 1 / HE 1',{all:'Factor de temperatura superficial fRsi ≥ fRsi,min (Taula B.1 DB HS1 en funció de la zona climàtica). Verificar amb càlcul higrotèrmic en ponts tèrmics de risc.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <!-- HS-2 Residus -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HS-2</span><span class="si-title">Recollida i evacuació de residus</span><span class="si-ref">Art. HS 2</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hs2_magatzem','Espai de magatzem de contenidors','Magatzem per a les fraccions de residus separades','HS 2-2',{unifamiliar:'Habitatge unif.: espai a la planta baixa, garatge o exterior clós de ≥ 1,5 m² per a 5 fraccions (paper, vidre, envasos, orgànica, rebuig)',plurifamiliar:'Espai col·lectiu al mateix edifici: superfície calculada per HS-2 T.2.1 (depèn del nº habitatges i coeficients per fracció). Mínim 3 m²/fracció × 5 fraccions.',terciari:'Espai de magatzem de residus adaptat al tipus i volum de residus generats. Mínim 3 m² si S_útil < 500 m².'},'input','m² espai magatzem')}
+      ${row('hs2_recollida','Recollida porta a porta o altres sistemes municipals','Compatibilitat amb el sistema de recollida municipal','HS 2-2.3',{all:'Verificar el sistema de recollida municipal de la localitat. Si hi ha recollida pneumàtica: bocana accessible. Si hi ha contenidors de barri: indicar distància (≤ 100 m recomanada). Sistema porta a porta: espai interior adequat.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <!-- HS-3 Ventilació -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HS-3</span><span class="si-title">Qualitat de l'aire interior — Ventilació</span><span class="si-ref">Art. HS 3, T.2.1</span></div>
+    <div style="padding:10px 14px 0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Cabals mínims de ventilació per habitatge · HS 3 T.2.1</div>
+      <table class="ftable" style="margin-bottom:10px">
+        <thead><tr>
+          <th style="width:160px">Estança</th>
+          <th style="width:130px">Tipus de cabal</th>
+          <th style="width:100px">Mínim exigit</th>
+          <th style="width:120px">Cabal projecte</th>
+          <th class="th-cb">Contemplat</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Dormitori principal</td><td>Admissió (entrada)</td><td style="font-weight:600;text-align:center">8 l/s</td><td><input class="proj-inp" placeholder="l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Altres dormitoris</td><td>Admissió</td><td style="font-weight:600;text-align:center">4 l/s</td><td><input class="proj-inp" placeholder="l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Sala d'estar / menjador</td><td>Admissió</td><td style="font-weight:600;text-align:center">6–10 l/s</td><td><input class="proj-inp" placeholder="l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Bany / WC</td><td>Extracció</td><td style="font-weight:600;text-align:center">8 l/s mínim</td><td><input class="proj-inp" placeholder="l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Cuina (extractor)</td><td>Extracció (addicional)</td><td style="font-weight:600;text-align:center">50 l/s (extractor)</td><td><input class="proj-inp" placeholder="l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-plurifamiliar only-terciari f-hide"><td>Trasters (col·lectius)</td><td>Extracció</td><td style="font-weight:600;text-align:center">0,7 l/s·m²</td><td><input class="proj-inp" placeholder="l/s·m²"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-plurifamiliar only-terciari f-hide"><td>Aparcament col·lectiu</td><td>Extracció mecànica</td><td style="font-weight:600;text-align:center">120 l/s·plaça</td><td><input class="proj-inp" placeholder="l/s·plaça"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hs3_sistema','Sistema de ventilació escollit','Tipus de ventilació del habitatge','HS 3-3.1',{unifamiliar:'Ventilació natural (obertures a façanes oposades o pati) o ventilació híbrida (conductes i xemeneia tèrmica). Admissió: ranures a fusteria o obertures a façana.',plurifamiliar:'Ventilació mecànica centralitzada (conductes verticals, extractor centralitzat per escala) o individual per habitatge. Sistemes: VR (recirculació), VF (flux simple), VD (doble flux).',terciari:'Ventilació mecànica obligatòria (RITE) si climatització. Cabals HS-3 T.2.1 o RITE IT 1.1.4.2 (el més restrictiu).'},'input','tipus sistema ventilació')}
+      ${row('hs3_shunts','Conductes de ventilació (shunts) en edificis plurifamiliars','Dimensionament, materials i estanqueïtat dels conductes','HS 3-3.3',{unifamiliar:'No aplica (ventilació individual)',plurifamiliar:'Secció mínima calculada per cabals (T.4.2 HS-3). Material: acer galvanitzat, PVC o similar, estanc. Deflector en coronament per evitar reflussos.',terciari:'Dimensionament per DIN 18017 o UNE equivalents. Conductes estancs classe D.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <!-- HS-4 Fontaneria -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HS-4</span><span class="si-title">Subministrament d'aigua</span><span class="si-ref">Art. HS 4, T.2.1</span></div>
+    <div style="padding:10px 14px 0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Cabals instantanis mínims · HS 4 T.2.1</div>
+      <table class="ftable" style="margin-bottom:10px">
+        <thead><tr>
+          <th>Aparell</th><th>Cabal AF mínim (l/s)</th><th>Cabal ACS mínim (l/s)</th><th>Cabal projecte AF/ACS</th><th class="th-cb">Contemplat</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Dutxa</td><td style="text-align:center">0,20</td><td style="text-align:center">0,10</td><td><input class="proj-inp" placeholder="AF / ACS l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Banyera &gt; 1,40 m</td><td style="text-align:center">0,30</td><td style="text-align:center">0,15</td><td><input class="proj-inp" placeholder="AF / ACS l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Rentamans</td><td style="text-align:center">0,10</td><td style="text-align:center">0,065</td><td><input class="proj-inp" placeholder="AF / ACS l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Inodor amb dipòsit</td><td style="text-align:center">0,10</td><td style="text-align:center">—</td><td><input class="proj-inp" placeholder="AF l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Rentaplats (dom.)</td><td style="text-align:center">0,15</td><td style="text-align:center">0,10</td><td><input class="proj-inp" placeholder="AF / ACS l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Rentadora domèstica</td><td style="text-align:center">0,20</td><td style="text-align:center">0,15</td><td><input class="proj-inp" placeholder="AF / ACS l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hs4_pressio','Pressió en els punts de consum','Pressió mínima i màxima en els punts de connexió dels aparells','HS 4-2.1.3',{all:'Pressió mínima: 100 kPa (inodors), 150 kPa (dutxes i resta) · Pressió màxima: ≤ 500 kPa · Si la pressió de la xarxa és > 500 kPa: instal·lar reductor de pressió'},'input','kPa (min / max)')}
+      ${row('hs4_aïllament','Aïllament de canonades d\'ACS i AF','Protecció contra la condensació i pèrdues tèrmiques','HS 4-5.1 / RITE',{all:'Canonades d\'ACS: aïllament tèrmic ≥ RITE Taula 1.2.4.2.1. Canonades d\'AF en passadissos no climatitzats: aïllament anti-condensació (λ ≤ 0,04, e ≥ 9mm DN≤25mm). Separació AF/ACS ≥ 4 cm o aïllament individual.'},'check','')}
+      ${row('hs4_comptadors','Comptadors individuals','Un comptador per habitatge o local','HS 4-3.2',{unifamiliar:'Comptador individual a l\'escomesa o a la bateria. Armari accessible.',plurifamiliar:'Bateria de comptadors en planta baixa o soterrani: 1 comptador/habitatge + 1 per zones comunes. Armari normalitzat amb espai de tall general.',terciari:'Comptadors sectorials per zones o usos. Subcomptadors per plantes o usos.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <!-- HS-5 Evacuació d'aigües -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HS-5</span><span class="si-title">Evacuació d'aigües residuals i pluvials</span><span class="si-ref">Art. HS 5</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hs5_xarxa','Tipus de xarxa d\'evacuació','Separativa (residuals + pluvials separades) o unitària','HS 5-3.1',{all:'Sistema separatiu preferent (recomanat). Unitari admès si la xarxa pública és unitària. Connexió a la xarxa pública: una sola connexió de residuals i una de pluvials (sistema separatiu).'},'input','tipus xarxa (sep/unit)')}
+      ${row('hs5_sifons','Sifons i tancaments hidràulics','Un sifon per a cada aparell i registre per a la xarxa','HS 5-3.3',{all:'Sifon individual per aparell (h mín. tancament: 50mm, 70mm cuina). Sifon de banyera: integrat en desguàs. Connexió a baixant sense sifó intermedi si distància ≤ 2m. Col·lectors horitzontals: pendent ≥ 2% (1% mínim).'},'check','')}
+      ${row('hs5_bajants','Diàmetre dels baixants','En funció del número d\'unitats de desguàs (UD)','HS 5-4.2, T.4.3',{unifamiliar:'Baixant residuals: DN ≥ 63mm (mínim) / DN 90mm habitatge típic. Baixant pluvials: calcular per superfície de coberta i intensitat pluviomètrica (T.B.1)',plurifamiliar:'Baixant residuals: calcular UD totals (T.4.1) → diàmetre T.4.3 (ex: 4 hab/planta → DN 110mm). Baixant pluvials: calcular per planta servida.',terciari:'Calcular per UD. Baixant minim DN 63mm. Pluvials: calcular per superfície i intensitat local.'},'input','DN baixants (mm)')}
+      ${row('hs5_ventilacio','Ventilació de la xarxa d\'evacuació','Evitar la pèrdua dels tancaments hidràulics (sifons)','HS 5-3.5',{unifamiliar:'Ventilació primària (prolongació de la baixant per sobre coberta ≥ 1,30m). Si menys de 5 plantes: vàlvula d\'aeració admesa.',plurifamiliar:'Ventilació primària obligatòria (prolongació de baixant ≥ 2m sobre coberta transitable). Ventilació secundària si nº plantes > 5 o UD > certs valors.',terciari:'Ventilació primària + secundària o terciària si S > 500m² o múltiples plantes.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <!-- HS-6 Radó -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HS-6</span><span class="si-title">Protecció enfront el radó</span><span class="si-ref">Art. HS 6 · RD 1029/2022</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hs6_zona','Zona de radó del solar','Consultar el mapa de zones del CSN (Consell de Seguretat Nuclear)','HS 6-1 / CSN',{all:'Zona I (concentració baixa): mesures preventives bàsiques (barrera de radó contínua a solera i murs en contacte amb el terreny) · Zona II (concentració mitjana): barrera de radó + espai de contenció ventilat o sistema de despressurització del terreny · Nivell de referència: 300 Bq/m³. Verificar mapa CSN per al municipi.'},'input','Zona I o II (indicar municipi)')}
+      ${row('hs6_barrera','Barrera de radó','Membrana o barrera contínua a solera i murs soterranis','HS 6-2',{all:'Membrana polietilè ≥ 0,5 mm (o equivalent) contínua i segellada en totes les juntes, passamurs i forats. Segellat perimetral amb cinta d\'estanqueïtat o cordó expansiu. Totes les penetracions (tubs, canalitzacions) segellades individualment.'},'check','')}
+      ${row('hs6_ventilacio_sub','Ventilació del subsòl (Zona II)','Sistema de ventilació del terreny o espai de contenció','HS 6-2.2',{unifamiliar:'Zona II: cambra sanitària ventilada (h≥0.50m, sup ventilació ≥ 1/1500 de la superfície) o xarxa de tubs de drenatge perimetral + extractor',plurifamiliar:'Ídem. Espai de contenció ventilat comunicat amb l\'exterior mitjançant obertures ≥ 1/500 de la superfície de solera.',terciari:'Ídem. Sistemes de despressurització activa si la concentració mesurada supera 300 Bq/m³.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <div class="fitxa-foot">
+    <div>
+      <div class="pf-label" style="margin-bottom:4px">Documentació de referència</div>
+      <div style="font-size:11px;line-height:1.7;color:var(--ink2)">
+        · CTE DB-HS (actualitzat 2020)<br>
+        · Mapa de zones de radó: Consell de Seguretat Nuclear (CSN)<br>
+        · Zona pluviomètrica i eòlica: Figura B.1 i Apèndix B DB HS-1<br>
+        · HS-3: Taula 2.1 cabals mínims
+      </div>
+    </div>
+    <div><div class="pf-label" style="margin-bottom:4px">Observacions</div>
+      <textarea style="width:100%;height:70px;border:1px solid var(--border);border-radius:4px;padding:6px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical;outline:none" placeholder="Zona pluviomètrica, sistema ventilació, radó, observacions..."></textarea>
+    </div>
+    <div><div class="sign-line">Signatura i segell del tècnic competent</div></div>
+    <div><div style="font-size:10px;color:var(--ink3);margin-top:4px">Fitxa d'orientació tècnica. Generada per CTE·IA amb base en el model OCT del COAC.<br>Verificar sempre amb els textos oficials del CTE vigents.</div></div>
+  </div>`;
+
+  setTimeout(() => changeTipologia(tip), 10);
+  return html;
+}
+
+
+// ── FITXA DB-HR ──────────────────────────────────────────────────────────────
+
+function buildFitxaHR(tipologia) {
+  const tip = tipologia || 'plurifamiliar';
+
+  let html = `
+  <div class="proj-grid">
+    <div class="pf-row wide"><span class="pf-label">Projecte / Obra</span><input class="pf-inp" placeholder="Títol del projecte"></div>
+    <div class="pf-row"><span class="pf-label">Data</span><input class="pf-inp" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div class="pf-row"><span class="pf-label">Ld façana (dB) — mapa acústic</span><input class="pf-inp" placeholder="ex: 65 dB"></div>
+    <div class="pf-row wide"><span class="pf-label">Tècnic redactor</span><input class="pf-inp" placeholder="Nom i titulació"></div>
+    <div class="pf-row"><span class="pf-label">Núm. col·legiat</span><input class="pf-inp" placeholder="CAT-"></div>
+  </div>
+
+  <!-- Àmbit IMPORTANT -->
+  <div class="si-section" style="border-color:#c8401a;margin-bottom:18px">
+    <div class="si-head" style="background:#fff0eb;border-bottom-color:#e8956a">
+      <span class="si-pill" style="background:#c8401a">⚠ ÀMBIT</span>
+      <span class="si-title" style="color:#8b3a12">DB-HR: Àmbit d'aplicació limitat</span>
+      <span class="si-ref">Art. 1.1 DB HR</span>
+    </div>
+    <div style="padding:14px 16px;background:#fff8f5;font-size:12px;line-height:1.7;color:#8b3a12">
+      <strong>El DB HR NOMÉS és d'aplicació obligatòria en:</strong>
+      <ul style="margin:6px 0 6px 18px">
+        <li><strong>Obra nova</strong> (edificis de nova construcció)</li>
+        <li><strong>Rehabilitació integral</strong> (quan s'actua sobre tots els elements separadors horitzontals i verticals de l'edifici)</li>
+      </ul>
+      <strong>NO aplica en reformes parcials</strong> (substitució de finestres, reforma d'habitacle, reforma de façana sense actuar sobre tots els elements separadors).<br><br>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="hr_ambit" value="nova"> <span><strong>Obra nova</strong> → Aplica DB HR íntegrament</span></label>
+        <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="hr_ambit" value="rehab_int"> <span><strong>Rehabilitació integral</strong> → Aplica DB HR íntegrament</span></label>
+        <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="hr_ambit" value="reforma"> <span><strong>Reforma parcial</strong> → <em>DB HR no aplica</em></span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-tabs">
+    <span style="font-size:11px;font-weight:600;color:var(--ink3);align-self:center;margin-right:4px">Tipologia:</span>
+    <button class="tip-tab${tip==='unifamiliar'?' on':''}" data-tip="unifamiliar" onclick="changeTipologia('unifamiliar')">Unifamiliar / Adossat</button>
+    <button class="tip-tab${tip==='plurifamiliar'?' on':''}" data-tip="plurifamiliar" onclick="changeTipologia('plurifamiliar')">Plurifamiliar</button>
+    <button class="tip-tab${tip==='terciari'?' on':''}" data-tip="terciari" onclick="changeTipologia('terciari')">Terciari / Altres usos</button>
+  </div>
+
+  <!-- HR Aïllament aeri vertical -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HR-1</span><span class="si-title">Aïllament acústic aeri — Separacions verticals</span><span class="si-ref">Art. HR 2, T.2.1</span></div>
+    <div style="padding:10px 14px 0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Índex d'aïllament acústic exigit (DnT,A) entre recintes · HR T.2.1</div>
+      <table class="ftable" style="margin-bottom:10px">
+        <thead><tr>
+          <th style="width:200px">Tipus de separació</th>
+          <th style="width:140px">Recinte protegit (dormitori)</th>
+          <th style="width:140px">Recinte habitable (sala)</th>
+          <th style="width:120px">Valor projecte</th>
+          <th class="th-cb">Compleix</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Entre habitatge i habitatge (parets verticals)</td><td style="text-align:center;font-weight:700">DnT,A ≥ 50 dBA</td><td style="text-align:center;font-weight:700">DnT,A ≥ 45 dBA</td><td><input class="proj-inp" placeholder="dBA">  </td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-plurifamiliar f-hide"><td>Entre habitatge i zona comú (escala, portal)</td><td style="text-align:center">DnT,A ≥ 50 dBA</td><td style="text-align:center">DnT,A ≥ 45 dBA</td><td><input class="proj-inp" placeholder="dBA"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Envà interior habitatge (no separa unitats)</td><td style="text-align:center">RA ≥ 33 dBA</td><td style="text-align:center">RA ≥ 33 dBA</td><td><input class="proj-inp" placeholder="RA dBA"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-terciari f-hide"><td>Entre zona d'ús terciari i habitatge adjacent</td><td style="text-align:center">DnT,A ≥ 55 dBA</td><td style="text-align:center">DnT,A ≥ 45 dBA</td><td><input class="proj-inp" placeholder="dBA"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hr1_solucio_paret','Solució constructiva de les parets separadores','Indicar la solució adoptada (massa, doble full, trasdossat)','HR 2-1 / Catàleg HR',{unifamiliar:'Paret de separació entre habitatges adossats (mitgera): solució catàleg HR. Ex: paret de fàbrica de maó 115mm+CA+trasdossat → DnT,A ≥ 50 dBA. Verificar solució adoptada al Catàleg d\'Elements Constructius (CEC).',plurifamiliar:'Parets de separació entre habitatges: típicament doble full + CA (cambra d\'aire amb aïllament) o paret de formigó 20cm. Trasdossats elàstics milloren el resultat.',terciari:'Entre zona d\'ús terciari i habitatge: requeriments superiors (DnT,A ≥ 55 dBA). Solucions massisses o doble full amb tractament elàstic.'},'input','descripció solució constructiva')}
+    </tbody></table>
+  </div>
+
+  <!-- HR Aïllament soroll impacte -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HR-2</span><span class="si-title">Aïllament acústic — Soroll d'impacte (separacions horitzontals)</span><span class="si-ref">Art. HR 2, T.2.1</span></div>
+    <div style="padding:10px 14px 0">
+      <table class="ftable" style="margin-bottom:10px">
+        <thead><tr>
+          <th style="width:200px">Tipus de separació horitzontal</th>
+          <th style="width:140px">Soroll impacte L'nT,w</th>
+          <th style="width:140px">Aïllament aeri DnT,A</th>
+          <th style="width:120px">Valor projecte</th>
+          <th class="th-cb">Compleix</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Forjat entre habitatges (recinte protegit sota)</td><td style="text-align:center;font-weight:700">≤ 65 dB</td><td style="text-align:center;font-weight:700">≥ 50 dBA</td><td><input class="proj-inp" placeholder="L'nT,w / DnT,A"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-plurifamiliar f-hide"><td>Forjat entre habitatge i zona comú (sota habitatge)</td><td style="text-align:center">≤ 65 dB</td><td style="text-align:center">≥ 45 dBA</td><td><input class="proj-inp" placeholder="L'nT,w / DnT,A"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-terciari f-hide"><td>Forjat entre ús terciari (sobre) i habitatge (sota)</td><td style="text-align:center">≤ 60 dB</td><td style="text-align:center">≥ 55 dBA</td><td><input class="proj-inp" placeholder="L'nT,w / DnT,A"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hr2_solucio_forjat','Solució constructiva del forjat (sistema impacte)','Sòl flotant, fals sostre o combinació per a reducció de soroll d\'impacte','HR 2-2 / Catàleg HR',{all:'Sòl flotant: moqueta + formigó + aïllament elàstic (ΔLw ≥ 20dB) sobre forjat base. Alternativa: fals sostre elàstic (independent) + aïllament en cambra. Solucions al Catàleg d\'Elements Constructius HR.'},'input','descripció solució (sòl flotant, fals sostre)')}
+    </tbody></table>
+  </div>
+
+  <!-- HR Façana (soroll exterior) -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HR-3</span><span class="si-title">Aïllament acústic enfront soroll exterior — Façana</span><span class="si-ref">Art. HR 2, T.2.2 / T.2.4</span></div>
+    <div style="padding:10px 14px 0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Aïllament mínim D2m,nT,Atr en funció del soroll exterior Ld · HR T.2.4</div>
+      <table class="ftable" style="margin-bottom:10px">
+        <thead><tr>
+          <th>Nivell soroll exterior Ld (dB)</th>
+          <th>Dormitoris D2m,nT,Atr mínim</th>
+          <th>Estances D2m,nT,Atr mínim</th>
+          <th>Valor façana projecte</th>
+          <th class="th-cb">Compleix</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Ld ≤ 60 dB</td><td style="text-align:center">30 dBA</td><td style="text-align:center">30 dBA</td><td><input class="proj-inp" placeholder="dBA"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>60 &lt; Ld ≤ 65 dB</td><td style="text-align:center">32 dBA</td><td style="text-align:center">30 dBA</td><td><input class="proj-inp" placeholder="dBA"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>65 &lt; Ld ≤ 70 dB</td><td style="text-align:center">37 dBA</td><td style="text-align:center">32 dBA</td><td><input class="proj-inp" placeholder="dBA"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>70 &lt; Ld ≤ 75 dB</td><td style="text-align:center">42 dBA</td><td style="text-align:center">37 dBA</td><td><input class="proj-inp" placeholder="dBA"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Ld &gt; 75 dB</td><td style="text-align:center">47 dBA</td><td style="text-align:center">42 dBA</td><td><input class="proj-inp" placeholder="dBA"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hr3_fusteria','Aïllament de la fusteria (índex Rw de la finestra)','Valor Rw+Ctr (dBA) de la finestra completa (marc + vidre)','HR 2 / Catàleg HR',{all:'Combinació fusteria + vidre: Rw+Ctr ≥ valor necessari per assolir D2m,nT,Atr exigit. Dades del fabricant: certificat acústic UNE-EN 10140-2 o declaració de prestació. Vidres: doble 4+16+4 → Rw≈31dBA; 6+16+6 → Rw≈33; laminat 44.2+16+44.2 → Rw≥36dBA.'},'input','Rw+Ctr finestra (dBA) i composició vidre')}
+    </tbody></table>
+  </div>
+
+  <!-- HR Instal·lacions -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HR-4</span><span class="si-title">Soroll i vibracions de les instal·lacions</span><span class="si-ref">Art. HR 3, T.2.2</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('hr4_soroll_ins','Nivell de soroll de les instal·lacions en recintes protegits','Soroll transmès per canonades, ventiladors, bombes, ascensors, etc.','HR 3',{all:'Equips d\'instal·lació (bombes, climatitzadors, ascensors): ≤ 30 dBA en dormitoris / ≤ 35 dBA en estances. Canonades d\'evacuació: L ≤ 30 dBA. Mesures: suports antivibratoris, passamurs elàstics, aïllament de canonades.'},'input','dBA (dormitoris / estances)')}
+      ${row('hr4_ascensor','Aïllament de la sala de maquinària d\'ascensor','Sala de maquinaria adjacent o sobre recintes habitables','HR 3',{unifamiliar:'No aplica si no hi ha ascensor',plurifamiliar:'Porta d\'accés sala màquines: aïllament RA ≥ 40 dBA. Maquinari sobre suports antivibratoris. Guies de l\'ascensor: separació elàstica de l\'estructura de l\'edifici.',terciari:'Ídem. Sala de maquinaria: parets EI-60 + RA ≥ 40 dBA. Motors de freqüència variable.'},'check','')}
+    </tbody></table>
+  </div>
+
+  <div class="fitxa-foot">
+    <div>
+      <div class="pf-label" style="margin-bottom:4px">Documentació de referència</div>
+      <div style="font-size:11px;line-height:1.7;color:var(--ink2)">
+        · CTE DB-HR (RD 1371/2007, actualitzat)<br>
+        · Catàleg d'Elements Constructius (CEC) — Ministerio de Fomento<br>
+        · Mapa acústic municipal: consultar Ajuntament<br>
+        · UNE-EN ISO 10140 (mesures acústiques de laboratori)
+      </div>
+    </div>
+    <div><div class="pf-label" style="margin-bottom:4px">Observacions</div>
+      <textarea style="width:100%;height:70px;border:1px solid var(--border);border-radius:4px;padding:6px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical;outline:none" placeholder="Ld façana, solucions constructives, Catàleg HR ref..."></textarea>
+    </div>
+    <div><div class="sign-line">Signatura i segell del tècnic competent</div></div>
+    <div><div style="font-size:10px;color:var(--ink3);margin-top:4px">Fitxa d'orientació tècnica. Generada per CTE·IA amb base en el model OCT del COAC.<br>Verificar sempre amb els textos oficials del CTE vigents.</div></div>
+  </div>`;
+
+  setTimeout(() => changeTipologia(tip), 10);
+  return html;
+}
+
+
+// ── FITXA DB-SE ──────────────────────────────────────────────────────────────
+
+function buildFitxaSE(tipologia) {
+  const tip = tipologia || 'plurifamiliar';
+
+  let html = `
+  <div class="proj-grid">
+    <div class="pf-row wide"><span class="pf-label">Projecte / Obra</span><input class="pf-inp" placeholder="Títol del projecte"></div>
+    <div class="pf-row"><span class="pf-label">Data</span><input class="pf-inp" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div class="pf-row"><span class="pf-label">Zona climàtica / Zona de vent / Zona sísmica</span><input class="pf-inp" placeholder="ex: C2 / C / IV(0.08g)"></div>
+    <div class="pf-row wide"><span class="pf-label">Tècnic redactor</span><input class="pf-inp" placeholder="Nom i titulació"></div>
+    <div class="pf-row"><span class="pf-label">Núm. col·legiat</span><input class="pf-inp" placeholder="CAT-"></div>
+  </div>
+
+  <div class="tip-tabs">
+    <span style="font-size:11px;font-weight:600;color:var(--ink3);align-self:center;margin-right:4px">Tipologia:</span>
+    <button class="tip-tab${tip==='unifamiliar'?' on':''}" data-tip="unifamiliar" onclick="changeTipologia('unifamiliar')">Unifamiliar / Adossat</button>
+    <button class="tip-tab${tip==='plurifamiliar'?' on':''}" data-tip="plurifamiliar" onclick="changeTipologia('plurifamiliar')">Plurifamiliar</button>
+    <button class="tip-tab${tip==='terciari'?' on':''}" data-tip="terciari" onclick="changeTipologia('terciari')">Terciari / Altres usos</button>
+  </div>
+
+  <!-- SE Bases de càlcul -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SE</span><span class="si-title">Bases de càlcul — Vida útil i verificació</span><span class="si-ref">Art. SE 1 / SE 2</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('se_vida_util','Vida útil de disseny','Periode de temps durant el qual l\'estructura ha de complir la seva funció','SE 1-2',{unifamiliar:'Habitatge: ≥ 50 anys (vida útil classe 2)',plurifamiliar:'Edifici d\'habitatges col·lectiu: ≥ 50 anys (classe 2)',terciari:'Edifici d\'ús terciari: ≥ 50 anys (classe 2) · Estructures temporals: ≥ 10 anys (classe 1)'},'input','anys (classe de vida útil)')}
+      ${row('se_elu','Verificació dels ELU (Estats Límit Últims)','Comprovació de resistència i estabilitat (ELU)','SE 2-2',{all:'ELU de resistència: Ed ≤ Rd (valor de càlcul de l\'acció ≤ valor de càlcul de la resistència) · ELU d\'estabilitat: Ed,estabilitz ≥ Ed,bolcament · Coeficients de ponderació γF i γM indicats a cada norma material'},'check','')}
+      ${row('se_els','Verificació dels ELS (Estats Límit de Servei)','Comprovació de deformació, vibració i fissuració','SE 2-3',{unifamiliar:'Fletxa activa ≤ L/400 (o L/300) per a elements que suporten envans. Deflexió total ≤ L/300. Desplom ≤ H/500 global.',plurifamiliar:'Fletxa activa ≤ L/400 per a forjats suportant envans fràgils. Fletxa total ≤ L/300. Deriva per vent ≤ H/500.',terciari:'Fletxa ≤ L/300 (estructures sense envans fràgils) o ≤ L/400 (amb envans). Vibració: veure SE, Anex D1.'},'input','fletxa màx. i element crític')}
+      ${row('se_durabilitat','Durabilitat de l\'estructura','Classes d\'exposició ambiental per als elements de formigó i acer','SE / EHE-08',{all:'Definir classes d\'exposició per a cada element (EHE-08 Art. 8): XC (carbonatació), XS (clorurs mariners), XD (clorurs no marins), XF (gel/desgel). Recobr. nominals d\'armadures. Indicar en plànols i memòria.'},'input','classe exposició i recobriment')}
+    </tbody></table>
+  </div>
+
+  <!-- SE-AE Accions -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SE-AE</span><span class="si-title">Accions en l'edificació</span><span class="si-ref">Art. SE-AE</span></div>
+    <div style="padding:10px 14px 0">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Accions variables — Sobrecàrregues d'ús · SE-AE T.3.1</div>
+      <table class="ftable" style="margin-bottom:10px">
+        <thead><tr>
+          <th>Zona d'ús</th><th style="width:120px">q_k (kN/m²)</th><th style="width:120px">Q_k puntual (kN)</th>
+          <th style="width:140px">Valor projecte</th><th class="th-cb">Contemplat</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Habitatge (ús privatiu)</td><td style="text-align:center">2,0</td><td style="text-align:center">2,0</td><td><input class="proj-inp" placeholder="kN/m²"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Zones comunes (escales, vestíbuls)</td><td style="text-align:center">3,0</td><td style="text-align:center">4,0</td><td><input class="proj-inp" placeholder="kN/m²"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Garatge vehicles lleugers (&lt;30kN)</td><td style="text-align:center">2,0</td><td style="text-align:center">3,0</td><td><input class="proj-inp" placeholder="kN/m²"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-terciari f-hide"><td>Administratiu / Comercial</td><td style="text-align:center">3,0 – 5,0</td><td style="text-align:center">4,0 – 7,0</td><td><input class="proj-inp" placeholder="kN/m²"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Coberta no accessible (manteniment)</td><td style="text-align:center">1,0</td><td style="text-align:center">2,0</td><td><input class="proj-inp" placeholder="kN/m²"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr><td>Coberta accessible (ús privatiu)</td><td style="text-align:center">2,0</td><td style="text-align:center">2,0</td><td><input class="proj-inp" placeholder="kN/m²"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('seae_vent','Acció del vent','Pressió dinàmica del vent (qb) en funció de la zona eòlica','SE-AE 3.3, A.2',{all:'Zona A (interior): qb = 0,42 kN/m² · Zona B (general): qb = 0,45 kN/m² · Zona C (costa, Catalunya litoral): qb = 0,52 kN/m² · Coeficient exposició Ce en funció de h i zona rugositat · Cf en funció de la geometria.'},'input','qb (kN/m²) i zona eòlica')}
+      ${row('seae_neu','Acció de la neu','Sobrecàrrega de neu en coberta en funció de la altitud i zona','SE-AE 3.5, A.3',{unifamiliar:'Zona climàtica hivernal. Alt. sobre el nivell del mar: consultar Mapa A.3. Barcelona: sk≈0,4 kN/m². Lleida: sk≈0,5. Prepirineus: sk≥0,7. Pirineus >1000m: sk>1,5.',plurifamiliar:'Ídem. sk × μ (coeficient forma coberta) × Ce × Ct.',terciari:'Ídem. Cobertes planes: μ = 1,0 · Cobertes inclinades 30°: μ = 0,7.'},'input','sk (kN/m²) i zona neu')}
+      ${row('seae_sisme','Acció sísmica (si escau)','Aplicació de la NCSE-02 (Norma de Construcció Sismorresistent)','NCSE-02',{unifamiliar:'Verificar si ab ≥ 0,04g al municipi (Mapa NCSE-02). Catalunya litoral: ab ≈ 0,04–0,12g. Si ab < 0,04g: no obligatori. Habitatge unifamiliar de fins a 2 plantes en zones ab<0,08g: exempte.',plurifamiliar:'NCSE-02 obligatòria si ab ≥ 0,04g. Edificis de > 7 plantes o > 50 habitatges: classificació normal d\'importància (I=1,0).',terciari:'NCSE-02 obligatòria. Classificació especial (I=1,3) per a hospitals, centrals energètiques, etc. Verificar per a cada ús.'},'input','ab (g) i zona sísmica')}
+    </tbody></table>
+  </div>
+
+  <!-- SE-C Cimentació -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SE-C</span><span class="si-title">Cimentació</span><span class="si-ref">Art. DB SE-C</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('sec_estudi','Estudi geotècnic o reconeixement del terreny','Classificació geotècnica del terreny i paràmetres de càlcul','SE-C 3.2 / Anex B',{unifamiliar:'Edifici de menys de 4 plantes en terreny sense alteracions visibles: reconeixement mínim (consulta d\'estudis existents a la zona + prospecció visual). Cas habitual: cimentació superficial sobre sauló o argila. Tensió admissible: verificar.',plurifamiliar:'Estudi geotècnic complet (perforacions + assaigs SPT o equivalents). Nivell freàtic. Paràmetres: φ, c, E, ν. Tensió admissible del terreny.',terciari:'Estudi geotècnic complet adaptat al tipus i càrregues de l\'estructura. Anex B SE-C.'},'input','tipus reconeixement i tensió adm (kN/m²)')}
+      ${row('sec_tipus_ciment','Tipus de cimentació','Cimentació superficial, semiprofunda o profunda','SE-C 4',{unifamiliar:'Superficial: sabates aïllades, combinades o llosa. Verificar ELU assentament i bolcament. Llosa si terreny pobre o h > 2 soterranis.',plurifamiliar:'Superficial (sabates o llosa) o profunda (micropilots, pilons) segons resultats estudi geotècnic. Riostres de connexió entre sabates.',terciari:'Adaptat a càrregues i geometria. Llosa de cimentació per a edificis de gran superfície.'},'input','tipus cimentació i mida elements')}
+      ${row('sec_assentament','Verificació d\'assentaments admissibles (ELS)','Assentament màxim i assentament diferencial admissibles','SE-C 5.3 / T.5.1',{all:'Assentament total admissible: ≤ 25mm (cas habitual) · Assentament diferencial: ≤ L/500 (L = distància entre fonamentació). Distorsió angular: ≤ 1/300 (risc fissuració) / ≤ 1/150 (risc dany estructural).'},'input','assentament previst (mm)')}
+    </tbody></table>
+  </div>
+
+  <!-- SE-A / SE-F / SE-M Material structural -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">SE-A/F/M</span><span class="si-title">Material estructural (acer / fàbrica / fusta)</span><span class="si-ref">DB SE-A · SE-F · SE-M</span></div>
+    <table class="ftable"><thead><tr>
+      <th>Exigència</th><th class="th-art">Ref. CTE</th>
+      <th class="th-req">Condicions</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
+    </tr></thead><tbody>
+      ${row('se_formigo','Estructura de formigó armat','Classe de formigó i acer, recobriment nominal, EHE-08','EHE-08',{unifamiliar:'Formigó: fck ≥ 25 N/mm² (HA-25) · Acer: B 500 S · Recobriment nominal: ≥ 30mm (interior), ≥ 35mm (exterior), ≥ 45mm (exposició marina). Control Estadístic o Reduït.',plurifamiliar:'HA-25 o superior · Recobriment per classe exposició (EHE-08 T.37.2.4) · Control Estadístic · Certificats d\'assaig de provetes.',terciari:'Ídem. Formigons d\'alta resistència (≥ HA-30) per a pilars de gran càrrega.'},'input','fck, acer, recobriment')}
+      ${row('se_acer','Estructura d\'acer laminat','Tipus d\'acer, classe de secció i unions','SE-A / EAE',{all:'Acer: S275JR (habitual) o S355JR · Classe de secció (1 a 4) en funció de l\'esveltesa dels elements · Unions: soldades (E42) o roscat (categoria A, B, C) · Protecció anticorrosiva: capa de galvanitzat o pintura epoxi. Protecció contra incendi (SI-6).'},'input','tipus acer i classe')}
+      ${row('se_fabrica','Estructura de paret de fàbrica portant','Resistència de la fàbrica i els morters','SE-F',{all:'Maó massís o foradat: fd ≥ 3 N/mm² · Morter: M5 mínim · Comprovació ELU compressió i bolcament · Esveltesa ≤ 20 · Pilars de fàbrica: verificar excentricitat. Armadura de connexió horitzontal cada 4 filades (paret de bloc).'},'input','tipus fàbrica i morter')}
+      ${row('se_fusta','Estructura de fusta','Classe resistent i mesures de protecció','SE-M / UNE-EN 338',{all:'Fusta laminada: GL24h o superior · Fusta massissa: C18-C24 · Classe de servei 1 (interior sec), 2 (interior exposat a humitat ocasional), 3 (exterior) · Protecció: classe d\'ús 1–5 (EN 335) → tractament o selecció d\'espècie.'},'input','espècie, classe i tractament')}
+    </tbody></table>
+  </div>
+
+  <div class="fitxa-foot">
+    <div>
+      <div class="pf-label" style="margin-bottom:4px">Documentació de referència</div>
+      <div style="font-size:11px;line-height:1.7;color:var(--ink2)">
+        · CTE DB-SE, SE-AE, SE-C, SE-A, SE-F, SE-M<br>
+        · EHE-08 (Instrucció de Formigó Estructural)<br>
+        · NCSE-02 (Norma Sísmica)<br>
+        · Annex Nacional Eurocodes (UNE-EN 1990...1998)
+      </div>
+    </div>
+    <div><div class="pf-label" style="margin-bottom:4px">Observacions</div>
+      <textarea style="width:100%;height:70px;border:1px solid var(--border);border-radius:4px;padding:6px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical;outline:none" placeholder="Sistema estructural, estudi geotècnic, zona sísmica, observacions..."></textarea>
+    </div>
+    <div><div class="sign-line">Signatura i segell del tècnic competent</div></div>
+    <div><div style="font-size:10px;color:var(--ink3);margin-top:4px">Fitxa d'orientació tècnica. Generada per CTE·IA amb base en el model OCT del COAC.<br>Verificar sempre amb els textos oficials del CTE vigents.</div></div>
+  </div>`;
+
+  setTimeout(() => changeTipologia(tip), 10);
+  return html;
+}
+
+// ── SERVER STATUS ─────────────────────────────────────────────────────────────
+
+async function checkServer() {
+  const el = document.getElementById('serverStatus');
+  el.textContent = '⬤ …';
+  el.style.color = '#888';
+  try {
+    const r = await fetch('/api/health', { signal: AbortSignal.timeout(3000) });
+    const d = await r.json();
+    const ok = d.status === 'ok';
+    el.textContent = ok
+      ? `⬤ servidor OK · ${d.pdfs_available}/${d.pdfs_total} PDFs`
+      : '⬤ error';
+    el.style.color = ok ? '#2d8a4e' : '#c8401a';
+    if (!d.api_key) {
+      el.textContent += ' · ⚠️ API key no configurada';
+      el.style.color = '#c4a44a';
+    }
+  } catch {
+    el.textContent = '⬤ servidor offline';
+    el.style.color = '#c8401a';
+  }
+}
+
+// Comprovació automàtica en carregar
+window.addEventListener('DOMContentLoaded', () => checkServer());
+
+
+// ── VALIDACIÓ IA (crida /api/validate-si) ─────────────────────────────────────
+
+const SI_STATUS_COLORS = {
+  obligatori:  { bg:'#fff0eb', bd:'#e8956a', tx:'#8b3a12', icon:'⚠️' },
+  condicional: { bg:'#fffbec', bd:'#c4a44a', tx:'#7a5e10', icon:'!' },
+  no_aplica:   { bg:'#f3f4f6', bd:'#d1d5db', tx:'#6b7280', icon:'—' },
+};
+
+async function runValidateSI() {
+  if (!lastAnalysis) {
+    alert('Primer analitza una descripció per obtenir les actuacions identificades.');
+    return;
+  }
+
+  const btn = document.getElementById('btnValidateIA');
+  const panel = document.getElementById('validationPanel');
+  const content = document.getElementById('validationContent');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Validant amb PDF…';
+  panel.style.display = 'block';
+  content.innerHTML = `
+    <div style="text-align:center;padding:24px;color:var(--ink3)">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p style="margin-top:12px;font-size:13px">
+        Analitzant el PDF oficial DB-SI i citant articles…<br>
+        <small style="color:#aaa">(primera execució pot trigar ~10s mentre es descarrega el PDF)</small>
+      </p>
+    </div>`;
+
+  try {
+    const r = await fetch('/api/validate-si', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        description:  document.getElementById('desc').value.trim(),
+        tipologia:    lastAnalysis.tipologia,
+        selectedIds:  lastAnalysis.selectedIds,
+      }),
+    });
+
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${r.status}`);
+    }
+
+    const data = await r.json();
+    renderValidation(data);
+
+    // Info PDF i cache
+    const pdfEl = document.getElementById('validPdfInfo');
+    if (pdfEl) {
+      const cacheHit = data.usage?.cache_read_tokens > 0;
+      pdfEl.textContent = (data.pdf_info || '') + (cacheHit ? ' · ⚡ cache' : '');
+    }
+
+  } catch (err) {
+    content.innerHTML = `<div style="color:#c8401a;padding:14px;font-size:13px">
+      ⚠️ Error: ${err.message}
+    </div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔍 Validar amb PDF oficial';
+}
+
+
+function renderValidation(data) {
+  const content = document.getElementById('validationContent');
+  if (!data.sections) {
+    content.innerHTML = `<p style="color:#c8401a">Resposta incompleta: ${JSON.stringify(data)}</p>`;
+    return;
+  }
+
+  const sectionOrder = ['SI-1','SI-2','SI-3','SI-4','SI-5','SI-6'];
+  let html = '';
+
+  if (data.general_notes) {
+    html += `<div style="background:#fffbec;border-left:3px solid #c4a44a;padding:10px 14px;
+      border-radius:4px;font-size:11.5px;color:#5a4a10;margin-bottom:14px;line-height:1.6">
+      📋 ${data.general_notes}
+    </div>`;
+  }
+
+  for (const sec of sectionOrder) {
+    const s = data.sections?.[sec];
+    if (!s) continue;
+
+    const st = s.status || 'no_aplica';
+    const col = SI_STATUS_COLORS[st] || SI_STATUS_COLORS.no_aplica;
+
+    html += `<div style="border:1px solid ${col.bd};border-radius:5px;margin-bottom:10px;overflow:hidden">
+      <div style="background:${col.bg};padding:8px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid ${col.bd}">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;font-weight:700;
+          background:var(--ink);color:#fff;padding:2px 7px;border-radius:3px">${sec}</span>
+        <span style="font-size:12px;font-weight:600;color:${col.tx}">${s.summary || ''}</span>
+        <span style="margin-left:auto;font-size:10px;font-weight:700;color:${col.tx};
+          text-transform:uppercase">${col.icon} ${st.replace('_',' ')}</span>
+      </div>`;
+
+    if (s.requirements && s.requirements.length) {
+      html += `<table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr>
+          <th style="padding:6px 10px;text-align:left;background:#f8f8f8;border-bottom:1px solid #eee;
+            font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888;width:90px">Article</th>
+          <th style="padding:6px 10px;text-align:left;background:#f8f8f8;border-bottom:1px solid #eee;
+            font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888">Exigència</th>
+          <th style="padding:6px 10px;text-align:left;background:#f8f8f8;border-bottom:1px solid #eee;
+            font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888;width:110px">Valor</th>
+        </tr></thead><tbody>`;
+
+      for (const req of s.requirements) {
+        html += `<tr style="border-bottom:1px solid #f3f3f3">
+          <td style="padding:8px 10px;font-family:'DM Mono',monospace;font-size:10px;color:#888;
+            vertical-align:top">${req.article || '—'} ${req.page ? `<br><span style="color:#bbb">p.${req.page}</span>` : ''}</td>
+          <td style="padding:8px 10px;vertical-align:top;line-height:1.55;color:#333">
+            ${req.requirement || ''}
+            ${req.note ? `<div style="font-size:10px;color:#888;margin-top:3px">${req.note}</div>` : ''}
+          </td>
+          <td style="padding:8px 10px;vertical-align:top">
+            <span style="background:#f2f4f8;border-radius:3px;padding:3px 7px;
+              font-size:10.5px;color:#333;display:inline-block;line-height:1.4">
+              ${req.value || '—'}
+            </span>
+          </td>
+        </tr>`;
+      }
+      html += `</tbody></table>`;
+    }
+    html += `</div>`;
+  }
+
+  // Ús tokens
+  if (data.usage) {
+    const u = data.usage;
+    const cacheHit = u.cache_read_tokens > 0;
+    html += `<div style="font-size:10px;color:#aaa;text-align:right;margin-top:8px">
+      Tokens: ${u.input_tokens} entrada · ${u.output_tokens} sortida
+      ${cacheHit ? `· <span style="color:#1e3a6e">⚡ ${u.cache_read_tokens} cache</span>` : ''}
+    </div>`;
+  }
+
+  content.innerHTML = html;
+}
+
+</script>
+</body>
+</html>
