@@ -395,6 +395,36 @@ textarea::placeholder { color: var(--ink3); }
 .error-box.show { display: block; }
 
 /* ── FITXA BUTTON ── */
+/* ── ESTAT SELECTOR ── */
+.db-estat-sel {
+  display: flex; gap: 4px; align-items: center;
+}
+.estat-opt {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  padding: 4px 10px; border-radius: 20px;
+  border: 1.5px solid var(--border);
+  color: var(--ink3); background: #fff;
+  transition: all .12s;
+}
+.estat-opt input[type=radio] { display: none; }
+.estat-opt:hover { border-color: #aaa; color: var(--ink2); }
+.estat-opt.on-O { background: var(--O-bg); border-color: var(--O-bd); color: var(--O-tx); }
+.estat-opt.on-C { background: var(--C-bg); border-color: var(--C-bd); color: var(--C-tx); }
+.estat-opt.on-N { background: var(--N-bg); border-color: var(--N-bd); color: var(--N-tx); }
+
+/* ── BOTÓ IMPRIMIR RESULTATS ── */
+.btn-print-results {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin: 0 0 16px;
+  padding: 9px 18px;
+  background: var(--ink); color: #fff;
+  border: none; border-radius: 6px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background .12s;
+}
+.btn-print-results:hover { background: #333; }
+
 .fitxa-btn {
   display: inline-flex; align-items: center; gap: 7px;
   margin: 0 20px 16px;
@@ -553,8 +583,10 @@ textarea::placeholder { color: var(--ink3); }
 
 /* ── PRINT ── */
 @media print {
-  body > *:not(.modal-overlay) { display: none !important; }
-  .modal-overlay { position: static; background: none; padding: 0; display: block !important; }
+  /* Mode fitxa (modal obert) */
+  .modal-overlay.open ~ * { display: none !important; }
+  .modal-overlay.open { position: static !important; background: none; padding: 0; display: block !important; }
+  .modal-overlay:not(.open) { display: none !important; }
   .modal-container { box-shadow: none; border-radius: 0; }
   .modal-top-r, .tip-tabs { display: none; }
   .modal-top { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -562,6 +594,24 @@ textarea::placeholder { color: var(--ink3); }
   .req-val   { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .ftable tr.f-hide { display: none; }
   .db-resum-print { display: block !important; }
+
+  /* Mode resultats (sense modal) */
+  .modal-overlay:not(.open) { display: none !important; }
+  body.print-results header,
+  body.print-results footer,
+  body.print-results .input-section,
+  body.print-results .interp-card,
+  body.print-results .loading,
+  body.print-results .error-box,
+  body.print-results .btn-print-results { display: none !important; }
+  body.print-results .page { padding: 0 !important; max-width: 100% !important; }
+  body.print-results .db-card { break-inside: avoid; }
+  body.print-results .db-body { display: block !important; }
+  body.print-results .db-estat-sel { display: flex !important; }
+  body.print-results .fitxa-btn { display: none !important; }
+  body.print-results .arrow { display: none !important; }
+  .badge, .estat-opt { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
   .no-print { display: none !important; }
   @page { margin: 15mm; size: A4; }
 }
@@ -1032,7 +1082,20 @@ function renderResults(selectedIds, tipologia) {
         <span class="db-code">${db.code}</span>
         <span class="db-name">${db.name}</span>
       </div>
-      <div class="db-head-r">${badge(dbW)}<span class="arrow">▾</span></div>
+      <div class="db-head-r">
+        <span class="db-estat-sel" onclick="event.stopPropagation()" title="Canvia l'estat manualment">
+          <label class="estat-opt${dbW==='O'?' on-O':''}">
+            <input type="radio" name="estat_${db.code}" value="O" ${dbW==='O'?'checked':''} onchange="canviaEstat('${db.code}','O')"> Obligatori
+          </label>
+          <label class="estat-opt${dbW==='C'?' on-C':''}">
+            <input type="radio" name="estat_${db.code}" value="C" ${dbW==='C'?'checked':''} onchange="canviaEstat('${db.code}','C')"> A consultar
+          </label>
+          <label class="estat-opt${dbW==='N'?' on-N':''}">
+            <input type="radio" name="estat_${db.code}" value="N" ${dbW==='N'?'checked':''} onchange="canviaEstat('${db.code}','N')"> No aplica
+          </label>
+        </span>
+        <span class="arrow">▾</span>
+      </div>
     </div>`;
     html += `<div class="db-body">`;
     if (db.note) html += `<div class="note-box">${db.note}</div>`;
@@ -1077,8 +1140,36 @@ function renderResults(selectedIds, tipologia) {
   });
 
   const results = document.getElementById('results');
-  results.innerHTML = html;
+  results.innerHTML = `
+    <button class="btn-print-results no-print" onclick="imprimirResultats()">
+      🖨 Imprimir resultats
+    </button>` + html;
   results.classList.add('show');
+}
+
+function canviaEstat(dbCode, nouEstat) {
+  const card = document.getElementById('card-' + dbCode);
+  if (!card) return;
+  // Actualitza classe de color de la card
+  card.className = card.className.replace(/status-[ONC R]/g, '').trim();
+  card.classList.add('status-' + nouEstat);
+  // Actualitza estil dels labels
+  card.querySelectorAll('.estat-opt').forEach(lbl => {
+    lbl.classList.remove('on-O','on-C','on-N');
+  });
+  const checkedLabel = card.querySelector(`.estat-opt input[value="${nouEstat}"]`)?.parentElement;
+  if (checkedLabel) checkedLabel.classList.add('on-' + nouEstat);
+}
+
+function imprimirResultats() {
+  document.body.classList.add('print-results');
+  // Obre tots els DB cards per a impressió
+  document.querySelectorAll('.db-card').forEach(c => c.classList.add('open'));
+  window.print();
+  // Restaura l'estat original
+  setTimeout(() => {
+    document.body.classList.remove('print-results');
+  }, 1000);
 }
 
 // ── IA ANALYZE ────────────────────────────────────────────────────────────────
