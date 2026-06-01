@@ -560,6 +560,8 @@ textarea::placeholder { color: var(--ink3); }
   .si-head   { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .req-val   { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .ftable tr.f-hide { display: none; }
+  .db-resum-print { display: block !important; }
+  .no-print { display: none !important; }
   @page { margin: 15mm; size: A4; }
 }
 
@@ -1194,12 +1196,89 @@ const FITXA_META = {
   'DB-SE':  { title: 'DB-SE · Seguretat Estructural',                 builder: () => buildFitxaSE,  validateBtn: false },
 };
 
+function buildResumDB() {
+  if (!lastAnalysis) return '';
+
+  const STATUS_LABELS = { O:'Obligatori', C:'A consultar', R:'Recomanable', N:'No aplica' };
+  const STATUS_COLORS = { O:'#fff0eb', C:'#fffbec', R:'#f0f4ff', N:'#f3f4f6' };
+  const STATUS_BD     = { O:'#e8956a', C:'#c4a44a', R:'#7c9ed9', N:'#d1d5db' };
+  const STATUS_TX     = { O:'#8b3a12', C:'#7a5e10', R:'#1e3a6e', N:'#6b7280' };
+
+  // Reconstruir estat de cada DB a partir de lastAnalysis
+  const selectedIds = lastAnalysis.selectedIds || [];
+  let rows = '';
+
+  DB.forEach(db => {
+    const dbSt = db.secs.flatMap(s => s.trigs.filter(t => selectedIds.includes(t.a)).map(t => t.s));
+    const dbW  = worstOf(dbSt.length ? dbSt : ['N']);
+    const bg   = STATUS_COLORS[dbW] || STATUS_COLORS.N;
+    const bd   = STATUS_BD[dbW]     || STATUS_BD.N;
+    const tx   = STATUS_TX[dbW]     || STATUS_TX.N;
+    const lbl  = STATUS_LABELS[dbW] || 'No aplica';
+
+    rows += `<tr>
+      <td style="padding:6px 10px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700">${db.code}</td>
+      <td style="padding:6px 10px;font-size:11px;color:var(--ink2)">${db.name}</td>
+      <td style="padding:6px 10px;text-align:center">
+        <span style="background:${bg};border:1px solid ${bd};color:${tx};
+          font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px">${lbl}</span>
+      </td>
+      <td style="padding:6px 10px;text-align:center">
+        <label style="display:inline-flex;align-items:center;gap:4px;font-size:10px;cursor:pointer">
+          <input type="radio" name="db_estat_${db.code}" value="obligatori"
+            ${dbW==='O'?'checked':''} style="accent-color:#c8401a">
+          <span style="color:#8b3a12">Obligatori</span>
+        </label>
+      </td>
+      <td style="padding:6px 10px;text-align:center">
+        <label style="display:inline-flex;align-items:center;gap:4px;font-size:10px;cursor:pointer">
+          <input type="radio" name="db_estat_${db.code}" value="pendent"
+            ${dbW==='C'||dbW==='R'?'checked':''} style="accent-color:#c4a44a">
+          <span style="color:#7a5e10">Pendent</span>
+        </label>
+      </td>
+      <td style="padding:6px 10px;text-align:center">
+        <label style="display:inline-flex;align-items:center;gap:4px;font-size:10px;cursor:pointer">
+          <input type="radio" name="db_estat_${db.code}" value="no_aplica"
+            ${dbW==='N'?'checked':''} style="accent-color:#6b7280">
+          <span style="color:#6b7280">No aplica</span>
+        </label>
+      </td>
+    </tr>`;
+  });
+
+  return `
+  <div class="db-resum-print" style="margin-bottom:20px;border:1.5px solid var(--border);border-radius:8px;overflow:hidden">
+    <div style="background:var(--ink);color:#fff;padding:9px 16px;display:flex;align-items:center;gap:10px">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;font-weight:700;
+        background:#fff;color:var(--ink);padding:2px 8px;border-radius:3px">RESUM</span>
+      <span style="font-size:12px;font-weight:600">Documents Bàsics aplicables · Verificació del tècnic</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead><tr style="background:#f8f8f8;border-bottom:1px solid var(--border)">
+        <th style="padding:6px 10px;text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888;width:80px">DB</th>
+        <th style="padding:6px 10px;text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888">Document Bàsic</th>
+        <th style="padding:6px 10px;text-align:center;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888;width:100px">Resultat IA</th>
+        <th style="padding:6px 10px;text-align:center;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888;width:100px">✓ Obligatori</th>
+        <th style="padding:6px 10px;text-align:center;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888;width:90px">⏳ Pendent</th>
+        <th style="padding:6px 10px;text-align:center;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:#888;width:90px">— No aplica</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="padding:8px 16px;background:#f8f8f8;border-top:1px solid var(--border);font-size:10px;color:var(--ink3)">
+      Verificació realitzada per: <input style="border:none;border-bottom:1px solid #ccc;width:200px;font-size:10px;outline:none;background:transparent" placeholder="Nom del tècnic">
+      &nbsp;&nbsp; Data: <input style="border:none;border-bottom:1px solid #ccc;width:100px;font-size:10px;outline:none;background:transparent" type="date" value="${new Date().toISOString().slice(0,10)}">
+    </div>
+  </div>`;
+}
+
 function openFitxa(dbCode, tip) {
   const meta = FITXA_META[dbCode];
   if (!meta) return;
   const tipologia = tip || (lastAnalysis?.tipologia) || 'plurifamiliar';
   document.getElementById('fitxaTitle').textContent = `Fitxa Justificativa · ${meta.title}`;
-  document.getElementById('fitxaBody').innerHTML = meta.builder()(tipologia);
+  // Resum de DB + contingut de la fitxa
+  document.getElementById('fitxaBody').innerHTML = buildResumDB() + meta.builder()(tipologia);
   document.getElementById('btnValidateIA').style.display = meta.validateBtn ? '' : 'none';
   const _vp = document.getElementById('validationPanel');
   if (_vp) _vp.style.display = 'none';
