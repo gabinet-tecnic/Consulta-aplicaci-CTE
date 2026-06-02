@@ -498,6 +498,73 @@ textarea::placeholder { color: var(--ink3); }
   background: transparent; outline: none; cursor: pointer;
 }
 
+/* ── FIELD VALIDATION WARNINGS ── */
+.pf-inp.invalid, .pf-sel.invalid {
+  border-bottom-color: #f5c0c0 !important;
+  color: #8b1a1a;
+}
+.pf-inp.warning, .pf-sel.warning {
+  border-bottom-color: #f0d4b8 !important;
+}
+.field-warning {
+  display: none;
+  font-size: 10px;
+  color: #8b1a1a;
+  margin-top: 3px;
+  padding: 4px;
+  background: #fff0f0;
+  border-left: 2px solid #f5c0c0;
+  border-radius: 2px;
+}
+.pf-inp.invalid ~ .field-warning,
+.pf-sel.invalid ~ .field-warning {
+  display: block;
+}
+
+/* ── TOOLTIPS ── */
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #d1d5db;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: help;
+  margin-left: 4px;
+  position: relative;
+}
+.info-icon:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 400;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.info-icon:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+  z-index: 1000;
+}
+
 /* Tipologia tabs */
 .tip-tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
 .tip-tab {
@@ -583,36 +650,73 @@ textarea::placeholder { color: var(--ink3); }
 
 /* ── PRINT ── */
 @media print {
-  /* Mode fitxa (modal obert) */
-  .modal-overlay.open ~ * { display: none !important; }
-  .modal-overlay.open { position: static !important; background: none; padding: 0; display: block !important; }
-  .modal-overlay:not(.open) { display: none !important; }
-  .modal-container { box-shadow: none; border-radius: 0; }
-  .modal-top-r, .tip-tabs { display: none; }
-  .modal-top { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .si-head   { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .req-val   { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .ftable tr.f-hide { display: none; }
-  .db-resum-print { display: block !important; }
+  /* MODE 1: Imprimir fitxa (modal oberta) - body.print-fitxa */
+  body.print-fitxa {
+    background: white;
+  }
+  body.print-fitxa header,
+  body.print-fitxa footer,
+  body.print-fitxa .page > .input-section,
+  body.print-fitxa .page > .interp-card,
+  body.print-fitxa .page > .sum-bar,
+  body.print-fitxa .page > .results,
+  body.print-fitxa .page > .loading,
+  body.print-fitxa .page > .error-box,
+  body.print-fitxa .btn-print-results {
+    display: none !important;
+  }
 
-  /* Mode resultats (sense modal) */
-  .modal-overlay:not(.open) { display: none !important; }
+  body.print-fitxa .modal-overlay {
+    display: block !important;
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    inset: auto !important;
+    overflow-y: visible !important;
+    z-index: auto;
+  }
+
+  body.print-fitxa .modal-container {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  body.print-fitxa .modal-top-r,
+  body.print-fitxa .tip-tabs,
+  body.print-fitxa .btn-validate-ia {
+    display: none !important;
+  }
+
+  /* MODE 2: Imprimir resultats - body.print-results */
   body.print-results header,
   body.print-results footer,
   body.print-results .input-section,
   body.print-results .interp-card,
   body.print-results .loading,
   body.print-results .error-box,
-  body.print-results .btn-print-results { display: none !important; }
+  body.print-results .btn-print-results,
+  body.print-results .modal-overlay {
+    display: none !important;
+  }
+
   body.print-results .page { padding: 0 !important; max-width: 100% !important; }
   body.print-results .db-card { break-inside: avoid; }
   body.print-results .db-body { display: block !important; }
   body.print-results .db-estat-sel { display: flex !important; }
   body.print-results .fitxa-btn { display: none !important; }
   body.print-results .arrow { display: none !important; }
-  .badge, .estat-opt { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
+  /* General print styles */
+  .modal-top, .si-head, .req-val, .badge, .estat-opt {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .ftable tr.f-hide { display: none !important; }
+  .db-resum-print { display: block !important; }
   .no-print { display: none !important; }
+
   @page { margin: 15mm; size: A4; }
 }
 
@@ -1375,13 +1479,27 @@ function openFitxa(dbCode, tip) {
   const _vp = document.getElementById('validationPanel');
   if (_vp) _vp.style.display = 'none';
   document.getElementById('fitxaModal').classList.add('open');
+  document.body.classList.add('print-fitxa');  // Add class for print CSS
   document.getElementById('fitxaModal').scrollTop = 0;
+  // Run validation and enhancements after DOM is ready
+  setTimeout(() => {
+    validateProjectFields();
+    enhanceHULCReferences();
+    // Add real-time validation listeners
+    document.querySelectorAll('.pf-inp').forEach(inp => {
+      inp.addEventListener('change', validateProjectFields);
+      inp.addEventListener('input', validateProjectFields);
+    });
+  }, 50);
 }
 
 function openFitxaSI(tip) { openFitxa('DB-SI', tip); }
 
 function closeFitxaSI()    { closeFitxaModal(); }
-function closeFitxaModal() { document.getElementById('fitxaModal').classList.remove('open'); }
+function closeFitxaModal() {
+  document.getElementById('fitxaModal').classList.remove('open');
+  document.body.classList.remove('print-fitxa');  // Remove class for print CSS
+}
 
 function printFitxa() {
   window.print();
@@ -1397,6 +1515,166 @@ function changeTipologia(val) {
   document.querySelectorAll('[data-req]').forEach(el => {
     const reqs = JSON.parse(el.dataset.req);
     el.innerHTML = reqs[val] || reqs['all'] || '—';
+  });
+}
+
+// ── HE-0 APPLICABILITY LOGIC ──────────────────────────────────────────────────
+function updateHE0Logic() {
+  const obraSelect = document.getElementById('heObra');
+  const envolupantInput = document.getElementById('heEnvolupant');
+  const instalCheckbox = document.getElementById('heInstal');
+  const resultDiv = document.getElementById('he0Result');
+  const warningDiv = document.getElementById('he0Warning');
+  const he0Section = document.getElementById('he0Section');
+  const envolupantRow = document.getElementById('heEnvolupantRow');
+
+  // Show/hide envolupant % row depending on obra type
+  const obra = obraSelect.value;
+  envolupantRow.style.display = (obra === 'reforma') ? 'block' : 'none';
+
+  // HE-0 applicability logic (CTE DB HE, Art. 1.1)
+  let applica = false;
+  let resultatText = '';
+
+  if (obra === 'nova') {
+    applica = true;
+    resultatText = '✓ <strong>HE-0 aplica</strong> a obra nova. Obligatori cumplimiento energètic global.';
+  } else if (obra === 'reforma') {
+    const envolupant = parseFloat(envolupantInput.value) || 0;
+    const haInstal = instalCheckbox.checked;
+
+    // CTE criteria: Reforma > 25% envolupant O > 10% tancaments + instal. tèrmiques
+    if ((envolupant > 25 || envolupant > 10) && haInstal) {
+      applica = true;
+      resultatText = `✓ <strong>HE-0 aplica</strong> a reforma amb ${envolupant}% envolupant + instal·lacions tèrmiques.`;
+    } else if (envolupant > 25) {
+      applica = true;
+      resultatText = `✓ <strong>HE-0 aplica</strong>: reforma > 25% envolupant (${envolupant}%).`;
+    } else if (envolupant > 10 && haInstal) {
+      applica = true;
+      resultatText = `✓ <strong>HE-0 aplica</strong>: reforma > 10% tancaments + instal·lacions tèrmiques.`;
+    } else {
+      applica = false;
+      resultatText = `✗ <strong>HE-0 NO aplica</strong>: reforma amb ${envolupant}% envolupant (< 25%). Només HE-1 als elements modificats.`;
+    }
+  } else if (obra === 'ampliacio') {
+    applica = true;
+    resultatText = '✓ <strong>HE-0 aplica</strong> a ampliació. Obligatori per la part nova.';
+  }
+
+  // Show/hide HE-0 section and results
+  if (obra === '') {
+    resultDiv.style.display = 'none';
+    warningDiv.style.display = 'none';
+    he0Section.style.display = 'none';
+  } else {
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<strong>Resultat:</strong> ' + resultatText;
+    he0Section.style.display = applica ? 'block' : 'none';
+    warningDiv.style.display = applica ? 'none' : 'block';
+  }
+}
+
+// ── HS CONTEXT FILTERING ──────────────────────────────────────────────────────
+function updateHSContext() {
+  const conSoterrani = document.getElementById('hsConSoterrani')?.checked || false;
+  const conAparc = document.getElementById('hsConAparc')?.checked || false;
+
+  // Show/hide rows with only-consoterrani class (only if has basement)
+  document.querySelectorAll('.only-consoterrani').forEach(el => {
+    el.classList.toggle('f-hide', !conSoterrani);
+  });
+
+  // Show/hide rows with only-conanaparc class (only if has parking)
+  document.querySelectorAll('.only-conaparc').forEach(el => {
+    el.classList.toggle('f-hide', !conAparc);
+  });
+}
+
+// ── ENHANCE HULC REFERENCES WITH TOOLTIPS ────────────────────────────────────
+function enhanceHULCReferences() {
+  const hulcTooltip = 'HULC = Herramienta Unificada Licitación. Eina oficial del Ministeri de Transports. Altres eines de càlcul certificades són acceptades.';
+
+  // Find all text nodes and elements containing HULC
+  const walker = document.createTreeWalker(
+    document.getElementById('fitxaBody') || document.body,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
+
+  const nodesToReplace = [];
+  let node;
+  while (node = walker.nextNode()) {
+    if (node.textContent.includes('HULC') && !node.parentElement.classList.contains('info-icon')) {
+      nodesToReplace.push(node);
+    }
+  }
+
+  nodesToReplace.forEach(node => {
+    const html = node.textContent
+      .replace(/HULC/g, `HULC<span class="info-icon" data-tooltip="${hulcTooltip}">?</span>`);
+    const span = document.createElement('span');
+    span.innerHTML = html;
+    node.parentElement.replaceChild(span, node);
+  });
+}
+
+// ── FIELD VALIDATION ──────────────────────────────────────────────────────────
+function validateProjectFields() {
+  // Validate HE - Zona climàtica (C1-C3, D1-D3, E1-E2)
+  const heZonaInputs = document.querySelectorAll('[placeholder*="ex: C2"]');
+  heZonaInputs.forEach(inp => {
+    const val = inp.value.trim().toUpperCase();
+    const validPattern = /^(C[1-3]|D[1-3]|E[1-2])$/;
+    if (val && !validPattern.test(val)) {
+      inp.classList.add('invalid');
+      if (!inp.nextElementSibling?.classList.contains('field-warning')) {
+        const warning = document.createElement('div');
+        warning.className = 'field-warning';
+        warning.textContent = 'Format: C1-C3, D1-D3, E1-E2 (ex: C2)';
+        inp.parentElement.appendChild(warning);
+      }
+    } else {
+      inp.classList.remove('invalid');
+    }
+  });
+
+  // Validate HS - Zona pluviomètrica (I, II, III, IV, V)
+  const hsZonaInputs = document.querySelectorAll('[placeholder*="ex: III"]');
+  hsZonaInputs.forEach(inp => {
+    const val = inp.value.trim().toUpperCase();
+    const validPattern = /^(I|II|III|IV|V)$/;
+    if (val && !validPattern.test(val)) {
+      inp.classList.add('invalid');
+      if (!inp.nextElementSibling?.classList.contains('field-warning')) {
+        const warning = document.createElement('div');
+        warning.className = 'field-warning';
+        warning.textContent = 'Format: I, II, III, IV o V (ex: III)';
+        inp.parentElement.appendChild(warning);
+      }
+    } else {
+      inp.classList.remove('invalid');
+    }
+  });
+
+  // Validate HR - Ld façana (dB number)
+  const hrLdInputs = document.querySelectorAll('[placeholder*="ex: 65 dB"]');
+  hrLdInputs.forEach(inp => {
+    const val = inp.value.trim();
+    if (val && isNaN(parseFloat(val))) {
+      inp.classList.add('invalid');
+      if (!inp.nextElementSibling?.classList.contains('field-warning')) {
+        const warning = document.createElement('div');
+        warning.className = 'field-warning';
+        warning.textContent = 'Valor numèric en dB (ex: 65)';
+        inp.parentElement.appendChild(warning);
+      }
+    } else if (val && (parseFloat(val) < 45 || parseFloat(val) > 85)) {
+      inp.classList.add('warning');
+    } else {
+      inp.classList.remove('invalid', 'warning');
+    }
   });
 }
 
@@ -1940,6 +2218,44 @@ function buildFitxaHE(tipologia) {
     <div class="pf-row"><span class="pf-label">Núm. col·legiat</span><input class="pf-inp" placeholder="CAT-"></div>
   </div>
 
+  <!-- ── HE-0 DECISION PANEL ── -->
+  <div class="si-section" style="margin-bottom:18px;border-color:#e8956a;background:#fff8f0">
+    <div class="si-head" style="background:#fff8f0;border-bottom-color:#f0d4b8">
+      <span class="si-pill" style="background:#c8401a">DECISIÓ</span>
+      <span class="si-title">Determinar si HE-0 aplica</span>
+      <span class="si-ref">Art. 1.1 DB HE</span>
+    </div>
+    <div style="padding:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:6px">Tipus d'obra</label>
+          <select id="heObra" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:4px;font-size:12px;font-family:'DM Sans',sans-serif" onchange="updateHE0Logic()">
+            <option value="">— Escull una opció —</option>
+            <option value="nova">Obra nova</option>
+            <option value="reforma">Reforma</option>
+            <option value="ampliacio">Ampliació</option>
+          </select>
+        </div>
+        <div id="heEnvolupantRow" style="display:none">
+          <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:6px">% Envolupant reformada</label>
+          <input id="heEnvolupant" type="number" placeholder="ex: 30" min="0" max="100" step="5" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:4px;font-size:12px;font-family:'DM Sans',sans-serif" onchange="updateHE0Logic()">
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);cursor:pointer">
+          <input id="heInstal" type="checkbox" style="width:16px;height:16px;cursor:pointer" onchange="updateHE0Logic()">
+          Hi ha instal·lacions tèrmiques noves o reformades (calefacció, refrigeració, ACS)
+        </label>
+      </div>
+      <div id="he0Result" style="display:none;padding:10px;border-radius:4px;background:#fffbec;border-left:3px solid var(--gold);color:#5a4a10;font-size:12px">
+        <strong>Resultat:</strong> <span id="he0ResultText"></span>
+      </div>
+      <div id="he0Warning" style="display:none;padding:10px;border-radius:4px;background:#fff0f0;border-left:3px solid #f5c0c0;color:#8b1a1a;font-size:12px">
+        <strong>⚠️ Avís:</strong> HE-0 no aplica selon els criteris CTE. Continuarà la fitxa amb HE-1 a HE-5.
+      </div>
+    </div>
+  </div>
+
   <div class="si-section" style="margin-bottom:18px;border-color:#c4a44a">
     <div class="si-head" style="background:#fffbec;border-bottom-color:#e8d48a">
       <span class="si-pill" style="background:#7a5e10">ÀMBIT</span>
@@ -1967,7 +2283,7 @@ function buildFitxaHE(tipologia) {
   </div>
 
   <!-- HE-0 Consum energètic -->
-  <div class="si-section">
+  <div class="si-section" id="he0Section" style="display:none">
     <div class="si-head"><span class="si-pill">HE-0</span><span class="si-title">Limitació del consum energètic</span><span class="si-ref">Art. HE 0</span></div>
     <table class="ftable"><thead><tr>
       <th>Exigència</th><th class="th-art">Ref. CTE</th>
@@ -2106,6 +2422,31 @@ function buildFitxaHS(tipologia) {
     <button class="tip-tab${tip==='terciari'?' on':''}" data-tip="terciari" onclick="changeTipologia('terciari')">Terciari / Altres usos</button>
   </div>
 
+  <!-- ── HS CONTEXT PANEL ── -->
+  <div class="si-section" style="margin-bottom:18px;border-color:#7c9ed9;background:#f3f4f6">
+    <div class="si-head" style="background:#f3f4f6;border-bottom-color:#d1d5db">
+      <span class="si-pill" style="background:#7c9ed9">CONTEXT</span>
+      <span class="si-title">Context del projecte</span>
+      <span class="si-ref">Adaptar seccions HS</span>
+    </div>
+    <div style="padding:14px">
+      <p style="font-size:11px;color:var(--ink3);margin-bottom:12px">Indica les característiques del projecte per adaptar les seccions aplicables:</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);cursor:pointer">
+          <input id="hsConSoterrani" type="checkbox" style="width:16px;height:16px;cursor:pointer" onchange="updateHSContext()">
+          El projecte inclou <strong>soterrani</strong> (o planta semisoterrada)
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);cursor:pointer">
+          <input id="hsConAparc" type="checkbox" style="width:16px;height:16px;cursor:pointer" onchange="updateHSContext()">
+          Inclou <strong>aparcament col·lectiu interior</strong>
+        </label>
+      </div>
+      <div style="font-size:10px;color:var(--ink3);margin-top:10px;padding:8px;background:#fff;border-radius:3px">
+        💡 Marcar segons el projecte per mostrar/ocultar les seccions corresponents (HS-1 soterrani, HS-6 radon, etc.)
+      </div>
+    </div>
+  </div>
+
   <!-- HS-1 Protecció front humitat -->
   <div class="si-section">
     <div class="si-head"><span class="si-pill">HS-1</span><span class="si-title">Protecció enfront la humitat</span><span class="si-ref">Art. HS 1</span></div>
@@ -2120,8 +2461,8 @@ function buildFitxaHS(tipologia) {
           <th class="th-cb">Contemplat</th>
         </tr></thead>
         <tbody>
-          <tr><td><strong>Murs soterrani</strong></td><td>Presència d'aigua: baixa/mitjana/alta (T.2.1)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="tipus impermeabilització"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
-          <tr><td><strong>Terres soterrani</strong></td><td>Presència d'aigua (T.2.3)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="membrana, drenatge…"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-consoterrani f-hide"><td><strong>Murs soterrani</strong></td><td>Presència d'aigua: baixa/mitjana/alta (T.2.1)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="tipus impermeabilització"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-consoterrani f-hide"><td><strong>Terres soterrani</strong></td><td>Presència d'aigua (T.2.3)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="membrana, drenatge…"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
           <tr><td><strong>Façana</strong></td><td>Zona pluviomètrica + grau exposició al vent (T.2.5)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="sistema façana"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
           <tr><td><strong>Coberta</strong></td><td>Tipus (plana/inclinada) + ús (trepitjable/no) (T.2.9)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="memb. + aïll. + formació pendents"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
         </tbody>
@@ -2169,7 +2510,7 @@ function buildFitxaHS(tipologia) {
           <tr><td>Bany / WC</td><td>Extracció</td><td style="font-weight:600;text-align:center">8 l/s mínim</td><td><input class="proj-inp" placeholder="l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
           <tr><td>Cuina (extractor)</td><td>Extracció (addicional)</td><td style="font-weight:600;text-align:center">50 l/s (extractor)</td><td><input class="proj-inp" placeholder="l/s"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
           <tr class="only-plurifamiliar only-terciari f-hide"><td>Trasters (col·lectius)</td><td>Extracció</td><td style="font-weight:600;text-align:center">0,7 l/s·m²</td><td><input class="proj-inp" placeholder="l/s·m²"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
-          <tr class="only-plurifamiliar only-terciari f-hide"><td>Aparcament col·lectiu</td><td>Extracció mecànica</td><td style="font-weight:600;text-align:center">120 l/s·plaça</td><td><input class="proj-inp" placeholder="l/s·plaça"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
+          <tr class="only-plurifamiliar only-terciari only-conaparc f-hide"><td>Aparcament col·lectiu</td><td>Extracció mecànica</td><td style="font-weight:600;text-align:center">120 l/s·plaça</td><td><input class="proj-inp" placeholder="l/s·plaça"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
         </tbody>
       </table>
     </div>
@@ -2226,7 +2567,7 @@ function buildFitxaHS(tipologia) {
   </div>
 
   <!-- HS-6 Radó -->
-  <div class="si-section">
+  <div class="si-section only-consoterrani f-hide">
     <div class="si-head"><span class="si-pill">HS-6</span><span class="si-title">Protecció enfront el radó</span><span class="si-ref">Art. HS 6 · RD 1029/2022</span></div>
     <table class="ftable"><thead><tr>
       <th>Exigència</th><th class="th-art">Ref. CTE</th>
