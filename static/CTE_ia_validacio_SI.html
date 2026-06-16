@@ -729,6 +729,34 @@ footer {
   border-top: 1px solid var(--border);
   margin-top: 48px;
 }
+
+/* ── LANGUAGE TOGGLE ── */
+.lang-toggle {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.lang-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid #555;
+  background: transparent;
+  color: #aaa;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: 'DM Sans', sans-serif;
+}
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.lang-btn:hover:not(.active) {
+  border-color: #888;
+  color: #fff;
+}
 </style>
 </head>
 <body>
@@ -740,9 +768,13 @@ footer {
     <span class="sub">Anàlisi automàtica de Documents Bàsics</span>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
+    <div class="lang-toggle">
+      <button id="btnCA" class="lang-btn active" onclick="setLanguage('ca')" title="Català">CA</button>
+      <button id="btnES" class="lang-btn" onclick="setLanguage('es')" title="Castellano">ES</button>
+    </div>
     <span class="h-badge">Claude API</span>
     <span id="usageInfo" style="font-family:'DM Mono',monospace;font-size:10px;color:#666"></span>
-    <span id="serverStatus" style="font-size:10px;cursor:pointer" onclick="checkServer()" title="Clica per verificar connexió servidor">⬤ —</span>
+    <span id="serverStatus" style="font-size:10px;cursor:pointer" onclick="checkServer()" title="Clica per verificar connexió servidor">⬭ —</span>
   </div>
 </header>
 
@@ -876,6 +908,118 @@ footer {
 </footer>
 
 <script>
+// ── LANGUAGE SYSTEM ──────────────────────────────────────────────────────────
+let currentLanguage = localStorage.getItem('cteLanguage') || 'ca';
+
+const i18n = {
+  ca: {
+    'exigencia': 'Exigència',
+    'ref-cte': 'Ref. CTE',
+    'valor-exigit': 'Valor exigit',
+    'valor-projecte': 'Valor projecte',
+    'contemplat': 'Contemplat',
+    'ambit': 'Àmbit',
+    'ambit-aplicacio': 'Àmbit d\'aplicació',
+    'tipologia': 'Tipologia',
+    'unifamiliar': 'Unifamiliar / Adossat',
+    'plurifamiliar': 'Plurifamiliar',
+    'terciari': 'Terciari / Altres usos',
+    'projecte-obra': 'Projecte / Obra',
+    'data': 'Data',
+    'tecnic-redactor': 'Tècnic redactor',
+    'num-collegiat': 'Núm. col·legiat',
+    'contemplat-cb': 'Contemplat',
+    'decisio': 'Decisió',
+    'context': 'Context del projecte',
+    'soterrani': 'El projecte inclou soterrani',
+    'aparc': 'Inclou aparcament col·lectiu interior',
+    'type-obra': 'Tipus d\'obra',
+    'obra-nova': 'Obra nova',
+    'reforma': 'Reforma',
+    'ampliacio': 'Ampliació',
+    'percent-envolupant': '% Envolupant reformada',
+    'instal-termiques': 'Hi ha instal·lacions tèrmiques noves o reformades',
+    'resultat': 'Resultat',
+    'db-si': 'Seguretat en cas d\'incendi',
+    'db-sua': 'Seguretat d\'utilització i accessibilitat',
+    'db-he': 'Estalvi d\'energia',
+    'db-hs': 'Salubritat',
+    'db-hr': 'Protecció davant el soroll',
+    'db-se': 'Seguretat estructural',
+    'imprimir-fitxa': 'Imprimir fitxa',
+    'tancar': 'Tancar',
+    'marcar-tipologia': 'Tipologia:',
+    'adaptar-seccions': 'Adaptar seccions HS',
+    'zona-climatica': 'Zona climàtica CTE',
+    'zona-pluviometrica': 'Zona pluviomètrica',
+    'ld-fagana': 'Ld façana (dB) — mapa acústic',
+  },
+  es: {
+    'exigencia': 'Exigencia',
+    'ref-cte': 'Ref. CTE',
+    'valor-exigit': 'Valor exigido',
+    'valor-projecte': 'Valor proyecto',
+    'contemplat': 'Contemplado',
+    'ambit': 'Ámbito',
+    'ambit-aplicacio': 'Ámbito de aplicación',
+    'tipologia': 'Tipología',
+    'unifamiliar': 'Unifamiliar / Adosado',
+    'plurifamiliar': 'Plurifamiliar',
+    'terciari': 'Terciario / Otros usos',
+    'projecte-obra': 'Proyecto / Obra',
+    'data': 'Fecha',
+    'tecnic-redactor': 'Técnico redactor',
+    'num-collegiat': 'Núm. colegiado',
+    'contemplat-cb': 'Contemplado',
+    'decisio': 'Decisión',
+    'context': 'Contexto del proyecto',
+    'soterrani': 'El proyecto incluye sótano',
+    'aparc': 'Incluye aparcamiento colectivo interior',
+    'type-obra': 'Tipo de obra',
+    'obra-nova': 'Obra nueva',
+    'reforma': 'Reforma',
+    'ampliacio': 'Ampliación',
+    'percent-envolupant': '% Envolvente reformada',
+    'instal-termiques': 'Hay instalaciones térmicas nuevas o reformadas',
+    'resultat': 'Resultado',
+    'db-si': 'Seguridad en caso de incendio',
+    'db-sua': 'Seguridad de utilización y accesibilidad',
+    'db-he': 'Ahorro de energía',
+    'db-hs': 'Salubridad',
+    'db-hr': 'Protección frente al ruido',
+    'db-se': 'Seguridad estructural',
+    'imprimir-fitxa': 'Imprimir ficha',
+    'tancar': 'Cerrar',
+    'marcar-tipologia': 'Tipología:',
+    'adaptar-seccions': 'Adaptar secciones HS',
+    'zona-climatica': 'Zona climática CTE',
+    'zona-pluviometrica': 'Zona pluviométrica',
+    'ld-fagana': 'Ld fachada (dB) — mapa acústico',
+  }
+};
+
+function setLanguage(lang) {
+  currentLanguage = lang;
+  localStorage.setItem('cteLanguage', lang);
+  document.getElementById('btnCA').classList.toggle('active', lang === 'ca');
+  document.getElementById('btnES').classList.toggle('active', lang === 'es');
+  // Recarregar les fitxes actuals
+  const fitxaBody = document.getElementById('fitxaBody');
+  if (fitxaBody && fitxaBody.innerHTML.trim()) {
+    location.reload(); // Simplificat: recarregar la pàgina per canviar idioma
+  }
+}
+
+function t(key) {
+  return (i18n[currentLanguage][key] || i18n['ca'][key] || key);
+}
+
+// Inicialitzar language toggle
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('btnCA').classList.toggle('active', currentLanguage === 'ca');
+  document.getElementById('btnES').classList.toggle('active', currentLanguage === 'es');
+});
+
 // ── EXEMPLES ──────────────────────────────────────────────────────────────────
 const EXAMPLES = [
   'Substitució de finestres per unitats de doble vidre i aïllament de façana per l\'exterior amb sistema SATE (EPS + morter de revestiment). Habitatge en edifici plurifamiliar dels anys 80.',
