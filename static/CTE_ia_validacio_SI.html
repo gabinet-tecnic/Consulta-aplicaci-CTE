@@ -1904,6 +1904,28 @@ function updateHS6EspaiType() {
   if (nohabit) nohabit.style.display = selected === 'local_nohabit' ? 'block' : 'none';
 }
 
+// ── HS-1 HUMITAT DISPLAY LOGIC ──────────────────────────────────────────────────
+function updateHS1Display() {
+  const conSoterrani = document.getElementById('hsConSoterrani')?.checked;
+  const labelSoterra = document.getElementById('hs1_lbl_soterra');
+  if (labelSoterra) labelSoterra.style.display = conSoterrani ? 'flex' : 'none';
+
+  const elemFacade = document.getElementById('hs1_elem_facade')?.checked;
+  const elemCobPlana = document.getElementById('hs1_elem_cob_plana')?.checked;
+  const elemCobInclin = document.getElementById('hs1_elem_cob_inclin')?.checked;
+  const elemSoterra = document.getElementById('hs1_elem_soterra')?.checked;
+
+  const charFacade = document.getElementById('hs1_char_facade');
+  const charCobPlana = document.getElementById('hs1_char_cob_plana');
+  const charCobInclin = document.getElementById('hs1_char_cob_inclin');
+  const charSoterra = document.getElementById('hs1_char_soterra');
+
+  if (charFacade) charFacade.style.display = elemFacade ? 'block' : 'none';
+  if (charCobPlana) charCobPlana.style.display = elemCobPlana ? 'block' : 'none';
+  if (charCobInclin) charCobInclin.style.display = elemCobInclin ? 'block' : 'none';
+  if (charSoterra) charSoterra.style.display = elemSoterra ? 'block' : 'none';
+}
+
 // ── ENHANCE HULC REFERENCES WITH TOOLTIPS ────────────────────────────────────
 function enhanceHULCReferences() {
   const hulcTooltip = 'HULC = Herramienta Unificada Licitación. Eina oficial del Ministeri de Transports. Altres eines de càlcul certificades són acceptades.';
@@ -2760,35 +2782,220 @@ function buildFitxaHS(tipologia) {
     </div>
   </div>
 
-  <!-- HS-1 Protecció front humitat -->
+  <!-- HS-1 Protecció enfront la humitat — ESTRUCTURA COAC -->
   <div class="si-section">
     <div class="si-head"><span class="si-pill">HS-1</span><span class="si-title">Protecció enfront la humitat</span><span class="si-ref">Art. HS 1</span></div>
-    <div style="padding:10px 14px 0">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Grau d'impermeabilitat · HS 1 (Catalunya: Zona pluviomètrica III, Zona eòlica C)</div>
-      <table class="ftable" style="margin-bottom:10px">
-        <thead><tr>
-          <th style="width:130px">Element</th>
-          <th style="width:120px">Condicionants</th>
-          <th style="width:90px">Grau exigit</th>
-          <th style="width:140px">Solució adoptada</th>
-          <th class="th-cb">Contemplat</th>
-        </tr></thead>
-        <tbody>
-          <tr class="only-consoterrani f-hide"><td><strong>Murs soterrani</strong></td><td>Presència d'aigua: baixa/mitjana/alta (T.2.1)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="tipus impermeabilització"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
-          <tr class="only-consoterrani f-hide"><td><strong>Terres soterrani</strong></td><td>Presència d'aigua (T.2.3)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="membrana, drenatge…"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
-          <tr><td><strong>Façana</strong></td><td>Zona pluviomètrica + grau exposició al vent (T.2.5)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="sistema façana"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
-          <tr><td><strong>Coberta</strong></td><td>Tipus (plana/inclinada) + ús (trepitjable/no) (T.2.9)</td><td><input class="proj-inp" style="width:50px" placeholder="1-5"></td><td><input class="proj-inp" placeholder="memb. + aïll. + formació pendents"></td><td class="cb-wrap"><input type="checkbox"></td></tr>
-        </tbody>
-      </table>
+
+    <!-- JUSTIFICACIÓ DEL COMPLIMENT -->
+    <div style="padding:14px;border-bottom:1px solid var(--border);background:#fafafa">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Justificació del compliment de l'exigència</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Zona pluviomètrica</label>
+          <select class="proj-inp" id="hs1_zona_pluv" onchange="updateHS1Display()" style="width:100%;padding:6px">
+            <option value="">-- Selecciona --</option>
+            <option value="i">I (costa mediterranean)</option>
+            <option value="ii">II (Tarragona, Lleida)</option>
+            <option value="iii">III (Barcelona, Girona) — Catalunya típica</option>
+            <option value="iv">IV (Pirineus)</option>
+            <option value="v">V (interior)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Zona eòlica</label>
+          <select class="proj-inp" id="hs1_zona_eolic" style="width:100%;padding:6px">
+            <option value="">-- Selecciona --</option>
+            <option value="a">A (protegida)</option>
+            <option value="b">B (normal)</option>
+            <option value="c">C (exposada) — Catalunya típica</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Tipus coberta</label>
+          <select class="proj-inp" id="hs1_tipo_coberta" onchange="updateHS1Display()" style="width:100%;padding:6px">
+            <option value="">-- Selecciona --</option>
+            <option value="plana">Plana (terrassa)</option>
+            <option value="inclinada">Inclinada (teula, lloses, etc.)</option>
+            <option value="ambdues">Ambdues</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--ink3);line-height:1.6;padding:8px;background:#fff;border-radius:3px;border-left:3px solid #7c9ed9">
+        Els requisits de protecció enfront la humitat varien segons zona pluviomètrica (I-V) i eòlica (A-C). La zona pluviomètrica determina el grau de drenatge necessari en façanes i fonaments.
+      </div>
     </div>
-    <table class="ftable"><thead><tr>
-      <th>Exigència</th><th class="th-art">Ref. CTE</th>
-      <th class="th-req">Condicions</th><th class="th-proj">Solució projecte</th><th class="th-cb">Contemplat</th>
-    </tr></thead><tbody>
-      ${row('hs1_coberta_pla','Coberta plana: capes i elements','Formació de pendents, capa separadora, impermeabilitzant, aïllament i protecció','HS 1-2.4',{all:'Pendent ≥ 1% (trepitjable) / ≥ 1% (no trepitj.) · Làmina impermeabilitzant: tipus LBM, PVC o similar · Aïllament: λ ≤ 0,04 W/mK sobre impermeabilitzant (coberta invertida) · Capa separadora + protecció (grava min 50mm o lloses) · Boneres amb guarda de 50mm i pendent a boca ≥ 2%'},'check','')}
-      ${row('hs1_coberta_inc','Coberta inclinada: elements','Làmina, ventilació i canal de recollida','HS 1-2.4.3',{all:'Pendent ≥ 26% (teula plana) / ≥ 32% (teula corba) / ≥ 15% (planxa metàl·lica) · Ventilació soto coberta si aïllament a la canal · Carener ventilat recomanat · Canaló de recollida dimensionat.'},'check','')}
-      ${row('hs1_pont_term','Control de ponts tèrmics (condensació superficial)','Temperatura mínima superficial en ponts tèrmics','HS 1 / HE 1',{all:'Factor de temperatura superficial fRsi ≥ fRsi,min (Taula B.1 DB HS1 en funció de la zona climàtica). Verificar amb càlcul higrotèrmic en ponts tèrmics de risc.'},'check','')}
-    </tbody></table>
+
+    <!-- ELEMENTS A PROTEGIR (SOLUCIONS POSSIBLES) -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Elements a protegir (marca els que apliquen)</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="hs1_elem_facade" onchange="updateHS1Display()">
+          <span><strong>Façana</strong> (murs exteriors en contacte amb l'exterior)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="hs1_elem_cob_plana" onchange="updateHS1Display()">
+          <span><strong>Coberta plana</strong> (terrats, terrasses)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="hs1_elem_cob_inclin" onchange="updateHS1Display()">
+          <span><strong>Coberta inclinada</strong> (teula, pissarra, lloses, etc.)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer" id="hs1_lbl_soterra" style="display:none">
+          <input type="checkbox" id="hs1_elem_soterra" onchange="updateHS1Display()">
+          <span><strong>Murs i terres soterrani</strong> (en contacte amb el terreny)</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- CARACTERÍSTIQUES PER ELEMENT -->
+    <div style="padding:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px">Característiques de les solucions tècniques</div>
+
+      <!-- FAÇANA -->
+      <div id="hs1_char_facade" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>FAÇANA</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Ubicació</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">Murs exteriors en contacte amb l'exterior i la pluja.</div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Condicionants</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Zona pluviomètrica (I-V)<br>
+              • Grau exposició al vent (A, B, C)<br>
+              • Material revestiment
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Requisits segons zona pluviomètrica i eòlica</div>
+          <table style="width:100%;border-collapse:collapse;font-size:9px">
+            <tr><td style="border:1px solid #e5e7eb;padding:6px;background:#fff"><strong>Zona I</strong></td><td style="border:1px solid #e5e7eb;padding:6px">Grau 1-2 (mínimes mesures)</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px;background:#fff"><strong>Zona II-III</strong></td><td style="border:1px solid #e5e7eb;padding:6px">Grau 2-3 (drenatge aeri, cambra d'aire)</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px;background:#fff"><strong>Zona IV-V</strong></td><td style="border:1px solid #e5e7eb;padding:6px">Grau 3-4 (barrera completa, drenatge perimetral)</td></tr>
+          </table>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte (sistema de façana)</label>
+          <input class="proj-inp" placeholder="ex: Cambra d'aire 4cm + barrera contra pluja + revestiment ventilat" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+
+      <!-- COBERTA PLANA -->
+      <div id="hs1_char_cob_plana" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>COBERTA PLANA</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Ubicació</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">Superfície superior horitzontal o quasi horitzontal.</div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Capes (de baix a dalt)</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Forjat estructural<br>
+              • Formació de pendents<br>
+              • Capa separadora<br>
+              • Membrana impermeabilitzant<br>
+              • Aïllament (si coberta invertida)<br>
+              • Protecció (grava, lloses)
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Requisits principals</div>
+          <div style="font-size:10px;color:var(--ink2);line-height:1.6">
+            • <strong>Pendent:</strong> ≥ 1% (mínimo) per a trepitjable i no trepitjable<br>
+            • <strong>Membrana:</strong> LBM (asfalto), PVC, EPDM o similar (≥ 1,2 mm)<br>
+            • <strong>Aïllament (coberta invertida):</strong> λ ≤ 0,04 W/mK<br>
+            • <strong>Protecció:</strong> Grava ≥ 50 mm o lloses<br>
+            • <strong>Drenatge:</strong> Boneres + pendent a boca ≥ 2%
+          </div>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
+          <input class="proj-inp" placeholder="ex: Coberta invertida amb PVC 1,2mm + aïllament XPS 80mm + grava 50mm" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+
+      <!-- COBERTA INCLINADA -->
+      <div id="hs1_char_cob_inclin" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>COBERTA INCLINADA</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Ubicació</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">Superfície inclinada amb pendent ≥ 15% (segons material).</div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Elements</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Pendent structura<br>
+              • Barrera contra vapor (si necessari)<br>
+              • Ventilació (soto coberta)<br>
+              • Teules / lloses / pissarra<br>
+              • Canaló de recollida
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Requisits principals per material</div>
+          <div style="font-size:10px;color:var(--ink2);line-height:1.6">
+            • <strong>Teula plana:</strong> Pendent ≥ 26%<br>
+            • <strong>Teula corba:</strong> Pendent ≥ 32%<br>
+            • <strong>Pissarra/lloses:</strong> Pendent ≥ 30%<br>
+            • <strong>Planxa metàl·lica:</strong> Pendent ≥ 15%<br>
+            • <strong>Ventilació soto coberta:</strong> Obligatòria si aïllament a la canal
+          </div>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
+          <input class="proj-inp" placeholder="ex: Teula ceràmica corba sobre llata + barrera vapor + ventilació natural" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+
+      <!-- SOTERRANI -->
+      <div id="hs1_char_soterra" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>MURS I TERRES SOTERRANI</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Ubicació</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">Elements en contacte directe amb el terreny i l'aigua subterrània.</div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Condicionants</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Presència d'aigua (taula T.2.1)<br>
+              • Baixa / Mitjana / Alta<br>
+              • Drenatge perimetral
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Requisits segons presència d'aigua</div>
+          <div style="font-size:10px;color:var(--ink2);line-height:1.6">
+            • <strong>Baixa (grau 1):</strong> Membrana simple + drenatge natural<br>
+            • <strong>Mitjana (grau 2-3):</strong> Membrana estanca + drenatge perimetral<br>
+            • <strong>Alta (grau 4-5):</strong> Doble barrera + drenatge mecànic + impermeabilitzant específic
+          </div>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
+          <input class="proj-inp" placeholder="ex: Membrana bituminosa 3mm + drenatge perimetral + sistema sump" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+    </div>
+
+    <!-- OBSERVACIONS I CRITERIS -->
+    <div style="padding:14px;background:#fafafa;border-top:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Observacions i criteris d'aplicació</div>
+      <div style="font-size:9.5px;color:var(--ink2);line-height:1.7;display:flex;flex-direction:column;gap:8px">
+        <div><strong>¹ Zona pluviomètrica:</strong> Es defineix per la precipitació anual (I: <300 mm, V: >800 mm). Consultar mapa i taules CTE.</div>
+        <div><strong>² Grau impermeabilitat:</strong> Escala 1-5 segons severitat. Grau 1 = mínim, Grau 5 = màxim (casos especials).</div>
+        <div><strong>³ Ponts tèrmics:</strong> Verificar condensació superficial (fRsi ≥ fRsi,min) en unions façana-coberta, pilars, etc.</div>
+        <div><strong>⁴ Drenatge:</strong> En façanes: cambra d'aire ≥ 4 cm amb punts de drenatge baix. En soterrani: perimetral + sump si nivell freàtic alt.</div>
+      </div>
+    </div>
   </div>
 
   <!-- HS-2 Residus -->
