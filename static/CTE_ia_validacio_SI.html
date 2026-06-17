@@ -1870,6 +1870,28 @@ function updateHSContext() {
   });
 }
 
+// ── HS-6 RADON DISPLAY LOGIC ──────────────────────────────────────────────────
+function updateHS6Display() {
+  const zona = document.getElementById('hs6_zona_selector')?.value || '';
+  const solZonaI = document.getElementById('hs6_sol_zona_i');
+  const solZonaII = document.getElementById('hs6_sol_zona_ii');
+  if (solZonaI) solZonaI.style.display = zona === 'zona_i' ? 'block' : 'none';
+  if (solZonaII) solZonaII.style.display = zona === 'zona_ii' ? 'block' : 'none';
+
+  const barrI = document.getElementById('hs6_sol_barrera_i')?.checked;
+  const barrII = document.getElementById('hs6_sol_barrera_ii')?.checked;
+  const espai = document.getElementById('hs6_sol_espai_ventilat')?.checked;
+  const despres = document.getElementById('hs6_sol_despres')?.checked;
+
+  const charBarrera = document.getElementById('hs6_char_barrera');
+  const charEspai = document.getElementById('hs6_char_espai');
+  const charDespres = document.getElementById('hs6_char_despres');
+
+  if (charBarrera) charBarrera.style.display = barrI || barrII ? 'block' : 'none';
+  if (charEspai) charEspai.style.display = espai ? 'block' : 'none';
+  if (charDespres) charDespres.style.display = despres ? 'block' : 'none';
+}
+
 // ── ENHANCE HULC REFERENCES WITH TOOLTIPS ────────────────────────────────────
 function enhanceHULCReferences() {
   const hulcTooltip = 'HULC = Herramienta Unificada Licitación. Eina oficial del Ministeri de Transports. Altres eines de càlcul certificades són acceptades.';
@@ -3046,23 +3068,6 @@ function buildFitxaHS(tipologia) {
     </div>
   </div>
 
-  <script>
-    function updateHS6Display() {
-      const zona = document.getElementById('hs6_zona_selector')?.value || '';
-      document.getElementById('hs6_sol_zona_i').style.display = zona === 'zona_i' ? 'block' : 'none';
-      document.getElementById('hs6_sol_zona_ii').style.display = zona === 'zona_ii' ? 'block' : 'none';
-
-      const barrI = document.getElementById('hs6_sol_barrera_i')?.checked;
-      const barrII = document.getElementById('hs6_sol_barrera_ii')?.checked;
-      const espai = document.getElementById('hs6_sol_espai_ventilat')?.checked;
-      const despres = document.getElementById('hs6_sol_despres')?.checked;
-
-      document.getElementById('hs6_char_barrera').style.display = barrI || barrII ? 'block' : 'none';
-      document.getElementById('hs6_char_espai').style.display = espai ? 'block' : 'none';
-      document.getElementById('hs6_char_despres').style.display = despres ? 'block' : 'none';
-    }
-  </script>
-
   <div class="fitxa-foot">
     <div>
       <div class="pf-label" style="margin-bottom:4px">Documentació de referència</div>
@@ -3080,7 +3085,7 @@ function buildFitxaHS(tipologia) {
     <div><div style="font-size:10px;color:var(--ink3);margin-top:4px">Fitxa d'orientació tècnica. Generada per CTE·IA amb base en el model OCT del COAC.<br>Verificar sempre amb els textos oficials del CTE vigents.</div></div>
   </div>`;
 
-  setTimeout(() => changeTipologia(tip), 10);
+  setTimeout(() => { changeTipologia(tip); updateHS6Display(); }, 10);
   return html;
 }
 
