@@ -1892,6 +1892,18 @@ function updateHS6Display() {
   if (charDespres) charDespres.style.display = despres ? 'block' : 'none';
 }
 
+// ── HS-6 ESPAI VENTILAT TYPE SELECTOR ─────────────────────────────────────────
+function updateHS6EspaiType() {
+  const selected = document.querySelector('input[name="hs6_espai_tipo"]:checked')?.value || '';
+  const horitzontal = document.getElementById('hs6_esp_horitzontal');
+  const vertical = document.getElementById('hs6_esp_vertical');
+  const nohabit = document.getElementById('hs6_esp_nohabit');
+
+  if (horitzontal) horitzontal.style.display = selected === 'horitzontal' ? 'block' : 'none';
+  if (vertical) vertical.style.display = selected === 'vertical' ? 'block' : 'none';
+  if (nohabit) nohabit.style.display = selected === 'local_nohabit' ? 'block' : 'none';
+}
+
 // ── ENHANCE HULC REFERENCES WITH TOOLTIPS ────────────────────────────────────
 function enhanceHULCReferences() {
   const hulcTooltip = 'HULC = Herramienta Unificada Licitación. Eina oficial del Ministeri de Transports. Altres eines de càlcul certificades són acceptades.';
@@ -2973,53 +2985,110 @@ function buildFitxaHS(tipologia) {
             <div style="font-size:10px;color:var(--ink2);line-height:1.5">Entre la barrera i els locals habitables de l'edifici.</div>
           </div>
           <div>
-            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Requisits</div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Requisits generals</div>
             <div style="font-size:10px;color:var(--ink2);line-height:1.5">
-              • Cambra d'aire: horizontal o vertical, comunicada exterior<br>
-              • Ventilació natural mínima: obertures ≥ 1/500 sup. solera<br>
+              • Cambra d'aire contínua comunicada exterior<br>
+              • Ventilació natural: obertures ≥ 1/500 sup. solera<br>
               • O ventilació mecànica: ≥ 120 m³/h
             </div>
           </div>
         </div>
-        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
-          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Dimensionament</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <label style="display:flex;flex-direction:column;font-size:9px">
-              <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Cambra d'aire (m)</span>
-              <input class="proj-inp" placeholder="0,50" style="padding:4px;font-size:10px">
-            </label>
-            <label style="display:flex;flex-direction:column;font-size:9px">
-              <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Superfície ventilació natural mínima (cm²)</span>
-              <input class="proj-inp" placeholder="" style="padding:4px;font-size:10px">
-            </label>
-          </div>
-        </div>
 
-        <!-- LOCALS NO HABITABLES DINS ESPAI VENTILAT -->
-        <div style="padding:10px;background:#fff0eb;border-radius:3px;border-left:3px solid #e8956a;margin-bottom:12px">
-          <div style="font-size:9px;font-weight:700;color:#8b3a12;text-transform:uppercase;margin-bottom:6px">✓ <strong>Local no habitable amb ventilació natural o mecànica</strong></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-            <label style="display:flex;flex-direction:column;font-size:9px">
-              <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Tipus de ventilació</span>
-              <select class="proj-inp" style="padding:4px;font-size:10px">
-                <option>-- Selecciona --</option>
-                <option>Natural (obertures)</option>
-                <option>Mecànica (120 m³/h)</option>
-              </select>
+        <!-- SELECTOR: 3 OPCIONS MUTUALMENT EXCLUSIVES -->
+        <div style="margin-bottom:12px;padding:12px;background:#fff8f5;border:1px solid #e8d48a;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:10px">Tipus de cambra d'aire (selecciona UNA opció)</div>
+
+          <!-- OPCIÓ 1: CAMBRA HORITZONTAL -->
+          <div style="margin-bottom:12px;padding:10px;background:#fff;border-radius:3px;border-left:3px solid #7c9ed9">
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer">
+              <input type="radio" name="hs6_espai_tipo" value="horitzontal" onchange="updateHS6EspaiType()" style="cursor:pointer">
+              <span style="font-size:10px;font-weight:700;color:var(--ink3)">Cambra horitzontal (forjat sanitari, cambra sotaranja, etc.)</span>
             </label>
-            <label style="display:flex;flex-direction:column;font-size:9px">
-              <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Superfície (m²)</span>
-              <input class="proj-inp" placeholder="" style="padding:4px;font-size:10px">
-            </label>
+            <div id="hs6_esp_horitzontal" style="display:none;padding:8px;background:#f9fafb;border-radius:2px;margin-top:8px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Alçada cambra (m)</span>
+                  <input class="proj-inp" placeholder="0,50" style="padding:4px;font-size:10px">
+                </label>
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Superfície solera (m²)</span>
+                  <input class="proj-inp" placeholder="" style="padding:4px;font-size:10px">
+                </label>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Obertures mín. natural (cm²)</span>
+                  <input class="proj-inp" placeholder="ex: 1000" style="padding:4px;font-size:10px">
+                </label>
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">O cabal mecànic (m³/h)</span>
+                  <input class="proj-inp" placeholder="≥120" style="padding:4px;font-size:10px">
+                </label>
+              </div>
+            </div>
           </div>
-          <div style="font-size:9px;color:var(--ink3);line-height:1.5">
-            <strong>Criteri aplicació:</strong> Els locals no-habitables (trasters, aparcaments, locals tècnics) NO requereixen mesures especials HS-6 si JA compleixen HS-3. Si ventilació HS-3 insuficient → aplicar despressurització.
+
+          <!-- OPCIÓ 2: CAMBRA VERTICAL -->
+          <div style="margin-bottom:12px;padding:10px;background:#fff;border-radius:3px;border-left:3px solid #7c9ed9">
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer">
+              <input type="radio" name="hs6_espai_tipo" value="vertical" onchange="updateHS6EspaiType()" style="cursor:pointer">
+              <span style="font-size:10px;font-weight:700;color:var(--ink3)">Cambra vertical (conductes verticals, pou de llum, etc.)</span>
+            </label>
+            <div id="hs6_esp_vertical" style="display:none;padding:8px;background:#f9fafb;border-radius:2px;margin-top:8px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Secció conducte (cm²)</span>
+                  <input class="proj-inp" placeholder="" style="padding:4px;font-size:10px">
+                </label>
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Alçada vertical (m)</span>
+                  <input class="proj-inp" placeholder="" style="padding:4px;font-size:10px">
+                </label>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Obertures mín. natural (cm²)</span>
+                  <input class="proj-inp" placeholder="ex: 500" style="padding:4px;font-size:10px">
+                </label>
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">O cabal mecànic (m³/h)</span>
+                  <input class="proj-inp" placeholder="≥120" style="padding:4px;font-size:10px">
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- OPCIÓ 3: LOCAL NO HABITABLE -->
+          <div style="padding:10px;background:#fff;border-radius:3px;border-left:3px solid #e8956a">
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer">
+              <input type="radio" name="hs6_espai_tipo" value="local_nohabit" onchange="updateHS6EspaiType()" style="cursor:pointer">
+              <span style="font-size:10px;font-weight:700;color:var(--ink3)">Local no habitable (trasters, aparcaments, locals tècnics, etc.)</span>
+            </label>
+            <div id="hs6_esp_nohabit" style="display:none;padding:8px;background:#f9fafb;border-radius:2px;margin-top:8px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Tipus ventilació</span>
+                  <select class="proj-inp" style="padding:4px;font-size:10px">
+                    <option>-- Selecciona --</option>
+                    <option>Natural (obertures)</option>
+                    <option>Mecànica (≥120 m³/h)</option>
+                  </select>
+                </label>
+                <label style="display:flex;flex-direction:column;font-size:9px">
+                  <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Superfície (m²)</span>
+                  <input class="proj-inp" placeholder="" style="padding:4px;font-size:10px">
+                </label>
+              </div>
+              <div style="font-size:9px;color:var(--ink3);line-height:1.5;padding:6px;background:#fff0eb;border-radius:2px">
+                <strong>Criteri:</strong> Locals no-habitables NO requereixen mesures especials HS-6 si JA compleixen HS-3. Si ventilació HS-3 insuficient → aplicar.
+              </div>
+            </div>
           </div>
         </div>
 
         <div style="padding:10px;background:#f9fafb;border-radius:3px">
           <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
-          <input class="proj-inp" placeholder="ex: Cambra sanitària amb ventilació natural al pati interior" style="width:100%;padding:6px;font-size:10px">
+          <input class="proj-inp" placeholder="ex: Cambra sanitària h=0,80m amb obertures naturals al pati" style="width:100%;padding:6px;font-size:10px">
         </div>
       </div>
 
