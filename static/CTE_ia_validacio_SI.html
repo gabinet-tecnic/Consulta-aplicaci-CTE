@@ -1949,6 +1949,24 @@ function updateHS3Display() {
   if (charDobleFlux) charDobleFlux.style.display = solDobleFlux ? 'block' : 'none';
 }
 
+// ── HS-5 EVACUACIÓ DISPLAY LOGIC ───────────────────────────────────────────────
+function updateHS5Display() {
+  const solDescendent = document.getElementById('hs5_sol_descendent')?.checked;
+  const solAscendent = document.getElementById('hs5_sol_ascendent')?.checked;
+  const solVentilacio = document.getElementById('hs5_sol_ventilacio')?.checked;
+  const solTrat = document.getElementById('hs5_sol_trat')?.checked;
+
+  const charDescendent = document.getElementById('hs5_char_descendent');
+  const charAscendent = document.getElementById('hs5_char_ascendent');
+  const charVentilacio = document.getElementById('hs5_char_ventilacio');
+  const charTrat = document.getElementById('hs5_char_trat');
+
+  if (charDescendent) charDescendent.style.display = solDescendent ? 'block' : 'none';
+  if (charAscendent) charAscendent.style.display = solAscendent ? 'block' : 'none';
+  if (charVentilacio) charVentilacio.style.display = solVentilacio ? 'block' : 'none';
+  if (charTrat) charTrat.style.display = solTrat ? 'block' : 'none';
+}
+
 // ── ENHANCE HULC REFERENCES WITH TOOLTIPS ────────────────────────────────────
 function enhanceHULCReferences() {
   const hulcTooltip = 'HULC = Herramienta Unificada Licitación. Eina oficial del Ministeri de Transports. Altres eines de càlcul certificades són acceptades.';
@@ -3239,6 +3257,219 @@ function buildFitxaHS(tipologia) {
         <div><strong>³ Manteniment:</strong> Netejar filtres 2-4 vegades/any (mecànica) o 1-2 vegades/any (doble flux). Revisar conductes cada 2 anys.</div>
         <div><strong>⁴ RITE (terciari):</strong> Si climatització, aplica RITE IT 1.1.4.2 — cabals poden ser més restrictius que HS-3.</div>
         <div><strong>⁵ Zones de fum restringit:</strong> Edificis amb control fum, ventilació serveix per pressurizar. Consultar CTE DB-SI.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HS-5 Evacuació d'aigües residuals — ESTRUCTURA COAC COMPLETA -->
+  <div class="si-section">
+    <div class="si-head"><span class="si-pill">HS-5</span><span class="si-title">Evacuació d'aigües residuals</span><span class="si-ref">Art. HS 5</span></div>
+
+    <!-- JUSTIFICACIÓ DEL COMPLIMENT -->
+    <div style="padding:14px;border-bottom:1px solid var(--border);background:#fafafa">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Justificació del compliment de l'exigència</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Tipus de drenatge</label>
+          <select class="proj-inp" id="hs5_tipo_drenaje" onchange="updateHS5Display()" style="width:100%;padding:6px">
+            <option value="">-- Selecciona --</option>
+            <option value="descendent">Descendent per gravetat (connectat a xarxa pública)</option>
+            <option value="ascendent">Ascendent amb bombeig (si no té pendent natural)</option>
+            <option value="hibrida">Mixta (part gravetat + part bombeig)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Sistema de tractament</label>
+          <select class="proj-inp" id="hs5_sistema_trat" onchange="updateHS5Display()" style="width:100%;padding:6px">
+            <option value="">-- Selecciona --</option>
+            <option value="publica">Connectat a xarxa pública (EDAR municipal)</option>
+            <option value="tanc_septico">Tanc sèptic + drenatge percolació</option>
+            <option value="edar_privada">EDAR privada (tractament complet)</option>
+            <option value="fossa_negra">Fossa negra (evacuació periòdica)</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--ink3);line-height:1.6;padding:8px;background:#fff;border-radius:3px;border-left:3px solid #7c9ed9">
+        <strong>Nota:</strong> HS-5 aplica a tot projecte amb evacuació d'aigües residuals. En obra nova i reforma, sempre és obligatori. Només no aplica si no hi ha fonts de generació d'aigües residuals.
+      </div>
+    </div>
+
+    <!-- SOLUCIONS POSSIBLES -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Solucions possibles (marca les que apliquin)</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="hs5_sol_descendent" onchange="updateHS5Display()">
+          <span><strong>Sistema de drenatge per gravetat</strong> (tuberia descendent directa a xarxa)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="hs5_sol_ascendent" onchange="updateHS5Display()">
+          <span><strong>Sistema de bombeig</strong> (ascendent o pressió en zones baixes)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="hs5_sol_ventilacio" onchange="updateHS5Display()">
+          <span><strong>Sistema de ventilació de la xarxa</strong> (pipes de ventilació, sifons)</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="hs5_sol_trat" onchange="updateHS5Display()">
+          <span><strong>Tractament específic</strong> (tanc sèptic, EDAR, altres sistemes)</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- CARACTERÍSTIQUES PER SOLUCIÓ -->
+    <div style="padding:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px">Característiques de les solucions tècniques</div>
+
+      <!-- DRENATGE DESCENDENT -->
+      <div id="hs5_char_descendent" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>DRENATGE PER GRAVETAT</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Sistema</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Tuberia descendent contínua<br>
+              • Sense bombes (energia gravitatòria)<br>
+              • Directa a xarxa pública (EDAR)<br>
+              • Pendent ≥ 2% per flux continu
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Requisits HS-5</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Pendent = 2-4% (no > 15%)<br>
+              • Diàmetre T.5.1 HS-5 segons cabal<br>
+              • Sifons en cada desaigua<br>
+              • Ventilació xarxa (pipes)
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Dimensionament tubs per cabal (HS-5 T.5.1)</div>
+          <table style="width:100%;border-collapse:collapse;font-size:9px">
+            <tr style="background:#f0f4ff">
+              <td style="border:1px solid #e5e7eb;padding:6px;font-weight:600">Cabal (l/s)</td>
+              <td style="border:1px solid #e5e7eb;padding:6px;font-weight:600">Diàmetre nominal</td>
+              <td style="border:1px solid #e5e7eb;padding:6px;font-weight:600">Pendent mín. (%)</td>
+            </tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px">< 0,6</td><td style="border:1px solid #e5e7eb;padding:6px">Ø 40 mm</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center">3%</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px">0,6–1,4</td><td style="border:1px solid #e5e7eb;padding:6px">Ø 50 mm</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center">2,5%</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px">1,4–2,2</td><td style="border:1px solid #e5e7eb;padding:6px">Ø 63 mm</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center">2%</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px">> 2,2</td><td style="border:1px solid #e5e7eb;padding:6px">Ø 75–100 mm</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center">2%</td></tr>
+          </table>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
+          <input class="proj-inp" placeholder="ex: Tuberia PVC descendent Ø50mm, pendent 3%, sifons en totes les desaigues, ventilació per conducte vertical" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+
+      <!-- BOMBEIG ASCENDENT -->
+      <div id="hs5_char_ascendent" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>SISTEMA DE BOMBEIG (ASCENDENT)</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Components</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Pou de bombament (decantador)<br>
+              • Bomba de sòlits (0,5-2,2 kW)<br>
+              • Tub de pressió (descàrrega)<br>
+              • Vàlvula antiretorn + seguretat<br>
+              • Control automàtic nivel
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Requisits</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Pou estanc (volum ≥ 200 l)<br>
+              • Diàmetre tub pressió ≥ Ø 25 mm<br>
+              • Potència bomba segons cabal<br>
+              • Manteniment mensual recomanat<br>
+              • Evacuació periòdica (2-3 anys)
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
+          <input class="proj-inp" placeholder="ex: Pou bombament 250L + bomba submersible 1,1kW, tub PVC Ø32mm de pressió, vàlvula antiretorn" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+
+      <!-- VENTILACIÓ XARXA -->
+      <div id="hs5_char_ventilacio" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>VENTILACIÓ DE LA XARXA</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Finalitat</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Evitar obstruccions per gasos<br>
+              • Mantenir pressió atmosfèrica<br>
+              • Evitar ruptura de sifons<br>
+              • Prevenir mal odors
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Sistemes</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Pipe de ventilació principal (Ø 50-100 mm)<br>
+              • Sifons amb desaigua de ventilació<br>
+              • Sifons de botella (en locals)<br>
+              • Válvulas anti-olor (si necessari)
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Especificacions</label>
+          <input class="proj-inp" placeholder="ex: Pipe ventilació principal Ø75mm fins a 1m sobre coberta, sifons en totes desaigues, vàlvula anti-olor en WC" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+
+      <!-- TRACTAMENT -->
+      <div id="hs5_char_trat" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>SISTEMA DE TRACTAMENT</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Tipus de tractament</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • <strong>Tanc sèptic:</strong> Decantació simple (zones rurals)<br>
+              • <strong>EDAR privada:</strong> Tractament complet (aireació + filtratge)<br>
+              • <strong>Fossa negra:</strong> Evacuació periòdica (últim recurs)
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Aplicabilitat</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Tanc sèptic: sense xarxa municipal<br>
+              • EDAR: protecció de cursos d'aigua<br>
+              • Fossa: magatzems sense WC (alt risc)
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Tanc sèptic: Dimensionament</div>
+          <div style="font-size:10px;color:var(--ink2);line-height:1.6">
+            <strong>Volum (L) = Nº ocupants × Cabal (L/dia) × Dies retencció</strong><br>
+            • Residencial: 150 L/persona/dia, retencció 3 dies → V = Nº × 150 × 3<br>
+            • Tanc mín. 1.000 L, màx. 6.000 L<br>
+            • Manteniment: svuiada cada 3-5 anys
+          </div>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
+          <input class="proj-inp" placeholder="ex: Tanc sèptic 2.000L de formigó, drenatge percolació amb geotextil, o EDAR compacta 6 hab. equivalents" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+    </div>
+
+    <!-- OBSERVACIONS -->
+    <div style="padding:14px;background:#fafafa;border-top:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Observacions i criteris especials</div>
+      <div style="font-size:9.5px;color:var(--ink2);line-height:1.7;display:flex;flex-direction:column;gap:8px">
+        <div><strong>¹ Pendent natural:</strong> Si pendent ≥ 2% fins a connexió xarxa, drenatge per gravetat. Si no, necessari bombeig ascendent.</div>
+        <div><strong>² Ventilació obligatòria:</strong> Sempre necessàries pipes ventilació per evitar ruptura sifons i mal odors. Sortida mínima 1m sobre coberta més alta 2m d'obertures.</div>
+        <div><strong>³ Xarxa municipal vs. tractament privat:</strong> Si no hi ha xarxa pública, obligatori tanc sèptic o EDAR. Fossa negra només si magatzem sense WC.</div>
+        <div><strong>⁴ Manteniment periòdic:</strong> Tanc sèptic: svuiada cada 3-5 anys. EDAR: revisió anual. Bombes ascendents: manteniment cada 6-12 mesos.</div>
+        <div><strong>⁵ Protecció medioambiental:</strong> Si curs d'aigua a <100m, obligatori EDAR (tractament complet). Consultar reglamentacions locals (Generalitat, ACA).</div>
       </div>
     </div>
   </div>
