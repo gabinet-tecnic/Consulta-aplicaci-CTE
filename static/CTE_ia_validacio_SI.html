@@ -1870,6 +1870,33 @@ function updateHSContext() {
   });
 }
 
+// ── HS-6 RADON ZONE LOGIC ──────────────────────────────────────────────────────
+function updateHS6Logic() {
+  const zona = document.getElementById('hs6_zona_select')?.value || '';
+  const barrera_i = document.getElementById('hs6_sol_barrera_i');
+  const barrera_ii = document.getElementById('hs6_sol_barrera_ii');
+  const espai = document.getElementById('hs6_sol_espai_ventilat');
+  const despres = document.getElementById('hs6_sol_despresuritzacio');
+  const despres_activa = document.getElementById('hs6_sol_despres_activa');
+
+  // Show/hide solutions based on selected zone
+  const solonaI = document.getElementById('hs6_sol_zona_i');
+  const solonaII = document.getElementById('hs6_sol_zona_ii');
+  if (solonaI) solonaI.style.display = zona === 'zona_i' ? 'block' : 'none';
+  if (solonaII) solonaII.style.display = zona === 'zona_ii' ? 'block' : 'none';
+
+  // Show/hide technical details for each selected solution
+  const detailBarrera = document.getElementById('hs6_detail_barrera');
+  const detailEspai = document.getElementById('hs6_detail_espai');
+  const detailDespres = document.getElementById('hs6_detail_despres');
+  const detailDepresActiva = document.getElementById('hs6_detail_despres_activa');
+
+  if (detailBarrera) detailBarrera.style.display = (barrera_i?.checked || barrera_ii?.checked) ? 'block' : 'none';
+  if (detailEspai) detailEspai.style.display = espai?.checked ? 'block' : 'none';
+  if (detailDespres) detailDespres.style.display = despres?.checked ? 'block' : 'none';
+  if (detailDepresActiva) detailDepresActiva.style.display = despres_activa?.checked ? 'block' : 'none';
+}
+
 // ── ENHANCE HULC REFERENCES WITH TOOLTIPS ────────────────────────────────────
 function enhanceHULCReferences() {
   const hulcTooltip = 'HULC = Herramienta Unificada Licitación. Eina oficial del Ministeri de Transports. Altres eines de càlcul certificades són acceptades.';
@@ -3101,31 +3128,6 @@ function buildFitxaHS(tipologia) {
       </div>
     </div>
   </div>
-
-  <script>
-    function updateHS6Logic() {
-      const zona = document.getElementById('hs6_zona_select')?.value || '';
-      const barrera_i = document.getElementById('hs6_sol_barrera_i');
-      const barrera_ii = document.getElementById('hs6_sol_barrera_ii');
-      const espai = document.getElementById('hs6_sol_espai_ventilat');
-      const despres = document.getElementById('hs6_sol_despresuritzacio');
-      const despres_activa = document.getElementById('hs6_sol_despres_activa');
-
-      // Mostrar/ocultar solucions segons zona
-      document.getElementById('hs6_sol_zona_i').style.display = zona === 'zona_i' ? 'block' : 'none';
-      document.getElementById('hs6_sol_zona_ii').style.display = zona === 'zona_ii' ? 'block' : 'none';
-
-      // Mostrar detalls de solucions actives
-      document.getElementById('hs6_detail_barrera').style.display =
-        (barrera_i?.checked || barrera_ii?.checked) ? 'block' : 'none';
-      document.getElementById('hs6_detail_espai').style.display = espai?.checked ? 'block' : 'none';
-      document.getElementById('hs6_detail_despres').style.display = despres?.checked ? 'block' : 'none';
-      document.getElementById('hs6_detail_despres_activa').style.display = despres_activa?.checked ? 'block' : 'none';
-    }
-
-    // Inicializar al cargar fitxa
-    setTimeout(() => updateHS6Logic(), 100);
-  </script>
 
   <div class="fitxa-foot">
     <div>
