@@ -1967,6 +1967,35 @@ function updateHS5Display() {
   if (charTrat) charTrat.style.display = solTrat ? 'block' : 'none';
 }
 
+// ── SUA SECTIONS DISPLAY LOGIC ────────────────────────────────────────────────
+function updateSUADisplay() {
+  // JUSTIFICACIÓ fields
+  const tipoInterv = document.getElementById('sua_tipo_intervencion')?.value || '';
+  const tipoEdif = document.getElementById('sua_tipo_edif')?.value || '';
+
+  // SOLUCIONS checkboxes
+  const sol1 = document.getElementById('sua_sol_1')?.checked;
+  const sol2 = document.getElementById('sua_sol_2')?.checked;
+  const sol3 = document.getElementById('sua_sol_3')?.checked;
+  const sol4 = document.getElementById('sua_sol_4')?.checked;
+  const sol7 = document.getElementById('sua_sol_7')?.checked;
+  const sol8 = document.getElementById('sua_sol_8')?.checked;
+  const sol9 = document.getElementById('sua_sol_9')?.checked;
+
+  // Show/hide sections per each SUA
+  const sec1 = document.getElementById('sua_sec_1');
+  const sec2 = document.getElementById('sua_sec_2');
+  const sec34 = document.getElementById('sua_sec_34');
+  const sec78 = document.getElementById('sua_sec_78');
+  const sec9 = document.getElementById('sua_sec_9');
+
+  if (sec1) sec1.style.display = sol1 ? 'block' : 'none';
+  if (sec2) sec2.style.display = sol2 ? 'block' : 'none';
+  if (sec34) sec34.style.display = (sol3 || sol4) ? 'block' : 'none';
+  if (sec78) sec78.style.display = (sol7 || sol8) ? 'block' : 'none';
+  if (sec9) sec9.style.display = sol9 ? 'block' : 'none';
+}
+
 // ── ENHANCE HULC REFERENCES WITH TOOLTIPS ────────────────────────────────────
 function enhanceHULCReferences() {
   const hulcTooltip = 'HULC = Herramienta Unificada Licitación. Eina oficial del Ministeri de Transports. Altres eines de càlcul certificades són acceptades.';
@@ -2461,9 +2490,78 @@ function buildFitxaSUA(tipologia) {
   <div class="proj-grid">
     <div class="pf-row wide"><span class="pf-label">Projecte / Obra</span><input class="pf-inp" placeholder="Títol del projecte"></div>
     <div class="pf-row"><span class="pf-label">Data</span><input class="pf-inp" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
-    <div class="pf-row"><span class="pf-label">Referència cadastral</span><input class="pf-inp" placeholder="RC-"></div>
+    <div class="pf-row"><span class="pf-label">Referència cadastral</span><input class="pf-inp" placeholder="ex: 08019A0001400000A0"></div>
     <div class="pf-row wide"><span class="pf-label">Tècnic redactor</span><input class="pf-inp" placeholder="Nom i titulació"></div>
     <div class="pf-row"><span class="pf-label">Núm. col·legiat</span><input class="pf-inp" placeholder="CAT-"></div>
+  </div>
+
+  <!-- JUSTIFICACIÓ DEL COMPLIMENT -->
+  <div style="padding:14px;border-bottom:1px solid var(--border);background:#fafafa">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Justificació del compliment de l'exigència</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Tipus d'intervenció</label>
+        <select class="proj-inp" id="sua_tipo_intervencion" onchange="updateSUADisplay()" style="width:100%;padding:6px">
+          <option value="">-- Selecciona --</option>
+          <option value="obra_nova">Obra nova</option>
+          <option value="reforma_total">Reforma total (totes les plantes/elements)</option>
+          <option value="reforma_parcial">Reforma parcial (elements afectats)</option>
+          <option value="canvi_uso">Canvi d'ús</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Tipus d'edifici / Ús</label>
+        <select class="proj-inp" id="sua_tipo_edif" onchange="updateSUADisplay()" style="width:100%;padding:6px">
+          <option value="">-- Selecciona --</option>
+          <option value="habitatge_unif">Habitatge unifamiliar (ús propi)</option>
+          <option value="habitatge_pluri">Habitatge plurifamiliar (ús colectiu)</option>
+          <option value="edifici_public">Edifici de pública concurrència (oficina, comerç, etc.)</option>
+          <option value="altres_usos">Altres usos</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--ink3);line-height:1.6;padding:8px;background:#fff;border-radius:3px;border-left:3px solid #7c9ed9">
+      <strong>Nota:</strong> DB-SUA aplica de manera diferent segons el tipus d'intervenció. En obra nova, aplica íntegrament. En reforma, només als elements afectats (mantenint nivell preexistent). En canvi d'ús, aplica íntegrament a la part transformada.
+    </div>
+  </div>
+
+  <!-- SOLUCIONS POSSIBLES -->
+  <div style="padding:14px;border-bottom:1px solid var(--border)">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Seccions aplicables (marca les que apliquin)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="sua_sol_1" onchange="updateSUADisplay()">
+          <span><strong>SUA-1</strong> — Risc de caiguda</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="sua_sol_2" onchange="updateSUADisplay()">
+          <span><strong>SUA-2</strong> — Risc d'impacte / enganxament</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="sua_sol_3" onchange="updateSUADisplay()">
+          <span><strong>SUA-3</strong> — Risc d'atrapament</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="sua_sol_4" onchange="updateSUADisplay()">
+          <span><strong>SUA-4</strong> — Il·luminació inadequada</span>
+        </label>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="sua_sol_7" onchange="updateSUADisplay()">
+          <span><strong>SUA-7</strong> — Vehicles en moviment</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="sua_sol_8" onchange="updateSUADisplay()">
+          <span><strong>SUA-8</strong> — Risc de llamps</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" id="sua_sol_9" onchange="updateSUADisplay()">
+          <span><strong>SUA-9</strong> — Accessibilitat (PMR)</span>
+        </label>
+      </div>
+    </div>
   </div>
 
   <div class="si-section" style="margin-bottom:18px;border-color:#c4a44a">
@@ -2490,7 +2588,7 @@ function buildFitxaSUA(tipologia) {
   </div>
 
   <!-- SUA-1 Risc de caiguda -->
-  <div class="si-section">
+  <div class="si-section" id="sua_sec_1" style="display:none">
     <div class="si-head"><span class="si-pill">SUA-1</span><span class="si-title">Seguretat enfront al risc de caiguda</span><span class="si-ref">Art. SUA 1</span></div>
     <table class="ftable"><thead><tr>
       <th>Exigència</th><th class="th-art">Ref. CTE</th>
@@ -2507,7 +2605,7 @@ function buildFitxaSUA(tipologia) {
   </div>
 
   <!-- SUA-2 Risc d'impacte -->
-  <div class="si-section">
+  <div class="si-section" id="sua_sec_2" style="display:none">
     <div class="si-head"><span class="si-pill">SUA-2</span><span class="si-title">Seguretat enfront al risc d'impacte o enganxament</span><span class="si-ref">Art. SUA 2</span></div>
     <table class="ftable"><thead><tr>
       <th>Exigència</th><th class="th-art">Ref. CTE</th>
@@ -2520,7 +2618,7 @@ function buildFitxaSUA(tipologia) {
   </div>
 
   <!-- SUA-3/4 Atrapament i Il·luminació -->
-  <div class="si-section">
+  <div class="si-section" id="sua_sec_34" style="display:none">
     <div class="si-head"><span class="si-pill">SUA-3/4</span><span class="si-title">Atrapament · Il·luminació inadequada</span><span class="si-ref">Art. SUA 3 · SUA 4</span></div>
     <table class="ftable"><thead><tr>
       <th>Exigència</th><th class="th-art">Ref. CTE</th>
@@ -2533,7 +2631,7 @@ function buildFitxaSUA(tipologia) {
   </div>
 
   <!-- SUA-7 Vehicles / SUA-8 Llamps -->
-  <div class="si-section">
+  <div class="si-section" id="sua_sec_78" style="display:none">
     <div class="si-head"><span class="si-pill">SUA-7/8</span><span class="si-title">Vehicles en moviment · Risc de llamps</span><span class="si-ref">Art. SUA 7 · SUA 8</span></div>
     <table class="ftable"><thead><tr>
       <th>Exigència</th><th class="th-art">Ref. CTE</th>
@@ -2545,7 +2643,7 @@ function buildFitxaSUA(tipologia) {
   </div>
 
   <!-- SUA-9 Accessibilitat -->
-  <div class="si-section">
+  <div class="si-section" id="sua_sec_9" style="display:none">
     <div class="si-head"><span class="si-pill">SUA-9</span><span class="si-title">Accessibilitat</span><span class="si-ref">Art. SUA 9 · RD 173/2010</span></div>
     <table class="ftable"><thead><tr>
       <th>Exigència</th><th class="th-art">Ref. CTE</th>
@@ -2575,7 +2673,7 @@ function buildFitxaSUA(tipologia) {
     <div><div style="font-size:10px;color:var(--ink3);margin-top:4px">Fitxa d'orientació tècnica. Generada per CTE·IA amb base en el model OCT del COAC.<br>Verificar sempre amb els textos oficials del CTE vigents.</div></div>
   </div>`;
 
-  setTimeout(() => changeTipologia(tip), 10);
+  setTimeout(() => { changeTipologia(tip); updateSUADisplay(); }, 10);
   return html;
 }
 
