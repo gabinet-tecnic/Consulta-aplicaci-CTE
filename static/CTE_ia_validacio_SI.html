@@ -2845,40 +2845,223 @@ function buildFitxaHS(tipologia) {
     </tbody></table>
   </div>
 
-  <!-- HS-6 Radó — ESTRUCTURA SIMPLIFICADA COAC -->
+  <!-- HS-6 Radó — ESTRUCTURA COAC DEFINITIVA -->
   <div class="si-section only-consoterrani f-hide">
     <div class="si-head"><span class="si-pill">HS-6</span><span class="si-title">Protecció enfront el radó</span><span class="si-ref">Art. HS 6 · RD 1029/2022</span></div>
 
-    <!-- TAULA PRINCIPAL SIMPLIFICADA -->
-    <table class="ftable"><thead><tr>
-      <th>Exigència</th><th class="th-art">Ref. CTE</th>
-      <th class="th-req">Valor exigit</th><th class="th-proj">Valor projecte</th><th class="th-cb">Contemplat</th>
-    </tr></thead><tbody>
-      ${row('hs6_zona','Zona de radó del solar','Consultar el mapa de zones del Consell Seguretat Nuclear (CSN)','HS 6-1 / RD 1029/2022',{all:'ZONA I (concentració ≤ 300 Bq/m³) o ZONA II (> 300 Bq/m³). Mapa: www.csn.es'},'input','Zona I o II + municipi')}
+    <!-- JUSTIFICACIÓ DEL COMPLIMENT DE L'EXIGÈNCIA -->
+    <div style="padding:14px;border-bottom:1px solid var(--border);background:#fafafa">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Justificació del compliment de l'exigència</div>
 
-      ${row('hs6_barrera','Barrera de radó — Solución básica','Membrana contínua en solera i murs soterrani. Obligatori a ZONA I i ZONA II.','HS 6-2',{all:'Membrana polietilè ≥ 0,5 mm (o equivalent continu). Segellat perimetral, juntes i penetracions. Tubs/canalitzacions segellats individualment.'},'check','')}
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Municipal*</label>
+          <input class="proj-inp" placeholder="ex: Tiàna" style="width:100%">
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Zona</label>
+          <select class="proj-inp" id="hs6_zona_selector" onchange="updateHS6Display()" style="width:100%;padding:6px">
+            <option value="">-- Selecciona --</option>
+            <option value="zona_i">ZONA I (≤300 Bq/m³)</option>
+            <option value="zona_ii">ZONA II (>300 Bq/m³)</option>
+          </select>
+        </div>
+      </div>
 
-      ${row('hs6_espai_ventilat','Espai de contenció ventilat — ZONA II','Cambra d\'aire entre barrera i locals. Alternativa a despressurització o complement.','HS 6-2.2',{all:'Alçada ≥ 0,50m. Ventilació natural (obertures ≥ 1/500 sup. solera) o mecànica (≥120 m³/h). Accés per manteniment.'},'check','')}
+      <div style="font-size:9.5px;color:var(--ink3);line-height:1.6;margin-bottom:12px;padding:8px;background:#fff;border-left:3px solid #7c9ed9;border-radius:2px">
+        <strong>*Relació de municipis inclosos a l'Apèndix B del DB-HS 6. Als municipis no inclosos en aquest apèndix no és d'aplicació.</strong><br>
+        Les solucions que caldrà adoptar al projecte corresponen a municipis situats a la ZONA II.
+      </div>
 
-      ${row('hs6_despres','Sistema de despressurització del terreny — ZONA II','Xarxa de captació + ventilador mecànic. Solució alternativa a espai ventilat.','HS 6-2.2',{all:'Xarxa sobre reflector granular (40-60mm). Ventilador: 0,5-1,0 kW. Conducte d\'extracció DN≥100mm prolongat 1m sobre coberta. Pressió negativa: -5 a -10 Pa.'},'check','')}
+      <div style="font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:8px">Les solucions que caldrà adoptar al projecte corresponen a municipis situats a la ZONA II.</div>
 
-      ${row('hs6_locals_nohabitables','Locals no habitables (trasters, aparcaments, locals tècnics, etc.)','Només si NO compleixen HS-3 de ventilació. Si HS-3 OK → sense mesures adicionals.','HS 6 + HS 3',{all:'Verificar HS-3 primer. Si ventilació natural/mecànica JA existeix i compleix HS-3 → cap mesura adicional. Si no → aplicar barrera de radó o despressurització.'},'check','')}
+      <!-- SOLUCIONS POSSIBLES PER ZONA -->
+      <div id="hs6_sol_zona_i" style="display:none;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:600;background:#fffbec;padding:8px;border-radius:3px;margin-bottom:8px">Per a ZONA I (concentració baixa)</div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2)">
+          <input type="checkbox" id="hs6_sol_barrera_i" onchange="updateHS6Display()">
+          <span>☐ <strong>Barrera de protecció</strong> — o bé</span>
+        </label>
+      </div>
 
-      ${row('hs6_mesurament','Mesurament post-construcció obligatori','Test de concentració de radó 2-3 mesos post-obra. Si > 300 Bq/m³ → activar despressurització activa.','HS 6 / RD 1029/2022, Annex I',{all:'Estança de respiració de ≥70 m³ amb finestres tancades. Durada mínima 2 setmanes. Laboratori acreditat. Si result > 300 Bq/m³ → mesures correctores obligatòries.'},'check','')}
-    </tbody></table>
+      <div id="hs6_sol_zona_ii" style="display:none">
+        <div style="font-size:10px;font-weight:600;background:#fff0eb;padding:8px;border-radius:3px;margin-bottom:8px">Per a ZONA II (múltiples opcions)</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2)">
+            <input type="checkbox" id="hs6_sol_barrera_ii" onchange="updateHS6Display()">
+            <span>☐ <strong>Barrera de protecció</strong> — i també</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2)">
+            <input type="checkbox" id="hs6_sol_espai_ventilat" onchange="updateHS6Display()">
+            <span>☐ <strong>Cambra d'aire ventilada</strong> — o bé</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2)">
+            <input type="checkbox" id="hs6_sol_despres" onchange="updateHS6Display()">
+            <span>☐ <strong>Sistema de despressurització del terreny</strong></span>
+          </label>
+        </div>
+      </div>
+    </div>
 
-    <!-- OBSERVACIONS CLAU -->
+    <!-- CARACTERÍSTIQUES DE LES SOLUCIONS TÈCNIQUES PREVISTES -->
+    <div style="padding:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px">Característiques de les solucions tècniques previstes</div>
+
+      <!-- BARRERA DE PROTECCIÓ -->
+      <div id="hs6_char_barrera" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>BARRERA DE PROTECCIÓ</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Ubicació</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">Està col·locada entre el terreny i els locals habitables de l'edifici.</div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Requisits</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Té continuïtat: juntes, trobades, elements travessants<br>
+              • No té fissures que permetin pas del radó per convecció<br>
+              • Segellat perimetral: cinta d'estanqueïtat
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Justificació o valor calculat</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+            <div>
+              <label style="display:block;font-size:9px;color:var(--ink3);margin-bottom:2px">D = <input class="proj-inp" placeholder="-10" style="width:50px;padding:4px;text-align:center"> m²/s</label>
+            </div>
+            <div>
+              <label style="display:block;font-size:9px;color:var(--ink3);margin-bottom:2px">d = <input class="proj-inp" placeholder="2" style="width:50px;padding:4px;text-align:center"> mm</label>
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--ink3);margin-top:6px">La barrera no es calcula, ja que és una làmina amb D ≈ -10 m²/s i d = 2 mm</div>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte (tipus de membrana)</label>
+          <input class="proj-inp" placeholder="ex: Membrana polietilè PVC 0,5 mm, membranes tipus llàmina, etc." style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+
+      <!-- ESPAI DE CONTENCIÓ VENTILAT -->
+      <div id="hs6_char_espai" style="display:none;margin-bottom:16px;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>ESPAI DE CONTENCIÓ VENTILAT</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Ubicació</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">Entre la barrera i els locals habitables de l'edifici.</div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Requisits</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Cambra d'aire: horizontal o vertical, comunicada exterior<br>
+              • Ventilació natural mínima: obertures ≥ 1/500 sup. solera<br>
+              • O ventilació mecànica: ≥ 120 m³/h
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;padding:10px;background:#f9fafb;border-radius:3px">
+          <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:8px">Dimensionament</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <label style="display:flex;flex-direction:column;font-size:9px">
+              <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Cambra d'aire (m)</span>
+              <input class="proj-inp" placeholder="0,50" style="padding:4px;font-size:10px">
+            </label>
+            <label style="display:flex;flex-direction:column;font-size:9px">
+              <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Superfície ventilació natural mínima (cm²)</span>
+              <input class="proj-inp" placeholder="" style="padding:4px;font-size:10px">
+            </label>
+          </div>
+        </div>
+
+        <!-- LOCALS NO HABITABLES DINS ESPAI VENTILAT -->
+        <div style="padding:10px;background:#fff0eb;border-radius:3px;border-left:3px solid #e8956a;margin-bottom:12px">
+          <div style="font-size:9px;font-weight:700;color:#8b3a12;text-transform:uppercase;margin-bottom:6px">✓ <strong>Local no habitable amb ventilació natural o mecànica</strong></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <label style="display:flex;flex-direction:column;font-size:9px">
+              <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Tipus de ventilació</span>
+              <select class="proj-inp" style="padding:4px;font-size:10px">
+                <option>-- Selecciona --</option>
+                <option>Natural (obertures)</option>
+                <option>Mecànica (120 m³/h)</option>
+              </select>
+            </label>
+            <label style="display:flex;flex-direction:column;font-size:9px">
+              <span style="color:var(--ink3);font-weight:600;margin-bottom:2px">Superfície (m²)</span>
+              <input class="proj-inp" placeholder="" style="padding:4px;font-size:10px">
+            </label>
+          </div>
+          <div style="font-size:9px;color:var(--ink3);line-height:1.5">
+            <strong>Criteri aplicació:</strong> Els locals no-habitables (trasters, aparcaments, locals tècnics) NO requereixen mesures especials HS-6 si JA compleixen HS-3. Si ventilació HS-3 insuficient → aplicar despressurització.
+          </div>
+        </div>
+
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
+          <input class="proj-inp" placeholder="ex: Cambra sanitària amb ventilació natural al pati interior" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+
+      <!-- SISTEMA DE DESPRESSURITZACIÓ -->
+      <div id="hs6_char_despres" style="display:none;border-top:2px solid #7c9ed9;padding:12px 0">
+        <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:#1e3a6e">✓ <strong>SISTEMA DE DESPRESSURITZACIÓ DEL TERRENY *</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Components</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Xarxa de captació instal·lada sobre el reflector granular<br>
+              • Conducte d'extracció connectat a un conducte vertical mecànic<br>
+              • Ventilador mecànic<br>
+              • Prolongació conducte 1m sobre coberta
+            </div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Requisits</div>
+            <div style="font-size:10px;color:var(--ink2);line-height:1.5">
+              • Penetrant solera i parets contacte terreny<br>
+              • Sistema captació amb xarxa tubular<br>
+              • Conducte d'extracció DN≥100mm<br>
+              • Ventilador mecànic permanent
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px;background:#f9fafb;border-radius:3px">
+          <label style="display:block;font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;margin-bottom:6px">Valor projecte</label>
+          <input class="proj-inp" placeholder="ex: Ventilador 750W, conducte PVC Ø125mm, pressió negativa -5 Pa" style="width:100%;padding:6px;font-size:10px">
+        </div>
+      </div>
+    </div>
+
+    <!-- OBSERVACIONS I CRITERIS D'APLICACIÓ -->
     <div style="padding:14px;background:#fafafa;border-top:1px solid var(--border)">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Observacions i criteris d'aplicació</div>
-      <div style="font-size:10px;color:var(--ink2);line-height:1.8;display:flex;flex-direction:column;gap:8px">
-        <div><strong>¹ Zones:</strong> Zona I = barrera bàsica obligatòria. Zona II = barrera + (espai ventilat O despressurització) = lliure elecció.</div>
-        <div><strong>² Locals no-habitables:</strong> Trasters, aparcaments, locals tècnics, magatzems NO requereixen mesures especials HS-6 si JA compleixen ventilació HS-3. Si ventilació HS-3 insuficient → aplicar barrera o despressurització.</div>
-        <div><strong>³ Compatibilitat:</strong> Els sistemes es poden combinar (ex: barrera + espai ventilat + despressurització simultàniament per Zona II d\'alt risc).</div>
-        <div><strong>⁴ Mesurament obliga:</strong> RD 1029/2022 obliga a mesurar post-construcció. Si concentració > 300 Bq/m³ → instal·lar sistema despressurització activa (temporal o permanent).</div>
-        <div><strong>⁵ Manteniment:</strong> Sistemes mecànics (ventilador, conductes) inspeccions anuals + neteja cada 2 anys.</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Observacions i criteris d'aplicació</div>
+      <div style="font-size:9px;color:var(--ink2);line-height:1.7;display:flex;flex-direction:column;gap:8px">
+        <div><strong>(1)</strong> El valor de l'exhalació limit de la barrera (E) es determina de la barrera (E), la conductiva de despressurització del radó (D), la longitud de la barrera (C) · Veure taula 6.2 DB HS-6.</div>
+        <div><strong>(2)</strong> El valor de l'exhalació limit (E) es determina per la concentració de referència (C), que és un 10% del nivel de referència (300 Bq/m³), i el cabal de recorregut per la superficie.</div>
+        <div><strong>(3)</strong> Total de l'espaiat: les espais de continguts ZONA I no poden seguir sol a través dels materials actsius especificats. Veure DB HS 6, part 4, capítol 2: Detalls del reforçament sistemes d'evacuació.</div>
+        <div><strong>(4)</strong> Total de l'espaiat, queda com horizontal, coberta inicial al seu perímetre total, La cámara de ventilació natural és de (1), la longitud de ventilació natural és de (1), en la seva part superior, queden els altres camins, si més tracta compostions verticals.</div>
+        <div><strong>(5)</strong> Altres mètodes de control o sistemes subjectes a ventilació necessària especialment per DB HS 3 o en la sua part anterior, quelcom en d'altre observacions a causa de referència a la especificació del Pas estructural.</div>
+        <div><strong>(6)</strong> Els locals d'execució és asseguran l'especificació de l'Apartat 3.2.1 del DB HS 6 o Clausulat d'altres observacions, successió en d'altre referència a la especificació del Pas estructural.</div>
+        <div><strong>(7)</strong> En aquest apartat, es podran indicar les soluciones complementàries de protecció contra el radó d'iduacció al projecte, estudi i informe.</div>
       </div>
     </div>
   </div>
+
+  <script>
+    function updateHS6Display() {
+      const zona = document.getElementById('hs6_zona_selector')?.value || '';
+      document.getElementById('hs6_sol_zona_i').style.display = zona === 'zona_i' ? 'block' : 'none';
+      document.getElementById('hs6_sol_zona_ii').style.display = zona === 'zona_ii' ? 'block' : 'none';
+
+      const barrI = document.getElementById('hs6_sol_barrera_i')?.checked;
+      const barrII = document.getElementById('hs6_sol_barrera_ii')?.checked;
+      const espai = document.getElementById('hs6_sol_espai_ventilat')?.checked;
+      const despres = document.getElementById('hs6_sol_despres')?.checked;
+
+      document.getElementById('hs6_char_barrera').style.display = barrI || barrII ? 'block' : 'none';
+      document.getElementById('hs6_char_espai').style.display = espai ? 'block' : 'none';
+      document.getElementById('hs6_char_despres').style.display = despres ? 'block' : 'none';
+    }
+  </script>
 
   <div class="fitxa-foot">
     <div>
