@@ -1967,6 +1967,15 @@ function updateHS5Display() {
   if (charTrat) charTrat.style.display = solTrat ? 'block' : 'none';
 }
 
+// ── SI-1 COMPARTIMENTACIÓ DISPLAY LOGIC ────────────────────────────────────
+function updateSI1Display() {
+  const tipoInterv = document.getElementById('si1_tipo_interv')?.value || '';
+  const tipoEdif = document.getElementById('si1_tipo_edif')?.value || '';
+
+  // Lógica dinàmica: mostrar límits de sector segons ús
+  // (En aquesta fase, només es guarden els valors per a ús futur)
+}
+
 // ── SI-3 EVACUACIÓ DISPLAY LOGIC ────────────────────────────────────────────
 function updateSI3Display() {
   const alturaDesc = parseFloat(document.getElementById('si3_altura_desc')?.value || 0);
@@ -2179,27 +2188,241 @@ function buildFitxaSI(tipologia) {
   <div class="si-section">
     <div class="si-head">
       <span class="si-pill">SI-1</span>
-      <span class="si-title">Propagació interior</span>
-      <span class="si-ref">Art. SI 1</span>
+      <span class="si-title">Propagació interior · Compartimentació en sectors d'incendi</span>
+      <span class="si-ref">Art. SI 1 (CTE 2025) — Taula 1.1 / 1.2</span>
     </div>
-    <table class="ftable">
-      <thead><tr>
-        <th>Exigència</th>
-        <th class="th-art">Ref. CTE</th>
-        <th class="th-req">Valor exigit</th>
-        <th class="th-proj">Valor / observació projecte</th>
-              </tr></thead>
-      <tbody>
-        ${row('si1_sectors','Nombre de sectors d\'incendi previstos','Indicar nombre total de sectors en l\'edifici','SI 1-1',{all:'Indicar nº sectors'},'input','nº sectors')}
-        ${row('si1_sup_unif','Superfície construïda del sector principal','Habitatge unifamiliar: sector únic (sense limitació de superfície per a ús Residencial Habitatge en unifamiliars)','SI 1-1, T.1.1',{all:'Sector únic (sense limitació)'},'input','m² total','unifamiliar')}
-        ${row('si1_sup_pluri','Superfície màxima de cada sector d\'incendi','Ús Residencial Habitatge en edifici plurifamiliar','SI 1-1, T.1.1',{all:'≤ 2.500 m² per sector'},'input','m² sector major','plurifamiliar')}
-        ${row('si1_sup_terc','Superfície màxima de cada sector d\'incendi','Veure T.1.1 en funció de l\'ús específic','SI 1-1, T.1.1',{all:'Veure T.1.1 segons ús'},'input','m² i ús','terciari')}
-        ${row('si1_ei_sector','Resistència al foc de les parets, sostres i forjats que delimiten sectors','Entre sectors o entre habitatge i zona de risc especial','SI 1-1.3, T.1.2',{unifamiliar:'No exigit entre plantes del mateix habitatge. Sí si hi ha garatge adossat (EI-120 garatge risc mig)',plurifamiliar:'EI-60 entre habitatges / EI-60 entre habitatge i zona comú',terciari:'Veure T.1.2 en funció de l\'ús i h evacuació'},'input','EI-')}
-        ${row('si1_portes','Resistència al foc de les portes de pas entre sectors','Portes tallafocs entre sectors d\'incendi o zones de risc especial','SI 1-1.3, T.1.3',{unifamiliar:'EI₂45-C5 (porta a garatge risc baix) / EI₂60-C5 (garatge risc mig)',plurifamiliar:'EI₂30-C5 entre habitatge i escala no protegida / EI₂60-C5 entre sectors',terciari:'Veure T.1.3 en funció de l\'ús'},'input','EI-')}
-        ${row('si1_risc_esp','Locals de risc especial: garatge / sala de calderes / altres','Indicar superfície i classificació del risc (baix/mig/alt). Condicions: Risc BAIX → R-90, EI-90, porta EI₂45-C5, rec. ≤25m · Risc MIG → R-120, EI-120, vestíbul, portes 2×EI₂30-C5, rec. ≤25m. Reacció parets B-s1,d0; terres B_FL-s1 (risc mig).','SI 1-2, T.2.1',{unifamiliar:'Aparcament unifamiliar: qualsevol cas → Risc BAIX · Trasters: 50–100 m² Risc BAIX · Magatzem residus: 5–15 m² Risc BAIX, 15–30 m² Risc MIG · Sala caldera 70–200 kW: Risc BAIX · Magatzem combustible sòlid ≤3 m² Risc BAIX',plurifamiliar:'Garatge col·lectiu S >100 m²: sector independent (sense límit, EI-120) · Trasters 50–100 m²: Risc BAIX · 100–500 m²: Risc MIG · Sala caldera 70–200 kW: Risc BAIX · Magatzem residus: 5–15 m² Risc BAIX, 15–30 m² Risc MIG',terciari:'Veure T.2.1 · Cuines >50kW, tallers, magatzems de residus, locals tècnics, sales de grup electrogen, etc.'},'input','tipus, superfície i risc')}
-        ${row('si1_ocultes','Espais ocults: pas d\'instal·lacions a través d\'elements de compartimentació','Registres, passamurs, safates de cables, conductes','SI 1-3.3',{all:'Registres registrables amb EI ≥ resistència de l\'element travessat. Conductes: comportes tallafocs EI-t (segons taula 3.1).'},'check','')}
-      </tbody>
-    </table>
+
+    <!-- JUSTIFICACIÓ DEL COMPLIMENT -->
+    <div style="padding:14px;border-bottom:1px solid var(--border);background:#fafafa">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Justificació del compliment de l'exigència</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Tipus d'intervenció</label>
+          <select id="si1_tipo_interv" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:3px" onchange="updateSI1Display()">
+            <option value="">-- Selecciona --</option>
+            <option value="obra_nova">Obra nova</option>
+            <option value="reforma_total">Reforma total (elements afectats sense reduir seguretat)</option>
+            <option value="reforma_parcial">Reforma parcial (elements específics afectats)</option>
+            <option value="canvi_uso">Canvi d'ús</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Ús principal de l'edifici</label>
+          <select id="si1_tipo_edif" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:3px" onchange="updateSI1Display()">
+            <option value="">-- Selecciona --</option>
+            <option value="residencial_unif">Residencial habitatge (unifamiliar)</option>
+            <option value="residencial_pluri">Residencial habitatge (plurifamiliar)</option>
+            <option value="administrativo">Administratiu</option>
+            <option value="comercial">Comercial</option>
+            <option value="docente">Docent</option>
+            <option value="hospitalario">Hospitalari</option>
+            <option value="publica_conc">Pública concurrència</option>
+            <option value="almacen">Almacén / Magatzem</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAULA DE COMPARTIMENTACIÓ (CTE Taula 1.1) -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Superfície máxima per sector d'incendi (CTE Taula 1.1)</div>
+      <table class="ftable" style="font-size:11px">
+        <thead><tr>
+          <th style="width:140px">Ús de l'edifici</th>
+          <th style="width:120px">Límit sector (m²)</th>
+          <th style="width:150px">Observacions / Excepcions</th>
+          <th class="th-proj">Valor projecte</th>
+        </tr></thead>
+        <tbody>
+          <tr class="only-unifamiliar">
+            <td><strong>Residencial Habitatge</strong><br>(Unifamiliar)</td>
+            <td style="text-align:center;font-weight:600">Sin límite</td>
+            <td>Sector únic admit sense limitació de superfície per a ús Residencial</td>
+            <td><input class="proj-inp" type="text" placeholder="ex: 1 sector, 650m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td><strong>Residencial Habitatge</strong><br>(Plurifamiliar)</td>
+            <td style="text-align:center;font-weight:600">≤ 2.500</td>
+            <td>Entre viviendas: EI-60 · Entre vivienda-zonas comunes: EI-60</td>
+            <td><input class="proj-inp" type="text" placeholder="ex: 2 sectores, 1.200m² c/u" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Administratiu</strong></td>
+            <td style="text-align:center;font-weight:600">≤ 2.500</td>
+            <td>Sector único si ≤2.500m² · Múltiples si >2.500m²</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Comercial</strong></td>
+            <td style="text-align:center;font-weight:600">2.500 / 10.000¹</td>
+            <td>¹ 10.000m² si protegit amb extinció automática y h_evac ≤ 10m</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Docent</strong></td>
+            <td style="text-align:center;font-weight:600">4.000 / ninguno</td>
+            <td>≤4.000m² si >1 planta · Sin límite si planta única</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Hospitalari</strong></td>
+            <td style="text-align:center;font-weight:600">1.500 / 2.500</td>
+            <td>Hospitalización: 2 sectores mín de 1.500m² c/u · Otros: ≤2.500m²</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Pública Concurrència</strong></td>
+            <td style="text-align:center;font-weight:600">2.500+¹</td>
+            <td>¹ Cines/teatres/museos: >2.500m² si EI-120, acceso restringido</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Aparcament</strong></td>
+            <td style="text-align:center;font-weight:600">Sector indep.</td>
+            <td>Debe ser sector de incendio diferenciado si está integrado en edificio</td>
+            <td><input class="proj-inp" type="text" placeholder="sector independiente" style="width:100%"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TAULA DE RESISTÈNCIA AL FOC DELS SEPARADORS (CTE Taula 1.2) -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Resistència al foc dels elements separadors (CTE Taula 1.2)</div>
+      <table class="ftable" style="font-size:10px">
+        <thead><tr>
+          <th>Element</th>
+          <th>Ubicació / Separació</th>
+          <th style="width:100px">Res. Foc Requi</th>
+          <th class="th-proj">Valor projecte</th>
+        </tr></thead>
+        <tbody>
+          <tr class="only-unifamiliar">
+            <td rowspan="2"><strong>Parets /Forjats</strong></td>
+            <td>Entre plantes (mateix sector)</td>
+            <td style="text-align:center;font-weight:600">—</td>
+            <td><input class="proj-inp" type="text" placeholder="no exigit" style="width:100%"></td>
+          </tr>
+          <tr class="only-unifamiliar">
+            <td>Entre habitatge—garatge adossat (risc mig)</td>
+            <td style="text-align:center;font-weight:600">EI-120</td>
+            <td><input class="proj-inp" type="text" placeholder="EI-120" style="width:100%"></td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td rowspan="2"><strong>Parets /Forjats</strong></td>
+            <td>Entre viviendas (diferentes sector)</td>
+            <td style="text-align:center;font-weight:600">≥ EI-60</td>
+            <td><input class="proj-inp" type="text" placeholder="EI-60 min" style="width:100%"></td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td>Entre vivienda—zonas comunes</td>
+            <td style="text-align:center;font-weight:600">≥ EI-60</td>
+            <td><input class="proj-inp" type="text" placeholder="EI-60 min" style="width:100%"></td>
+          </tr>
+          <tr>
+            <td rowspan="2"><strong>Portes</strong></td>
+            <td>Paso entre sectores (general)</td>
+            <td style="text-align:center;font-weight:600">EI₂30-C5</td>
+            <td><input class="proj-inp" type="text" placeholder="EI₂30-C5" style="width:100%"></td>
+          </tr>
+          <tr>
+            <td>Acceso a garaje/locals risc especial</td>
+            <td style="text-align:center;font-weight:600">EI₂45/60-C5</td>
+            <td><input class="proj-inp" type="text" placeholder="según risc" style="width:100%"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:var(--ink3);margin-top:6px">¹ EI = pareja tiempo-aislamiento · C5 = cierre automático · Subíndice 2: reducción 50% en altura y ancho puerta ≤2,46m</div>
+    </div>
+
+    <!-- TAULA DE LOCALS DE RISC ESPECIAL (CTE Taula 2.1) -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Locals de risc especial (CTE Taula 2.1) — Clasificación y especificaciones</div>
+      <table class="ftable" style="font-size:10px">
+        <thead><tr>
+          <th style="width:130px">Local / Zona</th>
+          <th style="width:80px">Nivel Riesgo</th>
+          <th>Requisitos (R / EI / Puerta / Recorrido)</th>
+          <th class="th-proj">Observaciones proyecto</th>
+        </tr></thead>
+        <tbody>
+          <tr class="only-unifamiliar">
+            <td><strong>Aparcament unifamiliar</strong></td>
+            <td style="text-align:center;background:#e6ffe6"><strong>BAIX</strong></td>
+            <td>R-90 · EI-90 · Porta EI₂45-C5 · Recorregut ≤25m</td>
+            <td><input class="proj-inp" type="text" placeholder="ex: 18m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-unifamiliar f-hide">
+            <td><strong>Trasters</strong></td>
+            <td style="text-align:center;background:#e6ffe6"><strong>BAIX</strong></td>
+            <td>Si 50–100m²: R-90, EI-90, porta EI₂30-C5</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-unifamiliar f-hide">
+            <td><strong>Magatzem combustible / residus</strong></td>
+            <td style="text-align:center;background:#fff8e6"><strong>BAIX / MIG</strong></td>
+            <td>≤5m²: BAIX (R-90) · 5–15m²: BAIX · 15–30m²: MIG (R-120)</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td><strong>Aparcament col·lectiu</strong></td>
+            <td style="text-align:center;background:#ffe6e6"><strong>MIG</strong></td>
+            <td>Si >100m²: sector independent, EI-120, vestíbul 2×EI₂30-C5</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td><strong>Sala de calderes / equipos</strong></td>
+            <td style="text-align:center;background:#e6ffe6"><strong>BAIX</strong></td>
+            <td>70–200 kW: R-90, EI-90, porta EI₂30-C5, reacció parets B-s1,d0</td>
+            <td><input class="proj-inp" type="text" placeholder="potència" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Cuina / lloc cuina</strong></td>
+            <td style="text-align:center;background:#ffe6e6"><strong>MIG / ALT</strong></td>
+            <td>>50 kW: risc MIG (R-120, EI-120) · Porta EI₂45-C5 · Reacció B-s1,d0</td>
+            <td><input class="proj-inp" type="text" placeholder="kW" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Magatzem residus / reciclatge</strong></td>
+            <td style="text-align:center;background:#fff8e6"><strong>MIG</strong></td>
+            <td>R-120, EI-120, porta EI₂45-C5, reacció B-s1,d0 parets / BFL-s1 terres</td>
+            <td><input class="proj-inp" type="text" placeholder="m²" style="width:100%"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:var(--ink3);margin-top:6px">BAIX: R-90, EI-90 · MIG: R-120, EI-120 · ALT: R-180, EI-180 (casos especiales)</div>
+    </div>
+
+    <!-- ESPAIS OCULTS I INSTAL·LACIONS -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Espais ocults i pas de instal·lacions (CTE SI 1-3)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" style="width:16px;height:16px">
+          <span><strong>Registres accessibles</strong><br><span style="font-size:9px;color:var(--ink3)">Resistència ≥ element travessat</span></span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" style="width:16px;height:16px">
+          <span><strong>Conductes / canals</strong><br><span style="font-size:9px;color:var(--ink3)">Comportes tallafocs EI-t</span></span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" style="width:16px;height:16px">
+          <span><strong>Passamurs / penetraciones</strong><br><span style="font-size:9px;color:var(--ink3)">Segellades i resistent al foc</span></span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+          <input type="checkbox" style="width:16px;height:16px">
+          <span><strong>Espais entre forjats</strong><br><span style="font-size:9px;color:var(--ink3)">Obturats o separats per sectors</span></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- OBSERVACIONS -->
+    <div style="padding:14px">
+      <div class="pf-label" style="margin-bottom:8px">Observacions i justificació de la compartimentació</div>
+      <textarea style="width:100%;height:80px;border:1px solid var(--border);border-radius:4px;padding:8px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical" placeholder="Descripció dels sectors, ubicació, materials de separació, justificació de límits de superfície..."></textarea>
+      <div style="font-size:9px;color:var(--ink3);margin-top:6px">¹ Obra nova: aplicable a tots els elements · Reforma: només els afectats (mantenint seguretat preexistent) · Canvi ús: aplicable a la part transformada</div>
+    </div>
+
   </div>
 
   <!-- ── SI-2 Propagació exterior ── -->
