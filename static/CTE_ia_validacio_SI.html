@@ -1967,6 +1967,15 @@ function updateHS5Display() {
   if (charTrat) charTrat.style.display = solTrat ? 'block' : 'none';
 }
 
+// ── SI-3 EVACUACIÓ DISPLAY LOGIC ────────────────────────────────────────────
+function updateSI3Display() {
+  const alturaDesc = parseFloat(document.getElementById('si3_altura_desc')?.value || 0);
+  const alturaAsc = parseFloat(document.getElementById('si3_altura_asc')?.value || 0);
+
+  // Lógica dinàmica: mostrar advertències segons altura evacuació
+  // (En aquesta fase, només es guarden els valors per a ús futur)
+}
+
 // ── SUA SECTIONS DISPLAY LOGIC ────────────────────────────────────────────────
 function updateSUADisplay() {
   // JUSTIFICACIÓ fields
@@ -2220,137 +2229,252 @@ function buildFitxaSI(tipologia) {
     <div class="si-head">
       <span class="si-pill">SI-3</span>
       <span class="si-title">Evacuació d'ocupants</span>
-      <span class="si-ref">Art. SI 3</span>
+      <span class="si-ref">Art. SI 3 (CTE 2025)</span>
     </div>
 
-    <!-- Taula càlcul d'ocupació (model COAC) -->
-<div style="padding:10px 14px 0">
-  <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Càlcul de l'ocupació · CTE DB SI 3</div>
-  <table class="ftable" style="margin-bottom:10px">
-    <thead><tr>
-      <th style="width:160px">Ús previst</th>
-      <th style="width:130px">Zona</th>
-      <th style="width:110px">Densitat d'ocupació (m²/persona)</th>
-      <th style="width:100px">Superfície útil (m²)</th>
-      <th style="width:90px">Ocupació P = sup/densitat</th>
-    </tr></thead>
-    <tbody>
-      <tr>
-        <td>Residencial habitatge</td>
-        <td>Plantes d'habitatge</td>
-        <td style="text-align:center;font-weight:600">20</td>
-        <td><input class="proj-inp" type="number" placeholder="m² útils"></td>
-        <td><input class="proj-inp" type="number" placeholder="persones"></td>
-      </tr>
-      <tr class="only-unifamiliar f-hide">
-        <td>Aparcament unifamiliar</td>
-        <td>Aparcament</td>
-        <td style="text-align:center;font-weight:600">40</td>
-        <td><input class="proj-inp" type="number" placeholder="m²"></td>
-        <td><input class="proj-inp" type="number" placeholder="persones"></td>
-      </tr>
-      <tr class="only-plurifamiliar only-terciari f-hide">
-        <td>Aparcament col·lectiu</td>
-        <td>Aparcament</td>
-        <td style="text-align:center;font-weight:600">40</td>
-        <td><input class="proj-inp" type="number" placeholder="m²"></td>
-        <td><input class="proj-inp" type="number" placeholder="persones"></td>
-      </tr>
-      <tr>
-        <td>Ocupació nul·la</td>
-        <td style="font-size:10px;color:var(--ink3)">Trasters, locals instal·lacions, neteja, etc.</td>
-        <td style="text-align:center;color:var(--ink3)">—</td>
-        <td><input class="proj-inp" type="number" placeholder="m²"></td>
-        <td style="text-align:center;color:var(--ink3)">0</td>
-      </tr>
-      <tr class="only-terciari f-hide">
-        <td>Altres usos</td>
-        <td><input class="proj-inp" type="text" placeholder="ús específic"></td>
-        <td><input class="proj-inp" type="number" placeholder="m²/p (T.2.1)"></td>
-        <td><input class="proj-inp" type="number" placeholder="m²"></td>
-        <td><input class="proj-inp" type="number" placeholder="persones"></td>
-      </tr>
-      <tr style="background:#f3f4f6;font-weight:700">
-        <td colspan="3" style="text-align:right;font-size:11px;padding-right:14px">TOTAL EDIFICI</td>
-        <td><input class="proj-inp" type="number" placeholder="m² total" style="font-weight:700"></td>
-        <td><input class="proj-inp" type="number" placeholder="persones" style="font-weight:700"></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+    <!-- JUSTIFICACIÓ DEL COMPLIMENT -->
+    <div style="padding:14px;border-bottom:1px solid var(--border);background:#fafafa">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Justificació del compliment de l'exigència</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Alçada d'evacuació (descendent)</label>
+          <input class="proj-inp" id="si3_altura_desc" type="number" placeholder="meters" style="width:100%;padding:6px" onchange="updateSI3Display()">
+          <div style="font-size:9px;color:var(--ink3);margin-top:4px">Diferència cota planta més alta — sortida edifici</div>
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:4px">Altura evacuació ascendent (si aplica)</label>
+          <input class="proj-inp" id="si3_altura_asc" type="number" placeholder="meters" style="width:100%;padding:6px" onchange="updateSI3Display()">
+          <div style="font-size:9px;color:var(--ink3);margin-top:4px">Altura que ocupants han de pujar per arribar a sortida</div>
+        </div>
+      </div>
+    </div>
 
-    <table class="ftable">
-      <thead><tr>
-        <th>Exigència</th><th class="th-art">Ref. CTE</th>
-        <th class="th-req">Valor exigit</th><th class="th-proj">Valor / observació projecte</th>
-              </tr></thead>
-      <tbody>
-        ${row('si3_oc_hab','Ocupació de càlcul (habitatge)','Nombre de persones que s\'utilitzen per al dimensionament de les vies d\'evacuació','SI 3, T.2.1',{unifamiliar:'20 m²/persona (ús Residencial Habitatge) → indicar: superfície útil / 20',plurifamiliar:'20 m²/persona per habitatge. Escales: suma d\'ocupants de les plantes servides',terciari:'Veure T.2.1 per a l\'ús específic (ex: Administratiu = 10 m²/p, Comercial = 1-5 m²/p)'},'input','persones (càlcul)')}
-        ${row('si3_sortides','Nombre de sortides del sector o de la planta','Sortides de planta / sortides d\'edifici','SI 3-3, T.3.1',{unifamiliar:'1 sortida d\'edifici (ocupació ≤ 100 persones, recorregut ≤ 25m)',plurifamiliar:'≥ 1 sortida de planta si ocupació ≤ 100 p. ≥ 2 sortides de planta si > 100 p. o h_evac > 28m',terciari:'≥ 2 sortides si ocupació > 50 persones o superfície > 500 m²'},'input','nº sortides')}
-        ${row('si3_recorregut','Longitud màxima dels recorreguts d\'evacuació fins a una sortida','Mesurar recorregut real per les zones de circulació','SI 3-3, T.3.1',{unifamiliar:'≤ 25 m amb 1 sortida / ≤ 35 m si h_evac ≤ 28m i ocupació ≤ 100 p.',plurifamiliar:'≤ 25 m fins escala o sortida (residencial) · ≤ 50 m si hi ha 2 sortides alternatives',terciari:'≤ 25-35 m (1 sortida) / ≤ 50 m (2 sortides) · Veure T.3.1 per a cada ús'},'input','m (recorregut màxim)')}
-        ${row('si3_alçada_evac','Alçada d\'evacuació de l\'edifici','Diferència de cota entre el forjat de la planta més alta amb ocupació i la sortida de l\'edifici','SI 3',{all:'Indicar: h_evac = ? m · Determina les exigències d\'escala protegida i resistència al foc (SI-6)'},'input','m (h evacuació)')}
-        ${row('si3_escala_tip','Tipus d\'escala exigida','En funció de l\'alçada d\'evacuació','SI 3-5, T.5.1',{unifamiliar:'Escala NO protegida admesa (h_evac ≤ 14m habitatge unifamiliar)',plurifamiliar:'h_evac ≤ 14m: NO protegida · 14 < h_evac ≤ 28m: PROTEGIDA · h_evac > 28m: ESP. PROTEGIDA',terciari:'h_evac ≤ 10m: NO protegida · 10-28m: PROTEGIDA · >28m: ESP. PROTEGIDA (o dues protegides)'},'input','tipus escala')}
-        ${row('si3_amplada_esc','Amplada mínima de l\'escala d\'evacuació','Amplada lliure de la projecció de la caixa d\'escala','SI 3-4, T.4.1',{unifamiliar:'≥ 0,80 m (habitatge unifamiliar ocupació ≤ 10 persones)',plurifamiliar:'≥ 1,00 m (edifici residencial). Escala protegida: A ≥ P/160 (P = persones que evacuen per l\'escala)',terciari:'≥ 1,00 m general. A ≥ P/160 en escala protegida. A ≥ P/80 en esp. protegida'},'input','m amplada')}
-        ${row('si3_amplada_pas','Amplada mínima de portes i passadissos de recorreguts d\'evacuació','Portes situades en recorreguts d\'evacuació','SI 3-4',{all:'Portes: ≥ 0,80 m amplada de pas (0,90 m fulla) · Passadissos: ≥ 1,00 m · Portes de sortida d\'edifici: ≥ 0,80 m'},'input','m (indicar cada element)')}
-        ${row('si3_senyalitzacio','Senyalització de les sortides i dels recorreguts d\'evacuació','Rètols d\'evacuació, d\'emergència i de sortida de planta','SI 3-7',{all:'Senyals conformes a UNE 23034: "Sortida", "Sortida d\'emergència", fletxes indicadores de recorregut. Fotoliminiscents si no hi ha il·luminació natural.'},'check','')}
-        ${row('si3_refugi','Zones de refugi (edificis amb ús per a PMR)','Per a evacuació ascendent en edificis amb plantes sobre rasant servides per ascensor','SI 3-9',{unifamiliar:'No s\'exigeix',plurifamiliar:'Si h_evac > 14m i l\'edifici disposa d\'ascensor: zona de refugi d\'1 m² per cada 100 ocupants de PMR en cada planta d\'evacuació ascendent',terciari:'Si h_evac > 14m: zona de refugi per a PMR en cada planta.'},'check','')}
-      </tbody>
-    </table>
-
-    <!-- Disseny dels elements d'evacuació (model COAC SI 3.4 / SI 3.6) -->
-    <div style="padding:0 14px 14px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:12px 0 6px">Disseny dels elements d'evacuació · SI 3.4 / SI 3.6</div>
-      <table class="ftable">
+    <!-- TAULA DE DENSITATS D'OCUPACIÓ (CTE Taula 2.1) -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Càlcul de l'ocupació (CTE Taula 2.1)</div>
+      <table class="ftable" style="font-size:11px">
         <thead><tr>
-          <th style="width:120px">Element</th>
-          <th style="width:120px">Paràmetre</th>
-          <th>Valor exigit</th>
-          <th class="th-proj" style="width:140px">Valor projecte</th>
-                  </tr></thead>
+          <th style="width:140px">Ús / Zona</th>
+          <th style="width:90px">Densitat (m²/pers)</th>
+          <th style="width:80px">Superfície (m²)</th>
+          <th style="width:80px">Ocupació</th>
+        </tr></thead>
         <tbody>
-          <tr>
-            <td rowspan="3"><strong>Portes</strong><div class="ex-note">Sortida habitatge, aparcament i locals de risc</div></td>
-            <td>Tipus</td>
-            <td><span class="req-val">Batents amb eix de gir vertical. Dispositiu de fàcil obertura des del costat d'evacuació (maneta o polsador, UNE-EN 179)</span></td>
-            <td><input class="proj-inp" type="text" placeholder="tipus porta"></td>
-                      </tr>
-          <tr>
-            <td>Amplada mínima</td>
-            <td><span class="req-val">≥ 0,80 m · 1 fulla: 0,80 ≤ A ≤ 1,23 m · 2 fulles: 0,60 ≤ A fulla ≤ 1,23 m</span></td>
-            <td><input class="proj-inp" type="text" placeholder="m amplada"></td>
-                      </tr>
-          <tr>
-            <td>Sentit d'obertura</td>
-            <td><span class="req-val">Sense requisits per seguretat en cas d'incendi (SI). Verificar DB SUA.</span></td>
-            <td><input class="proj-inp" type="text" placeholder="sentit"></td>
-                      </tr>
-          <tr>
-            <td><strong>Passadissos</strong></td>
-            <td>Amplada mínima</td>
-            <td><span class="req-val">≥ 1,00 m · ≥ 0,80 m si ocupació ≤ 10 persones usuaris habituals</span></td>
-            <td><input class="proj-inp" type="text" placeholder="m amplada"></td>
-                      </tr>
-          <tr class="only-unifamiliar f-hide">
-            <td><strong>Escala no protegida</strong><div class="ex-note">Ús restringit habitatge unif.</div></td>
-            <td>Amplada mínima</td>
-            <td><span class="req-val">≥ 0,80 m (ús restringit, ocupació ≤ 10 p.) · ≥ 1,00 m (cas general). Graons: condicions DB SUA 1.4.1</span></td>
-            <td><input class="proj-inp" type="text" placeholder="m amplada"></td>
-                      </tr>
+          <tr class="only-unifamiliar">
+            <td><strong>Residencial habitatge</strong> (unifamiliar)</td>
+            <td style="text-align:center;font-weight:600">20</td>
+            <td><input class="proj-inp" type="number" placeholder="m² útils" style="width:100%"></td>
+            <td><input class="proj-inp" type="number" placeholder="pers" style="width:100%"></td>
+          </tr>
           <tr class="only-plurifamiliar only-terciari f-hide">
-            <td><strong>Escala protegida</strong><div class="ex-note">Si h_evac &gt; 14m</div></td>
-            <td>Amplada mínima</td>
-            <td><span class="req-val">≥ 1,00 m · A ≥ P/160 (P = persones que evacuen) · Vestíbul d'independència. Parets EI-120, portes EI₂60-C5</span></td>
-            <td><input class="proj-inp" type="text" placeholder="m amplada"></td>
-                      </tr>
+            <td><strong>Residencial habitatge</strong> (plurifamiliar)</td>
+            <td style="text-align:center;font-weight:600">20</td>
+            <td><input class="proj-inp" type="number" placeholder="m² útils" style="width:100%"></td>
+            <td><input class="proj-inp" type="number" placeholder="pers" style="width:100%"></td>
+          </tr>
+          <tr class="only-unifamiliar f-hide">
+            <td><strong>Aparcament</strong> (unifamiliar)</td>
+            <td style="text-align:center;font-weight:600">40</td>
+            <td><input class="proj-inp" type="number" placeholder="m²" style="width:100%"></td>
+            <td><input class="proj-inp" type="number" placeholder="pers" style="width:100%"></td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td><strong>Aparcament</strong> (col·lectiu)</td>
+            <td style="text-align:center;font-weight:600">40</td>
+            <td><input class="proj-inp" type="number" placeholder="m²" style="width:100%"></td>
+            <td><input class="proj-inp" type="number" placeholder="pers" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td style="color:var(--ink3)"><em>Ús específic:</em><br><input class="proj-inp" type="text" placeholder="Administratiu, Comercial, etc." style="width:100%;font-size:10px"></td>
+            <td><input class="proj-inp" type="number" placeholder="m²/p" style="width:100%;font-size:10px"></td>
+            <td><input class="proj-inp" type="number" placeholder="m²" style="width:100%;font-size:10px"></td>
+            <td><input class="proj-inp" type="number" placeholder="pers" style="width:100%;font-size:10px"></td>
+          </tr>
+          <tr style="background:#f3f4f6;font-weight:700">
+            <td colspan="2" style="text-align:right;font-size:11px;padding-right:8px">TOTAL OCUPACIÓ EDIFICI</td>
+            <td colspan="2" style="text-align:center;font-size:11px"><input class="proj-inp" type="number" placeholder="persones" style="width:100%;font-weight:700"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:var(--ink3);margin-top:6px">¹ Taula 2.1 CTE SI 3-2. Arrodonir cap a l'alça. Trasters, magatzems, zones d'instal·lacions: ocupació = 0</div>
+    </div>
+
+    <!-- TAULA DE SORTIDES I RECORREGUTS (CTE Taula 3.1) -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Número de sortides i recorreguts de evacuació (CTE Taula 3.1)</div>
+      <table class="ftable" style="font-size:10px">
+        <thead><tr>
+          <th>Condicions</th>
+          <th style="width:80px">Nº Sortides Mín</th>
+          <th style="width:90px">Recorregut Máx (m)</th>
+          <th style="width:90px">Valor projecte</th>
+        </tr></thead>
+        <tbody>
+          <tr style="background:#f0f4ff">
+            <td><strong>UNA SORTIDA ÚNICA</strong><br>• Ocupació ≤ 100 pers<br>• Recorregut ≤ 25m (o 35m aparcament)</td>
+            <td style="text-align:center;font-weight:600">1</td>
+            <td style="text-align:center;font-weight:600">25<br>(35 aprc)</td>
+            <td><input class="proj-inp" type="text" placeholder="ex: 18m OK" style="width:100%"></td>
+          </tr>
           <tr>
-            <td><strong>Vestíbul d'independència</strong></td>
-            <td>Compartimentació</td>
-            <td><span class="req-val">Parets EI-120 · Portes 2×EI₂30-C5 · Distància entre portes ≥ 0,50 m · Reacció: parets B-s1,d0; terres C<sub>FL</sub>-s1</span></td>
-            <td><input class="proj-inp" type="text" placeholder="si escau"></td>
-                      </tr>
+            <td><strong>MÚLTIPLES SORTIDES</strong><br>• Ocupació > 100 pers OR h_evac > 28m<br>• Recorregut fins alternativa ≤ 50m</td>
+            <td style="text-align:center;font-weight:600">2+</td>
+            <td style="text-align:center;font-weight:600">50</td>
+            <td><input class="proj-inp" type="text" placeholder="ex: 2 sortides" style="width:100%"></td>
+          </tr>
+          <tr style="background:#fff8f0;font-size:9px">
+            <td colspan="4"><strong>NOTES:</strong> ¹ Altura evac ascendent máx 10m · ² Protecció escala requerida si h>28m · ³ Ampliació 25% si instal·lació autom. extinció</td>
+          </tr>
         </tbody>
       </table>
     </div>
+
+    <!-- TAULA DE TIPUS D'ESCALA PER ALÇADA (CTE Taula 5.1) -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Tipus d'escala requerida segons alçada evacuació (CTE Taula 5.1)</div>
+      <table class="ftable" style="font-size:11px">
+        <thead><tr>
+          <th>Tipologia / Ús</th>
+          <th>h_evac ≤ 10m</th>
+          <th>10m < h_evac ≤ 28m</th>
+          <th>h_evac > 28m</th>
+        </tr></thead>
+        <tbody>
+          <tr class="only-unifamiliar">
+            <td><strong>Unifamiliar</strong></td>
+            <td style="text-align:center;background:#e6ffe6">NO protegida ✓</td>
+            <td style="text-align:center;background:#fffbec">Protegida ⚠</td>
+            <td style="text-align:center;background:#ffe6e6">ESP. protegida ✗</td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td><strong>Plurifamiliar</strong></td>
+            <td style="text-align:center;background:#e6ffe6">NO protegida ✓</td>
+            <td style="text-align:center;background:#fffbec">Protegida ⚠</td>
+            <td style="text-align:center;background:#ffe6e6">ESP. protegida (2+) ✗</td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Terciari / Públic</strong></td>
+            <td style="text-align:center;background:#e6ffe6">NO protegida ✓</td>
+            <td style="text-align:center;background:#fffbec">Protegida ⚠</td>
+            <td style="text-align:center;background:#ffe6e6">ESP. protegida ✗</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TAULA DIMENSIONS ESCALES (CTE Taula 4.1) -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Amplada mínima de les escales (CTE Taula 4.1)</div>
+      <table class="ftable" style="font-size:11px">
+        <thead><tr>
+          <th style="width:150px">Tipus escala</th>
+          <th>Ocupació / Fórmula</th>
+          <th style="width:100px">Amplada Mín</th>
+          <th class="th-proj">Valor projecte</th>
+        </tr></thead>
+        <tbody>
+          <tr class="only-unifamiliar">
+            <td><strong>Escala interior</strong><br>(ús restringit)</td>
+            <td>Ocupació ≤ 10 pers</td>
+            <td style="text-align:center;font-weight:600">0,80 m</td>
+            <td><input class="proj-inp" type="number" step="0.05" placeholder="m" style="width:100%"></td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td><strong>Escala general</strong><br>(zones comunes)</td>
+            <td>Ocupació > 10 pers<br>A ≥ P/160</td>
+            <td style="text-align:center;font-weight:600">1,00 m</td>
+            <td><input class="proj-inp" type="number" step="0.05" placeholder="m" style="width:100%"></td>
+          </tr>
+          <tr class="only-plurifamiliar f-hide">
+            <td><strong>Escala protegida</strong></td>
+            <td>Requerida si h > 14m<br>A ≥ P/160</td>
+            <td style="text-align:center;font-weight:600">≥1,00 m</td>
+            <td><input class="proj-inp" type="number" step="0.05" placeholder="m" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Escala NO protegida</strong></td>
+            <td>Ocupació escala<br>A ≥ P/80</td>
+            <td style="text-align:center;font-weight:600">1,00 m</td>
+            <td><input class="proj-inp" type="number" step="0.05" placeholder="m" style="width:100%"></td>
+          </tr>
+          <tr class="only-terciari f-hide">
+            <td><strong>Escala PROTEGIDA</strong></td>
+            <td>Si h > 10m (terciari)<br>A ≥ P/160</td>
+            <td style="text-align:center;font-weight:600">1,00 m</td>
+            <td><input class="proj-inp" type="number" step="0.05" placeholder="m" style="width:100%"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:var(--ink3);margin-top:6px">¹ P = ocupació escala · A = amplada lliure · Fórmula: A (m) = P (pers) / 160 (NO protegida) o / 80 (ESP. protegida)</div>
+    </div>
+
+    <!-- TAULA PORTES I PASSADISSOS -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Amplada mínima d'elements de pas (CTE SI 3-4 / SI 3-6)</div>
+      <table class="ftable" style="font-size:11px">
+        <thead><tr>
+          <th style="width:120px">Element</th>
+          <th>Ubicació / Ús</th>
+          <th style="width:100px">Amplada Mín</th>
+          <th style="width:100px">Valor projecte</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Portes</strong></td>
+            <td>Recorreguts evacuació (habitatge, aparcament, locals)</td>
+            <td style="text-align:center;font-weight:600">0,80 m</td>
+            <td><input class="proj-inp" type="text" placeholder="ex: 0,85 OK" style="width:100%"></td>
+          </tr>
+          <tr>
+            <td><strong>Portals sortida</strong></td>
+            <td>Sortida edifici (principal i secundaria)</td>
+            <td style="text-align:center;font-weight:600">0,80 m</td>
+            <td><input class="proj-inp" type="text" placeholder="ex: 1,00 OK" style="width:100%"></td>
+          </tr>
+          <tr>
+            <td><strong>Passadissos</strong></td>
+            <td>Recorreguts d'evacuació</td>
+            <td style="text-align:center;font-weight:600">1,00 m</td>
+            <td><input class="proj-inp" type="text" placeholder="ex: 1,10 OK" style="width:100%"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SENYALITZACIÓ I CONTROL FUMS -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Senyalització, il·luminació i control de fums (CTE SI 3-7 / SI 3-8)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer;margin-bottom:8px">
+            <input type="checkbox" style="width:16px;height:16px">
+            <span><strong>Senyals evacuació</strong><br><span style="font-size:9px;color:var(--ink3)">UNE 23034: "Sortida", "Sortida emergència"</span></span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer;margin-bottom:8px">
+            <input type="checkbox" style="width:16px;height:16px">
+            <span><strong>Fotoliminiscents</strong><br><span style="font-size:9px;color:var(--ink3)">Si no hi ha il·luminació natural</span></span>
+          </label>
+        </div>
+        <div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer;margin-bottom:8px">
+            <input type="checkbox" style="width:16px;height:16px">
+            <span><strong>Control de fums</strong><br><span style="font-size:9px;color:var(--ink3)">Si escala protegida o esp. protegida</span></span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2);cursor:pointer">
+            <input type="checkbox" style="width:16px;height:16px">
+            <span><strong>Portes autoferrant</strong><br><span style="font-size:9px;color:var(--ink3)">UNE-EN 179 (fàcil obertura)</span></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- OBSERVACIONS -->
+    <div style="padding:14px;border-bottom:1px solid var(--border)">
+      <div class="pf-label" style="margin-bottom:8px">Observacions i criteris aplicats</div>
+      <textarea style="width:100%;height:80px;border:1px solid var(--border);border-radius:4px;padding:8px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical" placeholder="Anotacions sobre disseny evacuació, justificació de solucions, referència a plànols..."></textarea>
+      <div style="font-size:9px;color:var(--ink3);margin-top:6px">¹ Ocupació = superfície ÷ densitat (Taula 2.1) · ² Escala protegida si h > 14m (unifamiliar/plurifamiliar) o h > 10m (terciari) · ³ Recorreguts augmentables 25% si sist. autom. extinció</div>
+    </div>
+
   </div>
 
   <!-- ── SI-4 Instal·lacions PCI ── -->
